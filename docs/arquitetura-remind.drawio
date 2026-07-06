@@ -1,0 +1,97 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="remind-v1" name="Arquitetura v1">
+    <mxGraphModel dx="1660" dy="920" grid="0" pageWidth="1800" pageHeight="960" background="#ffffff">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="lane1" value="Cliente" style="swimlane;horizontal=0;startSize=110;fillColor=#f5f5f5;strokeColor=#d5d5d5;html=1;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="1740" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="user" value="Usuario&#xa;ate 10 pessoas" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#152033;" vertex="1" parent="lane1">
+          <mxGeometry x="120" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="lane2" value="App Web Next.js" style="swimlane;horizontal=0;startSize=110;fillColor=#e8f4f8;strokeColor=#b7d3de;html=1;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="150" width="1740" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="login_ui" value="Tela de login" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7da2b8;fontColor=#152033;" vertex="1" parent="lane2">
+          <mxGeometry x="120" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="dashboard_ui" value="Painel&#xa;projetos e filtros" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7da2b8;fontColor=#152033;" vertex="1" parent="lane2">
+          <mxGeometry x="300" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="project_ui" value="Detalhe do projeto&#xa;e edicao de tarefa" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7da2b8;fontColor=#152033;" vertex="1" parent="lane2">
+          <mxGeometry x="480" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="reminders_ui" value="Lembretes&#xa;in-app" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7da2b8;fontColor=#152033;" vertex="1" parent="lane2">
+          <mxGeometry x="660" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="lane3" value="Backend Integrado" style="swimlane;horizontal=0;startSize=110;fillColor=#fff0e6;strokeColor=#e5c7ae;html=1;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="300" width="1740" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="auth" value="Autenticacao&#xa;por sessao" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;fontColor=#152033;" vertex="1" parent="lane3">
+          <mxGeometry x="120" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="actions" value="Acoes e rotas&#xa;do servidor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;fontColor=#152033;" vertex="1" parent="lane3">
+          <mxGeometry x="300" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="service" value="Servico de dominio&#xa;projetos e tarefas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;fontColor=#152033;" vertex="1" parent="lane3">
+          <mxGeometry x="480" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="reminder_engine" value="Sincronizacao de&#xa;lembretes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;fontColor=#152033;" vertex="1" parent="lane3">
+          <mxGeometry x="660" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="lane4" value="Dados" style="swimlane;horizontal=0;startSize=110;fillColor=#e8f5e9;strokeColor=#c2dbbf;html=1;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="450" width="1740" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="postgres" value="PostgreSQL" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;fillColor=#ffffff;strokeColor=#82b366;fontColor=#152033;" vertex="1" parent="lane4">
+          <mxGeometry x="300" y="40" width="100" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="tables" value="users&#xa;sessions&#xa;projects&#xa;tasks&#xa;reminders" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontColor=#152033;" vertex="1" parent="lane4">
+          <mxGeometry x="480" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="lane5" value="Escopo da v1" style="swimlane;horizontal=0;startSize=110;fillColor=#fff9e6;strokeColor=#e3d297;html=1;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="600" width="1740" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="scope" value="Sem email, push ou WhatsApp&#xa;Sem colaboracao avancada" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;fontColor=#152033;" vertex="1" parent="lane5">
+          <mxGeometry x="120" y="45" width="220" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1A1A1A;endArrow=block;endFill=1;" edge="1" source="user" target="login_ui" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" value="usa" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1A1A1A;endArrow=block;endFill=1;" edge="1" source="user" target="dashboard_ui" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" value="envia credenciais" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1A1A1A;endArrow=block;endFill=1;" edge="1" source="login_ui" target="auth" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4" value="sessao" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1A1A1A;endArrow=block;endFill=1;" edge="1" source="auth" target="postgres" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e5" value="operacoes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1A1A1A;endArrow=block;endFill=1;" edge="1" source="dashboard_ui" target="actions" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6" value="CRUD" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1A1A1A;endArrow=block;endFill=1;" edge="1" source="project_ui" target="actions" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e7" value="aplica filtros" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1A1A1A;endArrow=block;endFill=1;" edge="1" source="actions" target="service" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e8" value="persiste" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1A1A1A;endArrow=block;endFill=1;" edge="1" source="service" target="postgres" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e9" value="modelo" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1A1A1A;endArrow=block;endFill=1;" edge="1" source="postgres" target="tables" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e10" value="gera e limpa" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1A1A1A;endArrow=block;endFill=1;" edge="1" source="service" target="reminder_engine" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e11" value="le" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1A1A1A;endArrow=block;endFill=1;" edge="1" source="reminders_ui" target="actions" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e12" value="consulta reminders" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1A1A1A;endArrow=block;endFill=1;" edge="1" source="reminder_engine" target="postgres" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
