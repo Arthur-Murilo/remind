@@ -1,7 +1,11 @@
+import { Suspense } from "react";
 import Link from "next/link";
 
-import { logoutAction } from "@/server/actions";
+import { AppNav } from "@/components/app-nav";
+import { ProjectNav } from "@/components/project-nav";
+import { logoutAction, createProjectAction } from "@/server/actions";
 import { requireCurrentUser } from "@/server/auth";
+import { getProjects, getReminders } from "@/server/remind-service";
 
 function getInitials(name: string) {
   return name
@@ -14,6 +18,7 @@ function getInitials(name: string) {
 
 export default async function AppLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const user = await requireCurrentUser();
+  const [projects, reminders] = await Promise.all([getProjects(user.id), getReminders(user.id)]);
   const initials = getInitials(user.name) || "R";
 
   return (
@@ -24,28 +29,42 @@ export default async function AppLayout({ children }: Readonly<{ children: React
           <span className="brand-name">remind</span>
         </Link>
 
-        <nav className="nav-group" aria-label="Navegacao principal">
-          <Link className="nav-link active" href="/app">
-            Meu dia
-          </Link>
-          <a className="nav-link" href="#projects">
-            Projetos
-          </a>
-          <a className="nav-link" href="#reminders">
-            Lembretes
-          </a>
-        </nav>
+        <Suspense fallback={<nav className="nav-group" aria-label="Navegacao principal" />}>
+          <AppNav reminderCount={reminders.length} />
+        </Suspense>
+
+        <div className="nav-label">Projetos</div>
+        <div className="sidebar-projects" aria-label="Projetos">
+          <ProjectNav projects={projects} />
+
+          <details className="inline-create">
+            <summary>+ Novo projeto</summary>
+            <form action={createProjectAction} className="form-grid">
+              <div className="field">
+                <label htmlFor="sidebar-project-name">Nome</label>
+                <input id="sidebar-project-name" name="name" required placeholder="Ex.: Produto pessoal" />
+              </div>
+              <div className="field">
+                <label htmlFor="sidebar-project-description">Descricao</label>
+                <textarea id="sidebar-project-description" name="description" placeholder="Objetivo resumido" />
+              </div>
+              <button className="button compact" type="submit">
+                Criar
+              </button>
+            </form>
+          </details>
+        </div>
 
         <div className="sidebar-foot">
-          <span>Workspace pessoal</span>
+          <span className="muted">Workspace pessoal</span>
         </div>
       </aside>
 
       <div className="shell-main">
         <header className="topbar">
           <div className="topbar-title">
-            <span>Workspace pessoal</span>
-            <strong>Meu dia</strong>
+            <strong>remind</strong>
+            <span className="topbar-meta">Workspace pessoal</span>
           </div>
 
           <details className="user-menu">

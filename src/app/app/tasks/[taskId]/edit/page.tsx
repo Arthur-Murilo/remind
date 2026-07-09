@@ -20,77 +20,83 @@ export default async function EditTaskPage({ params }: EditTaskPageProps) {
   }
 
   return (
-    <div className="page-grid">
-      <section className="hero">
+    <div className="issues-view">
+      <div className="issues-toolbar">
         <div>
-          <Link className="link-button" href={`/app/projects/${task.projectId}`}>
+          <h1>Editar tarefa</h1>
+          <p className="muted" style={{ margin: "4px 0 0" }}>
+            {task.title}
+          </p>
+        </div>
+        <div className="issues-toolbar-actions">
+          <Link className="button-ghost compact" href={`/app/projects/${task.projectId}`}>
             Voltar ao projeto
           </Link>
-          <h1 style={{ marginTop: 8 }}>Editar tarefa</h1>
-          <p className="muted">Ajuste status, prioridade, prazo e vínculo com projeto.</p>
         </div>
-      </section>
+      </div>
 
-      <section className="panel" style={{ maxWidth: 860 }}>
-        <form action={updateTaskAction} className="form-grid">
-          <input type="hidden" name="taskId" value={task.id} />
+      <div className="page-section">
+        <section className="form-panel">
+          <form action={updateTaskAction} className="form-grid">
+            <input type="hidden" name="taskId" value={task.id} />
 
-          <div className="field">
-            <label htmlFor="projectId">Projeto</label>
-            <select id="projectId" name="projectId" defaultValue={task.projectId}>
-              {projects.map((project) => (
-                <option key={project.id} value={project.id}>
-                  {project.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="field">
-            <label htmlFor="title">Título</label>
-            <input id="title" name="title" defaultValue={task.title} required />
-          </div>
-
-          <div className="field">
-            <label htmlFor="description">Descrição</label>
-            <textarea id="description" name="description" defaultValue={task.description || ""} />
-          </div>
-
-          <div className="form-row">
             <div className="field">
-              <label htmlFor="status">Status</label>
-              <select id="status" name="status" defaultValue={task.status}>
-                <option value="todo">A fazer</option>
-                <option value="in_progress">Em andamento</option>
-                <option value="done">Concluída</option>
+              <label htmlFor="projectId">Projeto</label>
+              <select id="projectId" name="projectId" defaultValue={task.projectId}>
+                {projects.map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.name}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div className="field">
-              <label htmlFor="priority">Prioridade</label>
-              <select id="priority" name="priority" defaultValue={task.priority}>
-                <option value="high">Alta</option>
-                <option value="medium">Média</option>
-                <option value="low">Baixa</option>
-              </select>
+              <label htmlFor="title">Titulo</label>
+              <input id="title" name="title" defaultValue={task.title} required />
             </div>
-          </div>
 
-          <div className="field">
-            <label htmlFor="dueDate">Prazo</label>
-            <input id="dueDate" name="dueDate" type="date" defaultValue={task.dueDate || ""} />
-          </div>
+            <div className="field">
+              <label htmlFor="description">Descricao</label>
+              <textarea id="description" name="description" defaultValue={task.description || ""} />
+            </div>
 
-          <div className="actions">
-            <button className="button" type="submit">
-              Salvar alterações
-            </button>
-            <Link className="button-secondary" href={`/app/projects/${task.projectId}`}>
-              Cancelar
-            </Link>
-          </div>
-        </form>
-      </section>
+            <div className="form-row">
+              <div className="field">
+                <label htmlFor="status">Status</label>
+                <select id="status" name="status" defaultValue={task.status}>
+                  <option value="todo">A fazer</option>
+                  <option value="in_progress">Em andamento</option>
+                  <option value="done">Concluida</option>
+                </select>
+              </div>
+
+              <div className="field">
+                <label htmlFor="priority">Prioridade</label>
+                <select id="priority" name="priority" defaultValue={task.priority}>
+                  <option value="high">Alta</option>
+                  <option value="medium">Media</option>
+                  <option value="low">Baixa</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="field">
+              <label htmlFor="dueDate">Prazo</label>
+              <input id="dueDate" name="dueDate" type="date" defaultValue={task.dueDate || ""} />
+            </div>
+
+            <div className="actions">
+              <button className="button" type="submit">
+                Salvar
+              </button>
+              <Link className="button-secondary" href={`/app/projects/${task.projectId}`}>
+                Cancelar
+              </Link>
+            </div>
+          </form>
+        </section>
+      </div>
     </div>
   );
 }

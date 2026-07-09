@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { loginAction } from "@/server/actions";
@@ -28,11 +27,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     <main className="auth-wrap">
       <section className="auth-card">
         <div className="brand">
-          <div className="brand-mark">R</div>
+          <div className="brand-mark">r</div>
           <div className="brand-name">remind</div>
-          <p className="brand-copy">
-            Gestão interna de projetos, tarefas, filtros operacionais e lembretes visíveis no próprio app.
-          </p>
+          <p className="brand-copy">Projetos, tarefas e lembretes no mesmo lugar.</p>
         </div>
 
         {error ? <div className="error-box">{decodeURIComponent(error)}</div> : null}
@@ -40,12 +37,19 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <form action={loginAction} className="form-grid">
           <div className="field">
             <label htmlFor="email">Email</label>
-            <input id="email" name="email" type="email" required placeholder="voce@remind.local" />
+            <input id="email" name="email" type="email" required placeholder="voce@remind.local" autoComplete="email" />
           </div>
 
           <div className="field">
             <label htmlFor="password">Senha</label>
-            <input id="password" name="password" type="password" required placeholder="Sua senha" />
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              placeholder="Sua senha"
+              autoComplete="current-password"
+            />
           </div>
 
           <button className="button" type="submit">
@@ -54,12 +58,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </form>
 
         <div className="muted">
-          Credenciais iniciais podem ser geradas com <code>npm run db:seed</code>.
+          Credenciais iniciais: <code>npm run db:seed</code>.
         </div>
-
-        <Link className="link-button" href="https://nextjs.org/docs">
-          Referência técnica do runtime
-        </Link>
       </section>
     </main>
   );

@@ -13,6 +13,7 @@
 - A autenticação da v1 será simples, baseada em sessão.
 - O escopo inicial cobre projetos, tarefas, filtros e lembretes in-app.
 - Não haverá envio de email, push, WhatsApp ou colaboração avançada nesta fase.
+- UI autenticada em tema escuro, direção visual Linear Issues (lista densa, projetos na sidebar, sem rail de cards).
 
 ## Prioridades Atuais
 

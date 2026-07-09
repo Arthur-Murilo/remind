@@ -3,26 +3,26 @@
 ## Tarefa Atual
 
 ### Tarefa
-Reformular a interface inicial do `remind` para uma experiencia mais minimalista.
+Reformular a interface do `remind` para linguagem visual Linear Issues (tema escuro).
 
 ### Objetivo
-Reduzir a carga visual da dashboard, mover o usuario para o topo direito, deixar a sidebar mais limpa e aproximar a experiencia de um app individual moderno de tarefas/projetos.
+Aplicar o brief confirmado (direção B): dark mode Restrained, lista densa tipo Issues, projetos na sidebar, sem rail de cards; cobrir shell, Meu dia, projeto, edição e login.
 
 ### Subtarefas
-- [concluida] Revisar shell, sidebar e topo do app.
-- [concluida] Simplificar a primeira tela do painel operacional.
-- [concluida] Reorganizar projetos, filtros, tarefas e lembretes com menos ruido.
-- [concluida] Atualizar estilos globais para uma linguagem visual mais moderna e minimalista.
+- [concluida] Discovery e brief confirmados (tema escuro, direção B, escopo total).
+- [concluida] Tokens dark + globals.css.
+- [concluida] Shell/sidebar com projetos e nav ativa.
+- [concluida] Dashboard em lista Issues (sem rail direito).
+- [concluida] Páginas de projeto, edição e login.
+- [concluida] Atualizar DESIGN.md e memory.
 - [concluida] Validar TypeScript e build.
 
 ### Status
 Concluido.
 
 ### Bloqueios
-- `npm` via PowerShell exige uso de `npm.cmd`.
-- O PostgreSQL local continua fora do escopo imediato; validacao funcional com dados reais depende do banco ativo.
+- Nenhum.
 
 ### Próximos Passos
-1. Subir PostgreSQL local quando for validar a area logada com dados reais.
-2. Executar `npm.cmd run db:seed`.
-3. Rodar `npm.cmd run dev` e revisar a tela no navegador com a referencia visual que o usuario enviar.
+1. Revisar no navegador com `npm.cmd run dev` (servidor ja pode estar em :3000).
+2. Ajustes finos de densidade/copy se o usuario pedir.
