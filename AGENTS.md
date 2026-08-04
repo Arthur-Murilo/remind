@@ -58,3 +58,21 @@ O registro em `.codex/tasks.md` deve ser sempre granular, separando tarefas e su
 - Lembretes: somente leitura e exibição in-app na v1.
 - Autenticação: login simples por sessão.
 - Idioma da interface: português.
+
+## Cursor Cloud specific instructions
+
+Contexto durável para agentes rodando neste ambiente (o update script já instalou as dependências Node).
+
+### Banco de dados (PostgreSQL)
+
+- O app exige PostgreSQL acessível via `DATABASE_URL` (ver `.env`, modelado por `.env-example`). O `.env` NÃO é versionado (`.gitignore`), então recrie-o a partir do `.env-example` caso não exista.
+- Neste ambiente o Postgres é instalado como serviço do sistema (não via Docker; o `docker-compose.yml` existe mas o Docker não está presente por padrão). Ele NÃO sobe sozinho no boot; inicie manualmente com: `sudo pg_ctlcluster 16 main start`.
+- Credenciais/banco esperados pelo `.env`: usuário `postgres`, senha `postgres`, banco `remind` em `localhost:5432`. Se o banco/senha não existirem, crie-os (`ALTER USER postgres WITH PASSWORD 'postgres';` e `CREATE DATABASE remind;` via `sudo -u postgres psql`).
+- Após o Postgres estar de pé, aplique o schema e o seed: `npm run db:seed` (idempotente; também há `npm run db:init` só para schema).
+- Usuário seed para login: `arthur@remind.local` / `remind123` (ou os valores de `SEED_USER_*` no `.env`).
+
+### Rodar / verificar
+
+- Dev server: `npm run dev` (Next.js 16 + Turbopack em `http://localhost:3000`). `/` e `/app` redirecionam para `/login` sem sessão.
+- Não há script de lint/ESLint configurado; a verificação estática é `npm run typecheck` (`tsc --noEmit`). Build de produção: `npm run build`.
+- O README documenta comandos como `npm.cmd ...` porque foi escrito para PowerShell/Windows; neste ambiente Linux use `npm ...`.
