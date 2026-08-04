@@ -339,3 +339,16 @@ async function syncReminder(userId: string, taskId: string, dueDate: string | nu
           updated_at = now()
   `;
 }
+
+export async function toggleTaskStatus(userId: string, taskId: string, status: TaskStatus) {
+  const sql = db();
+  const [task] = await sql<Task[]>`
+    update tasks
+    set status = ${status}, updated_at = now()
+    where id = ${taskId} and owner_id = ${userId}
+    returning *
+  `;
+  if (task) {
+    await syncReminder(userId, taskId, task.dueDate || null, status);
+  }
+}

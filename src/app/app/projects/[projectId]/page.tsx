@@ -6,6 +6,7 @@ import { requireCurrentUser } from "@/server/auth";
 import { getTaskFilterFromSearchParams } from "@/server/filters";
 import { formatDate, priorityLabel, statusLabel } from "@/lib/format";
 import { getProjectById, getTasks } from "@/server/remind-service";
+import { TaskCheckbox } from "@/components/task-checkbox";
 
 type ProjectDetailPageProps = {
   params: Promise<{ projectId: string }>;
@@ -92,7 +93,7 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
             {tasks.length ? (
               tasks.map((task) => (
                 <article className="issue-row" key={task.id} style={{ paddingLeft: 0, paddingRight: 0 }}>
-                  <div className="issue-check" aria-hidden="true" />
+                  <TaskCheckbox taskId={task.id} projectId={task.projectId} title={task.title} initialStatus={task.status} />
                   <div className="issue-title">
                     <strong>{task.title}</strong>
                     {task.description ? <span>{task.description}</span> : null}

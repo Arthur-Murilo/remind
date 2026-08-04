@@ -24,43 +24,60 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     : resolvedSearchParams.error;
 
   return (
-    <main className="auth-wrap">
-      <section className="auth-card">
-        <div className="brand">
-          <div className="brand-mark">r</div>
-          <div className="brand-name">remind</div>
-          <p className="brand-copy">Projetos, tarefas e lembretes no mesmo lugar.</p>
-        </div>
-
-        {error ? <div className="error-box">{decodeURIComponent(error)}</div> : null}
-
-        <form action={loginAction} className="form-grid">
-          <div className="field">
-            <label htmlFor="email">Email</label>
-            <input id="email" name="email" type="email" required placeholder="voce@remind.local" autoComplete="email" />
+    <main className="auth-split">
+      <section className="auth-panel-form" aria-labelledby="auth-heading">
+        <div className="auth-form-inner">
+          <div className="auth-brand">
+            <div className="brand-mark">r</div>
+            <span className="brand-name">remind</span>
           </div>
 
-          <div className="field">
-            <label htmlFor="password">Senha</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              placeholder="Sua senha"
-              autoComplete="current-password"
-            />
-          </div>
+          <h1 id="auth-heading" className="auth-heading">
+            Entrar no remind<span className="auth-heading-accent">.</span>
+          </h1>
 
-          <button className="button" type="submit">
-            Entrar
-          </button>
-        </form>
+          {error ? <div className="error-box auth-error">{decodeURIComponent(error)}</div> : null}
 
-        <div className="muted">
-          Credenciais iniciais: <code>npm run db:seed</code>.
+          <form action={loginAction} className="auth-form">
+            <div className="auth-field">
+              <label htmlFor="email">Email</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                placeholder="voce@remind.local"
+                autoComplete="email"
+              />
+            </div>
+
+            <div className="auth-field">
+              <label htmlFor="password">Senha</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                placeholder="Sua senha"
+                autoComplete="current-password"
+              />
+            </div>
+
+            <button className="auth-submit" type="submit">
+              Entrar
+            </button>
+          </form>
+
+          <p className="auth-hint">
+            Credenciais iniciais: <code>npm run db:seed</code>
+          </p>
         </div>
       </section>
+
+      <aside className="auth-panel-visual" aria-hidden="true">
+        <div className="auth-visual-mesh" />
+        <div className="auth-visual-stars" />
+      </aside>
     </main>
   );
 }

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireCurrentUser, login, logout } from "@/server/auth";
-import { createProject, createTask, markReminderAsRead, updateTask } from "@/server/remind-service";
+import { createProject, createTask, markReminderAsRead, updateTask, toggleTaskStatus } from "@/server/remind-service";
 import { taskPriorities, taskStatuses } from "@/domain/types";
 
 function getString(formData: FormData, key: string) {
@@ -122,4 +122,18 @@ export async function markReminderAsReadAction(formData: FormData) {
   await markReminderAsRead(user.id, reminderId);
   revalidatePath("/app");
   redirect("/app");
+}
+
+export async function toggleTaskStatusAction(formData: FormData) {
+  const user = await requireCurrentUser();
+  const taskId = getString(formData, "taskId");
+  const status = getString(formData, "status");
+
+  if (!taskId || !status || !taskStatuses.includes(status as any)) {
+    return;
+  }
+
+  await toggleTaskStatus(user.id, taskId, status as any);
+  revalidatePath("/app");
+  // We can't use redirect here if we want to stay on the same page seamlessly, or we can just rely on the revalidation.
 }

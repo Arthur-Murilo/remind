@@ -3,20 +3,19 @@
 ## Tarefa Atual
 
 ### Tarefa
-Criar um PRD (Product Requirements Document) detalhado e reformular a interface para tema escuro.
+Redesign da tela de login — split-screen expressivo adaptado ao remind.
 
 ### Objetivo
-Consolidar documentação no PRD e aplicar o brief confirmado (direção B, dark mode).
+Aplicar layout split com mesh animado, constelação de pontos e CTA gradiente índigo, alinhado ao DESIGN.md sem estética de landing genérica.
 
 ### Subtarefas
-- [x] Ler e analisar codex, PRODUCT.md e DESIGN.md.
-- [x] Criar o documento `docs/PRD.md`.
-- [x] Discovery e brief confirmados (tema escuro, escopo total).
-- [x] Tokens dark + globals.css.
-- [x] Shell/sidebar com projetos e nav ativa.
-- [x] Dashboard em lista Issues, páginas de projeto, edição e login.
-- [x] Atualizar DESIGN.md e memory.
-- [x] Validar TypeScript e build.
+- [x] Sessão de grilling: direção A (expressivo adaptado), painel B + animação A.
+- [x] Reestruturar `src/app/login/page.tsx` (split form + painel visual).
+- [x] Tokens e estilos auth isolados em `globals.css`.
+- [x] Mesh animado + pontos/constelação no painel direito.
+- [x] Botão pill gradiente e inputs com glow no focus.
+- [x] Responsivo: painel visual oculto em telas ≤860px.
+- [x] Validar TypeScript e revisão visual no navegador.
 
 ### Status
 Concluído.
@@ -25,6 +24,6 @@ Concluído.
 Nenhum.
 
 ### Próximos Passos
-1. Revisar no navegador com `npm run dev` (servidor já pode estar em :3000).
-2. Ajustes finos de densidade/copy se o usuário pedir.
-3. Aguardar novas solicitações do usuário para desenvolvimento ou ajuste do PRD.
+1. Rodar `npm run typecheck`.
+2. Revisar em `http://localhost:3000/login`.
+3. Ajustes finos se o usuário pedir (copy, intensidade do mesh, etc.).

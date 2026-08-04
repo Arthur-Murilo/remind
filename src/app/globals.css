@@ -1,32 +1,36 @@
 :root {
-  --bg: #0f1012;
-  --bg-elevated: #13151a;
-  --surface: #16181d;
-  --surface-hover: #1c1f26;
-  --surface-active: #22262e;
-  --ink: #eceef2;
-  --ink-soft: #9aa3b2;
-  --ink-faint: #6b7382;
-  --line: #23262e;
-  --line-strong: #2e333d;
-  --primary: #5b6cff;
-  --primary-soft: rgba(91, 108, 255, 0.14);
-  --primary-ink: #c5cbff;
+  --bg: #0c0d0e;
+  --bg-elevated: #121417;
+  --surface: #17191d;
+  --surface-hover: #1e2127;
+  --surface-active: #252930;
+  --ink: #f0f2f5;
+  --ink-soft: #9aa1b0;
+  --ink-faint: #5e6573;
+  --line: #22252c;
+  --line-strong: #2d313b;
+  --primary: #006eee;
+  --primary-soft: rgba(0, 110, 238, 0.15);
+  --primary-ink: #7cb3ff;
   --danger: #f07178;
   --danger-soft: rgba(240, 113, 120, 0.12);
   --warn: #e2a336;
   --warn-soft: rgba(226, 163, 54, 0.12);
   --success: #3dba86;
   --success-soft: rgba(61, 186, 134, 0.12);
-  --radius: 6px;
-  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-sm: 6px;
   --sidebar-width: 244px;
   --topbar-height: 48px;
-  --font: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --shadow-menu: 0 8px 24px rgba(0, 0, 0, 0.45);
   --z-sticky: 10;
   --z-dropdown: 40;
   --z-modal: 50;
+  --auth-gradient-start: #004bb5;
+  --auth-gradient-mid: #006eee;
+  --auth-gradient-end: #5eb3ff;
+  --auth-glow: rgba(0, 110, 238, 0.35);
 }
 
 * {
@@ -760,36 +764,6 @@ code {
   font-size: 0.84rem;
 }
 
-.auth-wrap {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(91, 108, 255, 0.16), transparent 55%),
-    var(--bg);
-}
-
-.auth-card {
-  width: min(400px, 100%);
-  display: grid;
-  gap: 16px;
-  padding: 24px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--surface);
-}
-
-.auth-card .brand {
-  margin: 0 0 4px;
-  flex-wrap: wrap;
-}
-
-.auth-card .brand-copy {
-  flex-basis: 100%;
-  margin-top: 8px;
-}
-
 .error-box {
   background: var(--danger-soft);
   color: var(--danger);
@@ -891,5 +865,279 @@ code {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ——— Task Checkbox & Strikethrough ——— */
+.task-checkbox {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  margin-right: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: #ffffff;
+  padding: 0;
+  flex-shrink: 0;
+}
+.task-checkbox:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+.task-checkbox.checked {
+  background: var(--primary);
+  border-color: var(--primary);
+  animation: check-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.task-checkbox svg {
+  width: 10px;
+  height: 10px;
+}
+@keyframes check-pop {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+.issue-row:has(.task-checkbox.checked) .issue-title strong {
+  text-decoration: line-through;
+  opacity: 0.4;
+}
+.issue-row:has(.task-checkbox.checked) .issue-title span {
+  opacity: 0.25;
+}
+
+/* ——— Auth split (login) ——— */
+
+@keyframes auth-mesh-drift {
+  0% {
+    background-position: 0% 20%, 100% 80%, 50% 50%;
+  }
+  50% {
+    background-position: 100% 60%, 0% 40%, 50% 50%;
+  }
+  100% {
+    background-position: 0% 20%, 100% 80%, 50% 50%;
+  }
+}
+
+@keyframes auth-star-twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+.auth-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.auth-panel-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(32px, 6vw, 72px);
+  position: relative;
+  z-index: 1;
+}
+
+.auth-form-inner {
+  width: min(400px, 100%);
+  display: grid;
+  gap: 24px;
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-heading {
+  margin: 0;
+  font-size: clamp(1.85rem, 4vw, 2.35rem);
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.auth-heading-accent {
+  color: var(--auth-gradient-end);
+}
+
+.auth-form {
+  display: grid;
+  gap: 18px;
+}
+
+.auth-field {
+  display: grid;
+  gap: 8px;
+}
+
+.auth-field label {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.auth-field input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(12, 13, 14, 0.65);
+  color: var(--ink);
+  transition:
+    border-color 0.16s ease-out,
+    box-shadow 0.16s ease-out,
+    background 0.16s ease-out;
+}
+
+.auth-field input::placeholder {
+  color: var(--ink-faint);
+}
+
+.auth-field input:focus {
+  outline: none;
+  border-color: rgba(94, 179, 255, 0.55);
+  background: rgba(12, 13, 14, 0.85);
+  box-shadow:
+    0 0 0 1px rgba(0, 110, 238, 0.35),
+    0 0 24px rgba(0, 110, 238, 0.12);
+}
+
+.auth-submit {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 4px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(
+    105deg,
+    var(--auth-gradient-start) 0%,
+    var(--auth-gradient-mid) 48%,
+    var(--auth-gradient-end) 100%
+  );
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(0, 110, 238, 0.28);
+  transition:
+    transform 0.16s ease-out,
+    box-shadow 0.16s ease-out,
+    filter 0.16s ease-out;
+}
+
+.auth-submit:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 12px 32px rgba(0, 110, 238, 0.38);
+  transform: translateY(-1px);
+}
+
+.auth-submit:active {
+  transform: translateY(0);
+}
+
+.auth-hint {
+  margin: 0;
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.auth-error {
+  margin: 0;
+}
+
+.auth-panel-visual {
+  position: relative;
+  overflow: hidden;
+  min-height: 280px;
+}
+
+.auth-panel-visual::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    90deg,
+    var(--bg) 0%,
+    rgba(12, 13, 14, 0.92) 12%,
+    rgba(12, 13, 14, 0.45) 32%,
+    transparent 58%
+  );
+  pointer-events: none;
+}
+
+.auth-visual-mesh {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 18% 22%, rgba(0, 110, 238, 0.28), transparent 58%),
+    radial-gradient(ellipse 60% 50% at 82% 78%, rgba(94, 179, 255, 0.16), transparent 55%),
+    radial-gradient(ellipse 45% 40% at 62% 38%, rgba(0, 75, 181, 0.22), transparent 50%),
+    linear-gradient(165deg, #07080a 0%, #0c1018 45%, #0a0d12 100%);
+  background-size: 200% 200%, 200% 200%, 180% 180%, 100% 100%;
+  animation: auth-mesh-drift 20s ease-in-out infinite;
+}
+
+.auth-visual-stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(1px 1px at 28% 72%, rgba(255, 255, 255, 0.65), transparent),
+    radial-gradient(1.5px 1.5px at 44% 32%, rgba(180, 210, 255, 0.85), transparent),
+    radial-gradient(1px 1px at 58% 58%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 71% 24%, rgba(255, 255, 255, 0.75), transparent),
+    radial-gradient(1.5px 1.5px at 84% 66%, rgba(200, 225, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 92% 38%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1px 1px at 36% 48%, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1px 1px at 52% 82%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 66% 12%, rgba(255, 255, 255, 0.7), transparent);
+  animation: auth-star-twinkle 8s ease-in-out infinite;
+}
+
+@media (max-width: 860px) {
+  .auth-split {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-panel-visual {
+    display: none;
+  }
+
+  .auth-panel-form {
+    min-height: 100vh;
+    padding-inline: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-visual-mesh,
+  .auth-visual-stars {
+    animation: none;
+  }
+
+  .auth-submit:hover {
+    transform: none;
   }
 }

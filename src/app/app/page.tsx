@@ -4,6 +4,7 @@ import { formatDate, priorityLabel, statusLabel } from "@/lib/format";
 import { requireCurrentUser } from "@/server/auth";
 import { getTaskFilterFromSearchParams } from "@/server/filters";
 import { getDashboardMetrics, getProjects, getTasks } from "@/server/remind-service";
+import { TaskCheckbox } from "@/components/task-checkbox";
 
 type DashboardPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -97,7 +98,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         {tasks.length ? (
           tasks.map((task) => (
             <article className="issue-row" key={task.id}>
-              <div className="issue-check" aria-hidden="true" />
+              <TaskCheckbox taskId={task.id} projectId={task.projectId} title={task.title} initialStatus={task.status} />
               <div className="issue-title">
                 <strong>{task.title}</strong>
                 {task.description ? <span>{task.description}</span> : null}
