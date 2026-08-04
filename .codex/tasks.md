@@ -3,26 +3,28 @@
 ## Tarefa Atual
 
 ### Tarefa
-Reformular a interface do `remind` para linguagem visual Linear Issues (tema escuro).
+Criar um PRD (Product Requirements Document) detalhado e reformular a interface para tema escuro.
 
 ### Objetivo
-Aplicar o brief confirmado (direção B): dark mode Restrained, lista densa tipo Issues, projetos na sidebar, sem rail de cards; cobrir shell, Meu dia, projeto, edição e login.
+Consolidar documentação no PRD e aplicar o brief confirmado (direção B, dark mode).
 
 ### Subtarefas
-- [concluida] Discovery e brief confirmados (tema escuro, direção B, escopo total).
-- [concluida] Tokens dark + globals.css.
-- [concluida] Shell/sidebar com projetos e nav ativa.
-- [concluida] Dashboard em lista Issues (sem rail direito).
-- [concluida] Páginas de projeto, edição e login.
-- [concluida] Atualizar DESIGN.md e memory.
-- [concluida] Validar TypeScript e build.
+- [x] Ler e analisar codex, PRODUCT.md e DESIGN.md.
+- [x] Criar o documento `docs/PRD.md`.
+- [x] Discovery e brief confirmados (tema escuro, escopo total).
+- [x] Tokens dark + globals.css.
+- [x] Shell/sidebar com projetos e nav ativa.
+- [x] Dashboard em lista Issues, páginas de projeto, edição e login.
+- [x] Atualizar DESIGN.md e memory.
+- [x] Validar TypeScript e build.
 
 ### Status
-Concluido.
+Concluído.
 
 ### Bloqueios
-- Nenhum.
+Nenhum.
 
 ### Próximos Passos
-1. Revisar no navegador com `npm.cmd run dev` (servidor ja pode estar em :3000).
-2. Ajustes finos de densidade/copy se o usuario pedir.
+1. Revisar no navegador com `npm run dev` (servidor já pode estar em :3000).
+2. Ajustes finos de densidade/copy se o usuário pedir.
+3. Aguardar novas solicitações do usuário para desenvolvimento ou ajuste do PRD.
