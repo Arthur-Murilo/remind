@@ -4,8 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireCurrentUser, login, logout } from "@/server/auth";
-import { createProject, createTask, markReminderAsRead, updateTask, toggleTaskStatus } from "@/server/remind-service";
-import { taskPriorities, taskStatuses } from "@/domain/types";
+import { createProject, createTask, markReminderAsRead, updateTask, toggleTaskStatus, createSubtask, toggleSubtask, deleteSubtask, createTag, setTaskTags, createCustomStatus, createCustomPriority } from "@/server/remind-service";
+import { taskPriorities, taskStatuses, taskRecurrences } from "@/domain/types";
 
 function getString(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -60,24 +60,32 @@ export async function createTaskAction(formData: FormData) {
   const status = getString(formData, "status");
   const priority = getString(formData, "priority");
   const dueDate = getString(formData, "dueDate");
+  const recurrence = getString(formData, "recurrence") || "none";
+  const repeatSubtasks = formData.get("repeatSubtasks") === "on" || formData.get("repeatSubtasks") === "true";
+  const tagIds = formData.getAll("tagIds").map((v) => String(v));
 
   if (!projectId || !title) {
     redirect("/app");
   }
 
-  await createTask({
+  const task = await createTask({
     userId: user.id,
     projectId,
     title,
     description,
     status: taskStatuses.includes(status as (typeof taskStatuses)[number]) ? (status as (typeof taskStatuses)[number]) : "todo",
     priority: taskPriorities.includes(priority as (typeof taskPriorities)[number]) ? (priority as (typeof taskPriorities)[number]) : "medium",
-    dueDate: dueDate || null
+    dueDate: dueDate || null,
+    recurrence: taskRecurrences.includes(recurrence as any) ? (recurrence as any) : "none",
+    repeatSubtasks
   });
+
+  if (tagIds.length > 0) {
+    await setTaskTags(task.id, tagIds);
+  }
 
   revalidatePath("/app");
   revalidatePath(`/app/projects/${projectId}`);
-  redirect(`/app/projects/${projectId}`);
 }
 
 export async function updateTaskAction(formData: FormData) {
@@ -89,12 +97,15 @@ export async function updateTaskAction(formData: FormData) {
   const status = getString(formData, "status");
   const priority = getString(formData, "priority");
   const dueDate = getString(formData, "dueDate");
+  const recurrence = getString(formData, "recurrence") || "none";
+  const repeatSubtasks = formData.get("repeatSubtasks") === "on" || formData.get("repeatSubtasks") === "true";
+  const tagIds = formData.getAll("tagIds").map((v) => String(v));
 
   if (!taskId || !projectId || !title) {
     redirect("/app");
   }
 
-  await updateTask({
+  const task = await updateTask({
     userId: user.id,
     taskId,
     projectId,
@@ -102,13 +113,17 @@ export async function updateTaskAction(formData: FormData) {
     description,
     status: taskStatuses.includes(status as (typeof taskStatuses)[number]) ? (status as (typeof taskStatuses)[number]) : "todo",
     priority: taskPriorities.includes(priority as (typeof taskPriorities)[number]) ? (priority as (typeof taskPriorities)[number]) : "medium",
-    dueDate: dueDate || null
+    dueDate: dueDate || null,
+    recurrence: taskRecurrences.includes(recurrence as any) ? (recurrence as any) : "none",
+    repeatSubtasks
   });
+
+  if (task) {
+    await setTaskTags(task.id, tagIds);
+  }
 
   revalidatePath("/app");
   revalidatePath(`/app/projects/${projectId}`);
-  revalidatePath(`/app/tasks/${taskId}/edit`);
-  redirect(`/app/projects/${projectId}`);
 }
 
 export async function markReminderAsReadAction(formData: FormData) {
@@ -135,5 +150,69 @@ export async function toggleTaskStatusAction(formData: FormData) {
 
   await toggleTaskStatus(user.id, taskId, status as any);
   revalidatePath("/app");
-  // We can't use redirect here if we want to stay on the same page seamlessly, or we can just rely on the revalidation.
+}
+
+export async function createSubtaskAction(formData: FormData) {
+  const user = await requireCurrentUser();
+  const taskId = getString(formData, "taskId");
+  const title = getString(formData, "title");
+
+  if (!taskId || !title) return;
+
+  await createSubtask(user.id, taskId, title);
+  revalidatePath("/app");
+}
+
+export async function toggleSubtaskAction(formData: FormData) {
+  const user = await requireCurrentUser();
+  const subtaskId = getString(formData, "subtaskId");
+  const completedStr = getString(formData, "completed");
+
+  if (!subtaskId) return;
+
+  await toggleSubtask(user.id, subtaskId, completedStr === "true");
+  revalidatePath("/app");
+}
+
+export async function deleteSubtaskAction(formData: FormData) {
+  const user = await requireCurrentUser();
+  const subtaskId = getString(formData, "subtaskId");
+
+  if (!subtaskId) return;
+
+  await deleteSubtask(user.id, subtaskId);
+  revalidatePath("/app");
+}
+
+export async function createTagAction(formData: FormData) {
+  const user = await requireCurrentUser();
+  const name = getString(formData, "name");
+  const color = getString(formData, "color") || "#5b6cff";
+
+  if (!name) return;
+
+  await createTag(user.id, name, color);
+  revalidatePath("/app");
+}
+
+export async function createCustomStatusAction(formData: FormData) {
+  const user = await requireCurrentUser();
+  const label = getString(formData, "label");
+  const color = getString(formData, "color") || "#5b6cff";
+
+  if (!label) return;
+
+  await createCustomStatus(user.id, label, color);
+  revalidatePath("/app");
+}
+
+export async function createCustomPriorityAction(formData: FormData) {
+  const user = await requireCurrentUser();
+  const label = getString(formData, "label");
+  const color = getString(formData, "color") || "#e2a336";
+
+  if (!label) return;
+
+  await createCustomPriority(user.id, label, color);
+  revalidatePath("/app");
 }

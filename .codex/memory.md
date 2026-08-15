@@ -11,15 +11,23 @@
 - Stack base: Next.js + TypeScript + App Router + PostgreSQL.
 - O backend permanece integrado na própria aplicação.
 - A autenticação da v1 será simples, baseada em sessão.
-- O escopo inicial cobre projetos, tarefas, filtros e lembretes in-app.
-- Não haverá envio de email, push, WhatsApp ou colaboração avançada nesta fase.
-- UI autenticada em tema escuro, direção visual Linear Issues (lista densa, projetos na sidebar, sem rail de cards).
+- O escopo inicial cobre projetos, tarefas, filtros, lembretes in-app por sininho na topbar, subtarefas (1 nível) e tags.
+- Efeito sonoro de conclusão gerado nativamente via Web Audio API.
+- Modais interativos para edição de tarefa (ícone de lápis) e criação de novos projetos.
+- Notificações de lembretes via sininho no canto superior direito da topbar.
+- Suíte de testes E2E automatizada com Playwright (`npm run test:e2e`), rodando Chromium de forma legível e garantindo login, criação via modal, edição com fechamento de modal e status.
+- Suporte a Tarefas Recorrentes (Rotinas estilo Google Tasks): repetição `daily`, `weekly`, `monthly` com opção de resetar subtarefas a cada ciclo da rotina.
 
 ## Prioridades Atuais
 
-1. Fechar o harness operacional do agente.
-2. Subir a base funcional do app.
-3. Consolidar arquitetura, documentos de contexto e diagrama.
+1. Manter a suite de tipos e compilação limpa (`npm run typecheck`).
+2. Iterar em feedbacks de UX do usuário.
+
+## Validação E2E (2026-08-14)
+
+- Bateria TestSprite MCP: **30/30 Passed** (Batch 1 login/dashboard + Batch 2 CRUD/filtros/recorrência/lembretes/subtarefas/tags).
+- Relatório: `testsprite_tests/testsprite-mcp-test-report.md`.
+- Nenhum bug de produto encontrado nessa rodada.
 
 ## Restrições
 

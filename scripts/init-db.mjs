@@ -78,10 +78,15 @@ async function createSchema(sql) {
       status text not null default 'todo',
       priority text not null default 'medium',
       due_date date,
+      recurrence text not null default 'none',
+      repeat_subtasks boolean not null default true,
       created_at timestamptz not null default now(),
       updated_at timestamptz not null default now()
     )
   `;
+
+  await sql`alter table tasks add column if not exists recurrence text not null default 'none'`;
+  await sql`alter table tasks add column if not exists repeat_subtasks boolean not null default true`;
 
   await sql`
     create table if not exists reminders (
@@ -93,6 +98,58 @@ async function createSchema(sql) {
       read_at timestamptz,
       created_at timestamptz not null default now(),
       updated_at timestamptz not null default now()
+    )
+  `;
+
+  await sql`
+    create table if not exists tags (
+      id text primary key,
+      user_id text not null references users(id) on delete cascade,
+      name text not null,
+      color text not null default '#5b6cff',
+      created_at timestamptz not null default now()
+    )
+  `;
+
+  await sql`
+    create table if not exists task_tags (
+      task_id text not null references tasks(id) on delete cascade,
+      tag_id text not null references tags(id) on delete cascade,
+      primary key (task_id, tag_id)
+    )
+  `;
+
+  await sql`
+    create table if not exists subtasks (
+      id text primary key,
+      task_id text not null references tasks(id) on delete cascade,
+      owner_id text not null references users(id) on delete cascade,
+      title text not null,
+      completed boolean not null default false,
+      created_at timestamptz not null default now(),
+      updated_at timestamptz not null default now()
+    )
+  `;
+
+  await sql`
+    create table if not exists custom_statuses (
+      id text primary key,
+      user_id text not null references users(id) on delete cascade,
+      key text not null,
+      label text not null,
+      color text not null default '#5b6cff',
+      created_at timestamptz not null default now()
+    )
+  `;
+
+  await sql`
+    create table if not exists custom_priorities (
+      id text primary key,
+      user_id text not null references users(id) on delete cascade,
+      key text not null,
+      label text not null,
+      color text not null default '#e2a336',
+      created_at timestamptz not null default now()
     )
   `;
 }

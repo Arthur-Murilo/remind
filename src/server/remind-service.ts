@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 
-import type { Project, Reminder, Task, TaskFilter, TaskPriority, TaskStatus } from "@/domain/types";
+import type { Project, Reminder, Task, TaskFilter, TaskPriority, TaskRecurrence, TaskStatus } from "@/domain/types";
 import { db } from "@/lib/db";
 
 type DashboardMetrics = {
@@ -145,6 +145,8 @@ export async function getTasks(userId: string, filter: TaskFilter = {}): Promise
       t.status,
       t.priority,
       t.due_date::text as "dueDate",
+      t.recurrence,
+      t.repeat_subtasks as "repeatSubtasks",
       t.created_at as "createdAt",
       t.updated_at as "updatedAt"
     from tasks t
@@ -156,7 +158,46 @@ export async function getTasks(userId: string, filter: TaskFilter = {}): Promise
       t.updated_at desc
   `;
 
-  return sql.unsafe<Task[]>(query, values);
+  const rawTasks = await sql.unsafe<Task[]>(query, values);
+  if (!rawTasks.length) return [];
+
+  const taskIds = rawTasks.map((t) => t.id);
+
+  const [tagsRows, subtaskRows] = await Promise.all([
+    sql<{ taskId: string; id: string; userId: string; name: string; color: string; createdAt: string }[]>`
+      select tt.task_id as "taskId", t.id, t.user_id as "userId", t.name, t.color, t.created_at as "createdAt"
+      from task_tags tt
+      join tags t on t.id = tt.tag_id
+      where tt.task_id in ${sql(taskIds)}
+      order by t.name asc
+    `,
+    sql<{ id: string; taskId: string; ownerId: string; title: string; completed: boolean; createdAt: string; updatedAt: string }[]>`
+      select id, task_id as "taskId", owner_id as "ownerId", title, completed, created_at as "createdAt", updated_at as "updatedAt"
+      from subtasks
+      where task_id in ${sql(taskIds)}
+      order by created_at asc
+    `
+  ]);
+
+  const tagsByTaskId = new Map<string, Array<any>>();
+  for (const r of tagsRows) {
+    const list = tagsByTaskId.get(r.taskId) || [];
+    list.push({ id: r.id, userId: r.userId, name: r.name, color: r.color, createdAt: r.createdAt });
+    tagsByTaskId.set(r.taskId, list);
+  }
+
+  const subtasksByTaskId = new Map<string, Array<any>>();
+  for (const r of subtaskRows) {
+    const list = subtasksByTaskId.get(r.taskId) || [];
+    list.push({ id: r.id, taskId: r.taskId, ownerId: r.ownerId, title: r.title, completed: r.completed, createdAt: r.createdAt, updatedAt: r.updatedAt });
+    subtasksByTaskId.set(r.taskId, list);
+  }
+
+  return rawTasks.map((task) => ({
+    ...task,
+    tags: tagsByTaskId.get(task.id) || [],
+    subtasks: subtasksByTaskId.get(task.id) || []
+  }));
 }
 
 export async function getTaskById(userId: string, taskId: string): Promise<Task | null> {
@@ -230,6 +271,21 @@ export async function createProject(input: {
   return project;
 }
 
+function calculateNextDueDate(currentDueDateStr: string | null, recurrence: TaskRecurrence): string {
+  const baseDate = currentDueDateStr ? new Date(`${currentDueDateStr}T09:00:00Z`) : new Date();
+  const validDate = isNaN(baseDate.getTime()) ? new Date() : baseDate;
+
+  if (recurrence === "daily") {
+    validDate.setUTCDate(validDate.getUTCDate() + 1);
+  } else if (recurrence === "weekly") {
+    validDate.setUTCDate(validDate.getUTCDate() + 7);
+  } else if (recurrence === "monthly") {
+    validDate.setUTCMonth(validDate.getUTCMonth() + 1);
+  }
+
+  return validDate.toISOString().slice(0, 10);
+}
+
 export async function createTask(input: {
   userId: string;
   projectId: string;
@@ -238,10 +294,15 @@ export async function createTask(input: {
   priority: TaskPriority;
   status: TaskStatus;
   dueDate?: string | null;
+  recurrence?: TaskRecurrence;
+  repeatSubtasks?: boolean;
 }) {
   const sql = db();
+  const recurrence = input.recurrence || "none";
+  const repeatSubtasks = input.repeatSubtasks ?? true;
+
   const [task] = await sql<Task[]>`
-    insert into tasks (id, project_id, owner_id, title, description, status, priority, due_date)
+    insert into tasks (id, project_id, owner_id, title, description, status, priority, due_date, recurrence, repeat_subtasks)
     values (
       ${randomUUID()},
       ${input.projectId},
@@ -250,7 +311,9 @@ export async function createTask(input: {
       ${input.description || null},
       ${input.status},
       ${input.priority},
-      ${input.dueDate || null}
+      ${input.dueDate || null},
+      ${recurrence},
+      ${repeatSubtasks}
     )
     returning
       id,
@@ -261,6 +324,8 @@ export async function createTask(input: {
       status,
       priority,
       due_date::text as "dueDate",
+      recurrence,
+      repeat_subtasks as "repeatSubtasks",
       created_at as "createdAt",
       updated_at as "updatedAt"
   `;
@@ -279,8 +344,13 @@ export async function updateTask(input: {
   priority: TaskPriority;
   status: TaskStatus;
   dueDate?: string | null;
+  recurrence?: TaskRecurrence;
+  repeatSubtasks?: boolean;
 }) {
   const sql = db();
+  const recurrence = input.recurrence || "none";
+  const repeatSubtasks = input.repeatSubtasks ?? true;
+
   const [task] = await sql<Task[]>`
     update tasks
     set
@@ -290,6 +360,8 @@ export async function updateTask(input: {
       priority = ${input.priority},
       status = ${input.status},
       due_date = ${input.dueDate || null},
+      recurrence = ${recurrence},
+      repeat_subtasks = ${repeatSubtasks},
       updated_at = now()
     where id = ${input.taskId}
       and owner_id = ${input.userId}
@@ -302,6 +374,8 @@ export async function updateTask(input: {
       status,
       priority,
       due_date::text as "dueDate",
+      recurrence,
+      repeat_subtasks as "repeatSubtasks",
       created_at as "createdAt",
       updated_at as "updatedAt"
   `;
@@ -342,13 +416,161 @@ async function syncReminder(userId: string, taskId: string, dueDate: string | nu
 
 export async function toggleTaskStatus(userId: string, taskId: string, status: TaskStatus) {
   const sql = db();
+  let nextStatus = status;
+  let nextDueDate: string | null = null;
+
+  const [existing] = await sql<{ dueDate: string | null; recurrence: string; repeatSubtasks: boolean }[]>`
+    select due_date::text as "dueDate", recurrence, repeat_subtasks as "repeatSubtasks"
+    from tasks
+    where id = ${taskId} and owner_id = ${userId}
+    limit 1
+  `;
+
+  if (status === "done" && existing?.recurrence && existing.recurrence !== "none") {
+    nextStatus = "todo";
+    nextDueDate = calculateNextDueDate(existing.dueDate, existing.recurrence as TaskRecurrence);
+
+    if (existing.repeatSubtasks) {
+      await sql`
+        update subtasks
+        set completed = false, updated_at = now()
+        where task_id = ${taskId} and owner_id = ${userId}
+      `;
+    }
+  }
+
   const [task] = await sql<Task[]>`
     update tasks
-    set status = ${status}, updated_at = now()
+    set
+      status = ${nextStatus},
+      due_date = coalesce(${nextDueDate}, due_date),
+      updated_at = now()
     where id = ${taskId} and owner_id = ${userId}
-    returning *
+    returning
+      id,
+      project_id as "projectId",
+      owner_id as "ownerId",
+      title,
+      description,
+      status,
+      priority,
+      due_date::text as "dueDate",
+      recurrence,
+      repeat_subtasks as "repeatSubtasks",
+      created_at as "createdAt",
+      updated_at as "updatedAt"
   `;
+
   if (task) {
-    await syncReminder(userId, taskId, task.dueDate || null, status);
+    await syncReminder(userId, taskId, task.dueDate || null, task.status);
   }
+
+  return task;
+}
+
+/* ——— Tag & Subtask Services ——— */
+
+export async function getTags(userId: string) {
+  const sql = db();
+  return sql<{ id: string; userId: string; name: string; color: string; createdAt: string }[]>`
+    select id, user_id as "userId", name, color, created_at as "createdAt"
+    from tags
+    where user_id = ${userId}
+    order by name asc
+  `;
+}
+
+export async function createTag(userId: string, name: string, color: string = "#5b6cff") {
+  const sql = db();
+  const [tag] = await sql<{ id: string; userId: string; name: string; color: string; createdAt: string }[]>`
+    insert into tags (id, user_id, name, color)
+    values (${randomUUID()}, ${userId}, ${name}, ${color})
+    returning id, user_id as "userId", name, color, created_at as "createdAt"
+  `;
+  return tag;
+}
+
+export async function setTaskTags(taskId: string, tagIds: string[]) {
+  const sql = db();
+  const limitedTagIds = tagIds.slice(0, 5); // Max 5 tags limit constraint
+
+  await sql`delete from task_tags where task_id = ${taskId}`;
+
+  if (limitedTagIds.length > 0) {
+    const rows = limitedTagIds.map((tagId) => ({ task_id: taskId, tag_id: tagId }));
+    await sql`
+      insert into task_tags ${sql(rows, "task_id", "tag_id")}
+    `;
+  }
+}
+
+export async function createSubtask(userId: string, taskId: string, title: string) {
+  const sql = db();
+  const [subtask] = await sql`
+    insert into subtasks (id, task_id, owner_id, title, completed)
+    values (${randomUUID()}, ${taskId}, ${userId}, ${title}, false)
+    returning id, task_id as "taskId", owner_id as "ownerId", title, completed, created_at as "createdAt", updated_at as "updatedAt"
+  `;
+  return subtask;
+}
+
+export async function toggleSubtask(userId: string, subtaskId: string, completed: boolean) {
+  const sql = db();
+  await sql`
+    update subtasks
+    set completed = ${completed}, updated_at = now()
+    where id = ${subtaskId} and owner_id = ${userId}
+  `;
+}
+
+export async function deleteSubtask(userId: string, subtaskId: string) {
+  const sql = db();
+  await sql`
+    delete from subtasks
+    where id = ${subtaskId} and owner_id = ${userId}
+  `;
+}
+
+/* ——— Custom Statuses & Priorities ——— */
+
+export async function getCustomStatuses(userId: string) {
+  const sql = db();
+  return sql<{ id: string; userId: string; key: string; label: string; color: string; createdAt: string }[]>`
+    select id, user_id as "userId", key, label, color, created_at as "createdAt"
+    from custom_statuses
+    where user_id = ${userId}
+    order by label asc
+  `;
+}
+
+export async function createCustomStatus(userId: string, label: string, color: string = "#5b6cff") {
+  const sql = db();
+  const key = label.toLowerCase().trim().replace(/\s+/g, "_");
+  const [status] = await sql`
+    insert into custom_statuses (id, user_id, key, label, color)
+    values (${randomUUID()}, ${userId}, ${key}, ${label}, ${color})
+    returning id, user_id as "userId", key, label, color, created_at as "createdAt"
+  `;
+  return status;
+}
+
+export async function getCustomPriorities(userId: string) {
+  const sql = db();
+  return sql<{ id: string; userId: string; key: string; label: string; color: string; createdAt: string }[]>`
+    select id, user_id as "userId", key, label, color, created_at as "createdAt"
+    from custom_priorities
+    where user_id = ${userId}
+    order by label asc
+  `;
+}
+
+export async function createCustomPriority(userId: string, label: string, color: string = "#e2a336") {
+  const sql = db();
+  const key = label.toLowerCase().trim().replace(/\s+/g, "_");
+  const [priority] = await sql`
+    insert into custom_priorities (id, user_id, key, label, color)
+    values (${randomUUID()}, ${userId}, ${key}, ${label}, ${color})
+    returning id, user_id as "userId", key, label, color, created_at as "createdAt"
+  `;
+  return priority;
 }

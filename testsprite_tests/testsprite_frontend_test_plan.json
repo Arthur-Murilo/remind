@@ -1,0 +1,2068 @@
+[
+  {
+    "id": "TC001",
+    "title": "Sign in to reach the daily dashboard",
+    "description": "Verifies that a user can sign in with valid credentials and land on the daily dashboard with operational metrics and task list visible.",
+    "category": "Login por sessão",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user lands on the dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify operational metrics and the task list are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Complete a task from the dashboard",
+    "description": "This verifies a user can mark a task as done and see its status update in the daily list.",
+    "category": "Dashboard Meu dia com métricas e lista de tarefas",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Mark a task as completed from the task list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task status updates to completed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Acessar o painel com sessão ativa",
+    "description": "Verifica que um usuário autenticado consegue entrar no dashboard e ver o panorama do dia com métricas e tarefas.",
+    "category": "Dashboard Meu dia",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard with daily metrics is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task list is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Access the dashboard after signing in",
+    "description": "This verifies that an authenticated user lands on the dashboard and can see the daily overview with metrics and tasks.",
+    "category": "Concluir tarefa",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the daily dashboard overview is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify metrics and a task list are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Access the dashboard after logging in",
+    "description": "This verifies an authenticated user can sign in and reach the main dashboard with the daily overview.",
+    "category": "Dashboard Meu dia com métricas e lista de tarefas",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard with daily metrics and the task list is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Open the dashboard through authenticated route protection",
+    "description": "Verifies that an authenticated user can access the protected dashboard route directly and see the daily work overview.",
+    "category": "Dashboard Meu dia",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry for the daily dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user lands on the dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the daily metrics and task list are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Concluir uma tarefa na visão do dia",
+    "description": "Verifica que um usuário autenticado consegue marcar uma tarefa como concluída e ver a atualização refletida na lista.",
+    "category": "Dashboard Meu dia",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the checkbox for an incomplete task"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task is shown as completed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task list updates accordingly"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Conclude a task from the dashboard",
+    "description": "This verifies that an authenticated user can mark a task as completed from the dashboard and see the task status update accordingly.",
+    "category": "Concluir tarefa",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the checkbox for an open task"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task is shown as completed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "View my day metrics and task list",
+    "description": "This verifies the dashboard shows the daily operational overview that users rely on to track work.",
+    "category": "Dashboard Meu dia com métricas e lista de tarefas",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify daily metrics are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task list is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Log out after finishing the day",
+    "description": "Verifies that an authenticated user can end the session from the navigation and return to the login page.",
+    "category": "Logout",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the logout action in the navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user returns to the login page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the authenticated dashboard is no longer visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Log out of the application",
+    "description": "This verifies a logged-in user can end the session and leave the authenticated area.",
+    "category": "logout",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Log out of the application"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Review the daily workload metrics",
+    "description": "Verifies that the dashboard shows the expected operational summary for open, due soon, overdue, and projects counts.",
+    "category": "Dashboard Meu dia",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify workload metrics for open tasks, due soon tasks, overdue tasks, and projects are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Encerrar a sessão",
+    "description": "Verifica que um usuário autenticado consegue sair da conta e retornar ao fluxo de acesso.",
+    "category": "Logout",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Log out from the app"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is returned to the login screen"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify protected app content is no longer visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Filter tasks to find a specific item",
+    "description": "This verifies a user can use the operational filters to narrow the task list to the work they need.",
+    "category": "Dashboard Meu dia com métricas e lista de tarefas",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Apply search and status filters to narrow the task list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task list is narrowed to matching results"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Reopen a completed task from the dashboard",
+    "description": "This verifies that an authenticated user can uncheck a completed task from the dashboard and see it return to an open state.",
+    "category": "Concluir tarefa",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the checkbox for a completed task"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task is shown as open"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Search and refine the daily task list",
+    "description": "Verifies that the dashboard filters can narrow the task list by common operational criteria and show the matching tasks.",
+    "category": "Dashboard Meu dia",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the search field with a task name fragment"
+      },
+      {
+        "type": "action",
+        "description": "Select a status filter"
+      },
+      {
+        "type": "action",
+        "description": "Select a priority filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task list is narrowed by the selected filters"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching tasks are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Create a task inside a project with tags and recurrence",
+    "description": "This verifies a user can open a project, create a contextual task, add tags, set a due date and recurrence, and save it.",
+    "category": "Criar tarefa no contexto do projeto",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open a project from the app"
+      },
+      {
+        "type": "action",
+        "description": "Create a new task in the project context"
+      },
+      {
+        "type": "action",
+        "description": "Add tags to the task"
+      },
+      {
+        "type": "action",
+        "description": "Set a valid due date for the task"
+      },
+      {
+        "type": "action",
+        "description": "Set a recurrence for the task"
+      },
+      {
+        "type": "action",
+        "description": "Save the task"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task appears in the project task list with recurrence indicated"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Edit a filtered task and save changes",
+    "description": "This verifies a user can find a task through filters, open it for editing, change details, and save the update.",
+    "category": "Dashboard Meu dia com métricas e lista de tarefas",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Apply filters to locate a task"
+      },
+      {
+        "type": "action",
+        "description": "Open the task editor for the matching task"
+      },
+      {
+        "type": "action",
+        "description": "Update the task details"
+      },
+      {
+        "type": "action",
+        "description": "Save the task changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated task appears in the dashboard"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "Encontrar tarefas usando os filtros operacionais",
+    "description": "Verifica que um usuário consegue refinar a lista de tarefas por busca, status, prioridade, prazo e projeto.",
+    "category": "Filtros operacionais",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Enter text into the search field"
+      },
+      {
+        "type": "action",
+        "description": "Select a status filter"
+      },
+      {
+        "type": "action",
+        "description": "Select a priority filter"
+      },
+      {
+        "type": "action",
+        "description": "Select a due date filter"
+      },
+      {
+        "type": "action",
+        "description": "Select a project filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task list is narrowed by the selected filters"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the filtered results remain visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC020",
+    "title": "Criar uma tarefa dentro de um projeto",
+    "description": "Verifica que um usuário consegue criar uma tarefa no contexto de um projeto e vê-la aparecer na lista do projeto.",
+    "category": "Detalhe de projeto",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the project in the sidebar"
+      },
+      {
+        "type": "action",
+        "description": "Open the new task composer"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the task title field with a unique task name"
+      },
+      {
+        "type": "action",
+        "description": "Submit the new task form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new task is visible in the project task list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task appears in the project context"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC021",
+    "title": "Edit an existing task from the dashboard",
+    "description": "Verifies that a user can open a task for editing, change its fields, and save the updated task successfully.",
+    "category": "Editar tarefa",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Find a task using the dashboard filters"
+      },
+      {
+        "type": "action",
+        "description": "Open the task edit view"
+      },
+      {
+        "type": "action",
+        "description": "Change the task title"
+      },
+      {
+        "type": "action",
+        "description": "Change the task priority"
+      },
+      {
+        "type": "action",
+        "description": "Save the task changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated task is reflected in the task list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved task remains visible with the new details"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC022",
+    "title": "Filter tasks from the dashboard metrics",
+    "description": "Verifies that selecting a dashboard metric updates the task list to the corresponding due-date slice.",
+    "category": "Dashboard Meu dia",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the metric for a due-date slice"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task list is updated to the selected slice"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the filtered tasks remain visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC023",
+    "title": "Criar uma tarefa dentro de um projeto com detalhes completos",
+    "description": "Verifica que um usuário consegue criar uma tarefa no contexto de um projeto com tags, prazo e recorrência e vê-la na lista do projeto.",
+    "category": "Criar tarefa",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open a project from the sidebar"
+      },
+      {
+        "type": "action",
+        "description": "Open the new task composer in the project context"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a task title"
+      },
+      {
+        "type": "action",
+        "description": "Choose tags for the task"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid due date"
+      },
+      {
+        "type": "action",
+        "description": "Select a recurrence option"
+      },
+      {
+        "type": "action",
+        "description": "Submit the new task form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new task appears in the project task list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task shows the expected tags or recurrence indicators"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC024",
+    "title": "Create a project successfully",
+    "description": "This verifies an operator can create a new project from the app and see it available afterward.",
+    "category": "Criar projeto",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Create a new project from the app"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new project is available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC025",
+    "title": "Criar uma tarefa com tags, prazo e recorrência",
+    "description": "Verifica que um usuário consegue criar uma tarefa no projeto com metadados opcionais e vê-la exibida corretamente.",
+    "category": "Detalhe de projeto",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the project in the sidebar"
+      },
+      {
+        "type": "action",
+        "description": "Open the new task composer"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the task title field with a unique task name"
+      },
+      {
+        "type": "action",
+        "description": "Select tags for the task"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid due date"
+      },
+      {
+        "type": "action",
+        "description": "Select a recurrence option"
+      },
+      {
+        "type": "action",
+        "description": "Submit the new task form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new task is visible in the project task list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task shows the expected metadata"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC026",
+    "title": "Update the dashboard task list after applying operational filters",
+    "description": "This verifies that an authenticated user can use the dashboard filters to narrow tasks and see the list update to matching work items.",
+    "category": "Editar tarefa",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Apply a status filter to the task list"
+      },
+      {
+        "type": "action",
+        "description": "Apply a priority filter to the task list"
+      },
+      {
+        "type": "action",
+        "description": "Apply a deadline filter to the task list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task list is narrowed to matching tasks"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC027",
+    "title": "Abrir um projeto e ver suas tarefas",
+    "description": "Verifica que um usuário autenticado consegue acessar o detalhe de um projeto e visualizar a lista de tarefas do projeto.",
+    "category": "Detalhe de projeto",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the project in the sidebar"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the project task list is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify project-specific task content is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC028",
+    "title": "Editar uma tarefa filtrada e salvar as alterações",
+    "description": "Verifica que um usuário consegue localizar uma tarefa pelos filtros, abrir a edição, alterar campos e salvar a atualização.",
+    "category": "Editar tarefa",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Apply task filters to locate a task"
+      },
+      {
+        "type": "action",
+        "description": "Open the task editor"
+      },
+      {
+        "type": "action",
+        "description": "Change the task details"
+      },
+      {
+        "type": "action",
+        "description": "Save the task changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated task details are visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the edited task remains in the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC029",
+    "title": "Complete a recurring task and see the next cycle prepared",
+    "description": "This verifies completing a recurring task advances its workflow and prepares the next cycle for follow-up.",
+    "category": "Tarefas recorrentes",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Mark a recurring task as completed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task is completed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the next cycle is prepared"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC030",
+    "title": "Create a project and add a task in its context",
+    "description": "Verifies that an operator can create a project, open its detail page, and add a new task with tags, deadline, and recurrence from that context.",
+    "category": "Criar projeto",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Create a new project"
+      },
+      {
+        "type": "action",
+        "description": "Open the newly created project"
+      },
+      {
+        "type": "action",
+        "description": "Create a new task in the project context"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the task title with a unique name"
+      },
+      {
+        "type": "action",
+        "description": "Select at least one tag"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid deadline"
+      },
+      {
+        "type": "action",
+        "description": "Select a recurrence option"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new task appears in the project task list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task shows its tags and recurrence information"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC031",
+    "title": "Editar uma tarefa existente no projeto",
+    "description": "Verifica que um usuário consegue abrir uma tarefa do projeto, alterar seus campos e salvar a atualização.",
+    "category": "Detalhe de projeto",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the project in the sidebar"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing task for editing"
+      },
+      {
+        "type": "action",
+        "description": "Update the task fields"
+      },
+      {
+        "type": "action",
+        "description": "Save the task changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated task details are visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task remains listed in the project"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC032",
+    "title": "Criar um projeto novo",
+    "description": "Verifica que um administrador consegue cadastrar um projeto e vê-lo aparecer na navegação lateral.",
+    "category": "Criar projeto",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the new project modal"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a project name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a project description"
+      },
+      {
+        "type": "action",
+        "description": "Submit the new project form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new project appears in the sidebar"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the project was created successfully"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC033",
+    "title": "Create a subtask and mark it complete",
+    "description": "This verifies that an authenticated user can add a subtask to an existing task and complete it from the subtasks list.",
+    "category": "Subtarefas",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the subtasks list for a task"
+      },
+      {
+        "type": "action",
+        "description": "Add a new subtask"
+      },
+      {
+        "type": "action",
+        "description": "Mark the new subtask as completed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the subtask is shown as completed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC034",
+    "title": "Create a daily recurring task",
+    "description": "This verifies a user can configure a task to repeat daily and see the recurrence badge in the list.",
+    "category": "Tarefas recorrentes",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the new task modal"
+      },
+      {
+        "type": "action",
+        "description": "Set the task recurrence to daily"
+      },
+      {
+        "type": "action",
+        "description": "Save the task"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task list shows a recurrence badge"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC035",
+    "title": "Filtrar tarefas de um projeto",
+    "description": "Verifica que um usuário consegue aplicar filtros na lista do projeto para localizar tarefas específicas.",
+    "category": "Detalhe de projeto",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the project in the sidebar"
+      },
+      {
+        "type": "action",
+        "description": "Apply a task filter in the project list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the filtered task list is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the list reflects the applied filter"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC036",
+    "title": "Criar uma tarefa no painel geral",
+    "description": "Verifica que um usuário consegue criar uma tarefa pelo modal geral e vê-la aparecer na lista do dia.",
+    "category": "Criar tarefa",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the new task modal"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a task title"
+      },
+      {
+        "type": "action",
+        "description": "Choose a project for the task"
+      },
+      {
+        "type": "action",
+        "description": "Select a priority"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid due date"
+      },
+      {
+        "type": "action",
+        "description": "Submit the new task form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new task appears in the day task list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task is associated with the selected project"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC037",
+    "title": "Update a recurring task's schedule",
+    "description": "This verifies a user can edit a recurring task and see the updated recurrence reflected in the list.",
+    "category": "Tarefas recorrentes",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing recurring task for editing"
+      },
+      {
+        "type": "action",
+        "description": "Change the task recurrence"
+      },
+      {
+        "type": "action",
+        "description": "Save the task changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the recurrence badge reflects the updated schedule"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC038",
+    "title": "Create a task with a new tag",
+    "description": "This verifies a user can create a new tag from the tag selector and apply it to a task.",
+    "category": "Tags",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the task composer"
+      },
+      {
+        "type": "action",
+        "description": "Create a new tag from the tag selector"
+      },
+      {
+        "type": "action",
+        "description": "Select the newly created tag"
+      },
+      {
+        "type": "action",
+        "description": "Save the task"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task is created with the new tag applied"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC039",
+    "title": "Edit a task's tags",
+    "description": "This verifies a user can update an existing task and change its tag associations.",
+    "category": "Tags",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing task for editing"
+      },
+      {
+        "type": "action",
+        "description": "Change the task tags using the tag selector"
+      },
+      {
+        "type": "action",
+        "description": "Save the task"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task shows the updated tags"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC040",
+    "title": "Review reminders and mark them as read",
+    "description": "Verifies that the in-app notification panel opens, shows pending reminders, and allows them to be marked as read.",
+    "category": "Lembretes in-app",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the notification panel"
+      },
+      {
+        "type": "action",
+        "description": "Mark a pending reminder as read"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the notification panel shows reminders"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the reminder is no longer marked as unread"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC041",
+    "title": "Limpar todos os filtros aplicados",
+    "description": "Verifica que um usuário consegue remover todos os recortes e voltar à visão completa da lista.",
+    "category": "Filtros operacionais",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Apply multiple task filters"
+      },
+      {
+        "type": "action",
+        "description": "Clear all filters"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the full task list is restored"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no filter recaps remain applied"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC042",
+    "title": "Open the reminders panel and mark a reminder as read",
+    "description": "This verifies a user can review in-app reminders from the bell and clear one from the pending list.",
+    "category": "Lembretes in-app",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the reminders panel"
+      },
+      {
+        "type": "action",
+        "description": "Mark a reminder as read"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify pending reminders are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the reminder is removed from the pending list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC043",
+    "title": "Remove a subtask from a task",
+    "description": "This verifies that an authenticated user can delete an existing subtask and see it disappear from the subtasks list.",
+    "category": "Subtarefas",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the subtasks list for a task"
+      },
+      {
+        "type": "action",
+        "description": "Remove an existing subtask"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the subtask no longer appears in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC044",
+    "title": "Abrir lembretes e marcá-los como lidos",
+    "description": "Verifica que um usuário consegue abrir o painel de lembretes no sininho e marcar um lembrete como lido.",
+    "category": "Lembretes in-app",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the notification panel"
+      },
+      {
+        "type": "action",
+        "description": "Mark a reminder as read"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the reminder panel shows unread and read states appropriately"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the marked reminder is no longer unread"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC045",
+    "title": "Verificar o próximo ciclo de uma tarefa recorrente concluída",
+    "description": "Verifica que ao concluir uma tarefa recorrente o usuário vê o status atualizado e o próximo ciclo indicado.",
+    "category": "Criar tarefa",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Create a recurring task with a valid title"
+      },
+      {
+        "type": "action",
+        "description": "Mark the recurring task as completed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task is shown as completed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the next cycle indicator is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC046",
+    "title": "Validar campos obrigatórios ao criar uma tarefa",
+    "description": "Verifica que o formulário de nova tarefa impede envio quando o título obrigatório não foi preenchido.",
+    "category": "Criar tarefa",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the new task modal"
+      },
+      {
+        "type": "action",
+        "description": "Submit the new task form without filling required fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify required field validation errors are visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task is not created"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC047",
+    "title": "Handle required-field validation when creating a task",
+    "description": "This verifies the task composer prevents submission when required fields are missing and shows validation feedback.",
+    "category": "Falhas de validação em campos obrigatórios dos modais",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the new task modal"
+      },
+      {
+        "type": "action",
+        "description": "Submit the task form without completing required fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify validation errors are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task is not created"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC048",
+    "title": "Ver validação ao tentar criar tarefa sem campos obrigatórios",
+    "description": "Verifica que o formulário de criação de tarefa exibe validação quando o usuário tenta salvar sem preencher os campos obrigatórios.",
+    "category": "Detalhe de projeto",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the project in the sidebar"
+      },
+      {
+        "type": "action",
+        "description": "Open the new task composer"
+      },
+      {
+        "type": "action",
+        "description": "Submit the new task form without filling required fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a validation error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task is not created"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC049",
+    "title": "Reject invalid sign in credentials",
+    "description": "Verifies that entering invalid credentials keeps the user on the login page and shows an authentication error.",
+    "category": "Login por sessão",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with invalid@example.com"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with wrong-password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an invalid credentials error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user remains on the login page"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC050",
+    "title": "Validar campos obrigatórios ao criar um projeto",
+    "description": "Verifica que o formulário de novo projeto impede envio quando os campos obrigatórios estão vazios.",
+    "category": "Criar projeto",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the new project modal"
+      },
+      {
+        "type": "action",
+        "description": "Submit the new project form without filling required fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify required field validation errors are visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the project is not created"
+      }
+    ],
+    "priority": "Low"
+  }
+]

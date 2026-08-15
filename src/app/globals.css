@@ -48,7 +48,7 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font);
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -346,6 +346,64 @@ code {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+/* ——— Metrics Cards Banner ——— */
+.metrics-banner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-elevated);
+}
+
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.metric-card:hover {
+  border-color: var(--primary-ink);
+  transform: translateY(-1px);
+}
+
+.metric-card.accent-open {
+  border-left: 3px solid var(--primary);
+}
+
+.metric-card.accent-soon {
+  border-left: 3px solid var(--warn);
+}
+
+.metric-card.accent-overdue {
+  border-left: 3px solid var(--danger);
+}
+
+.metric-card.accent-projects {
+  border-left: 3px solid var(--success);
+}
+
+.metric-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.03em;
 }
 
 .filter-bar {
@@ -1141,3 +1199,370 @@ code {
     transform: none;
   }
 }
+
+/* ——— Modal Component ——— */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.modal-container {
+  width: min(540px, 100%);
+  background: var(--bg-elevated);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: scaleUp 0.15s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.modal-close {
+  background: transparent;
+  border: 0;
+  color: var(--ink-soft);
+  font-size: 1.2rem;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.modal-close:hover {
+  background: var(--surface-hover);
+  color: var(--ink);
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ——— Minimalist Subtasks Styles ——— */
+.subtask-row-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.subtask-header-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subtask-triangle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: 0;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+
+.subtask-triangle-btn:hover {
+  color: var(--ink);
+  background: var(--surface-hover);
+}
+
+.triangle-icon {
+  display: inline-block;
+  font-size: 0.68rem;
+  transition: transform 0.15s ease;
+}
+
+.triangle-icon.open {
+  transform: rotate(90deg);
+}
+
+.subtask-badge-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--primary-ink);
+  background: var(--primary-soft);
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.subtask-quick-add-btn {
+  background: transparent;
+  border: 1px stroke var(--line-strong);
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.subtask-quick-add-btn:hover {
+  color: var(--ink);
+  background: var(--surface-hover);
+  border-color: var(--primary-ink);
+}
+
+.subtask-expanded-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 10px 6px 18px;
+  margin-left: 4px;
+  border-left: 2px solid var(--line-strong);
+  animation: fadeIn 0.12s ease-out;
+}
+
+.subtask-row-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  padding: 2px 0;
+}
+
+.subtask-row-item input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: var(--primary);
+  width: 14px;
+  height: 14px;
+}
+
+.subtask-text {
+  flex: 1;
+  color: var(--ink);
+}
+
+.subtask-text.done {
+  text-decoration: line-through;
+  color: var(--ink-faint);
+}
+
+.subtask-remove-icon {
+  background: transparent;
+  border: 0;
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  opacity: 0.7;
+}
+
+.subtask-remove-icon:hover {
+  opacity: 1;
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.subtask-empty-hint {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+/* ——— Tags Pill List ——— */
+.tag-list-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.tag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 12px;
+  background: var(--surface-hover);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+}
+
+.tag-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+/* ——— Notification Bell Component ——— */
+.notification-bell-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.notification-bell-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--primary-ink);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: var(--z-dropdown);
+  width: 310px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-menu);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.notification-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 0.85rem;
+}
+
+.notification-list {
+  max-height: 280px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.notification-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.12s ease;
+}
+
+.notification-item:hover {
+  background: var(--surface-hover);
+}
+
+.notification-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.notification-task-title {
+  color: var(--ink);
+  font-size: 0.88rem;
+  text-decoration: none;
+}
+
+.notification-task-title:hover {
+  color: var(--primary-ink);
+}
+
+.notification-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: var(--ink-soft);
+}
+
+.due-tag {
+  color: var(--warn);
+}
+
+.notification-check-btn {
+  background: var(--surface-hover);
+  border: 1px solid var(--line);
+  color: var(--success);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.notification-check-btn:hover {
+  background: var(--success-soft);
+}
+
+.notification-empty {
+  padding: 16px;
+  text-align: center;
+  font-size: 0.84rem;
+  color: var(--ink-soft);
+}
+

@@ -2,6 +2,7 @@
 
 import { useTransition, useState } from "react";
 import { toggleTaskStatusAction } from "@/server/actions";
+import { playCompletionSound } from "@/lib/sound";
 
 type TaskCheckboxProps = {
   taskId: string;
@@ -19,6 +20,10 @@ export function TaskCheckbox({ taskId, projectId, title, initialStatus }: TaskCh
   const handleToggle = () => {
     const nextStatus = isDone ? "todo" : "done";
     setOptimisticStatus(nextStatus);
+
+    if (nextStatus === "done") {
+      playCompletionSound();
+    }
 
     startTransition(async () => {
       const formData = new FormData();

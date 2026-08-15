@@ -40,3 +40,16 @@ export function priorityLabel(priority: string) {
       return priority;
   }
 }
+
+export function recurrenceLabel(recurrence?: string) {
+  switch (recurrence) {
+    case "daily":
+      return "🔁 Diária";
+    case "weekly":
+      return "🔁 Semanal";
+    case "monthly":
+      return "🔁 Mensal";
+    default:
+      return null;
+  }
+}

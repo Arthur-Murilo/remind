@@ -10,13 +10,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "remind",
+  title: "Remind",
   description: "Ferramenta interna para projetos, tarefas e lembretes in-app."
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={inter.variable}>
+    <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
       <body style={{ fontFamily: "var(--font-inter), var(--font)" }}>{children}</body>
     </html>
   );

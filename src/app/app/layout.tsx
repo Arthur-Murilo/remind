@@ -3,6 +3,8 @@ import Link from "next/link";
 
 import { AppNav } from "@/components/app-nav";
 import { ProjectNav } from "@/components/project-nav";
+import { NewProjectModal } from "@/components/new-project-modal";
+import { NotificationBell } from "@/components/notification-bell";
 import { logoutAction, createProjectAction } from "@/server/actions";
 import { requireCurrentUser } from "@/server/auth";
 import { getProjects, getReminders } from "@/server/remind-service";
@@ -24,35 +26,20 @@ export default async function AppLayout({ children }: Readonly<{ children: React
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <Link className="brand" href="/app" aria-label="remind">
-          <span className="brand-mark">r</span>
-          <span className="brand-name">remind</span>
+        <Link className="brand" href="/app" aria-label="Remind">
+          <span className="brand-mark">R</span>
+          <span className="brand-name">Remind</span>
         </Link>
 
-        <Suspense fallback={<nav className="nav-group" aria-label="Navegacao principal" />}>
-          <AppNav reminderCount={reminders.length} />
+        <Suspense fallback={<nav className="nav-group" aria-label="Navegação principal" />}>
+          <AppNav />
         </Suspense>
 
         <div className="nav-label">Projetos</div>
         <div className="sidebar-projects" aria-label="Projetos">
           <ProjectNav projects={projects} />
 
-          <details className="inline-create">
-            <summary>+ Novo projeto</summary>
-            <form action={createProjectAction} className="form-grid">
-              <div className="field">
-                <label htmlFor="sidebar-project-name">Nome</label>
-                <input id="sidebar-project-name" name="name" required placeholder="Ex.: Produto pessoal" />
-              </div>
-              <div className="field">
-                <label htmlFor="sidebar-project-description">Descricao</label>
-                <textarea id="sidebar-project-description" name="description" placeholder="Objetivo resumido" />
-              </div>
-              <button className="button compact" type="submit">
-                Criar
-              </button>
-            </form>
-          </details>
+          <NewProjectModal />
         </div>
 
         <div className="sidebar-foot">
@@ -63,26 +50,30 @@ export default async function AppLayout({ children }: Readonly<{ children: React
       <div className="shell-main">
         <header className="topbar">
           <div className="topbar-title">
-            <strong>remind</strong>
+            <strong>Remind</strong>
             <span className="topbar-meta">Workspace pessoal</span>
           </div>
 
-          <details className="user-menu">
-            <summary aria-label="Abrir menu do usuario">
-              <span className="avatar">{initials}</span>
-            </summary>
-            <div className="user-menu-panel">
-              <div>
-                <strong>{user.name}</strong>
-                <span>{user.email}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <NotificationBell reminders={reminders} />
+
+            <details className="user-menu">
+              <summary aria-label="Abrir menu do usuario">
+                <span className="avatar">{initials}</span>
+              </summary>
+              <div className="user-menu-panel">
+                <div>
+                  <strong>{user.name}</strong>
+                  <span>{user.email}</span>
+                </div>
+                <form action={logoutAction}>
+                  <button className="button-secondary compact" type="submit">
+                    Sair
+                  </button>
+                </form>
               </div>
-              <form action={logoutAction}>
-                <button className="button-secondary compact" type="submit">
-                  Sair
-                </button>
-              </form>
-            </div>
-          </details>
+            </details>
+          </div>
         </header>
 
         <main className="page-wrap">{children}</main>

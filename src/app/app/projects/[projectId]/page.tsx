@@ -4,9 +4,13 @@ import { notFound } from "next/navigation";
 import { createTaskAction } from "@/server/actions";
 import { requireCurrentUser } from "@/server/auth";
 import { getTaskFilterFromSearchParams } from "@/server/filters";
-import { formatDate, priorityLabel, statusLabel } from "@/lib/format";
-import { getProjectById, getTasks } from "@/server/remind-service";
+import { formatDate, priorityLabel, statusLabel, recurrenceLabel } from "@/lib/format";
+import { getProjectById, getTasks, getTags } from "@/server/remind-service";
 import { TaskCheckbox } from "@/components/task-checkbox";
+import { EditTaskModal } from "@/components/edit-task-modal";
+import { NewTaskModal } from "@/components/new-task-modal";
+import { SubtaskList } from "@/components/subtask-list";
+import { FilterBar } from "@/components/filter-bar";
 
 type ProjectDetailPageProps = {
   params: Promise<{ projectId: string }>;
@@ -28,7 +32,10 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
     projectId
   });
 
-  const tasks = await getTasks(user.id, filter);
+  const [tasks, allTags] = await Promise.all([
+    getTasks(user.id, filter),
+    getTags(user.id)
+  ]);
 
   return (
     <div className="issues-view">
@@ -39,137 +46,74 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
         </div>
         <div className="issues-toolbar-actions">
           <span className="topbar-meta">{tasks.length} tarefas</span>
+          <NewTaskModal projects={[project]} defaultProjectId={project.id} allTags={allTags} />
           <Link className="button-ghost compact" href="/app">
             Meu dia
           </Link>
         </div>
       </div>
 
-      <div className="split-layout page-section">
-        <section>
-          <form className="filter-bar" method="get" style={{ padding: "0 0 12px", border: 0 }}>
-            <input name="search" defaultValue={filter.search || ""} placeholder="Buscar..." aria-label="Buscar tarefa" />
+      <FilterBar showProjectSelect={false} filter={filter} basePath={`/app/projects/${project.id}`} />
 
-            <select name="status" defaultValue={filter.status || "all"} aria-label="Filtrar por status">
-              <option value="all">Status</option>
-              <option value="todo">A fazer</option>
-              <option value="in_progress">Em andamento</option>
-              <option value="done">Concluida</option>
-            </select>
+      <div className="issue-head" aria-hidden="true">
+        <span />
+        <span>Tarefa</span>
+        <span className="hide-md">Projeto</span>
+        <span>Status</span>
+        <span>Prioridade</span>
+        <span>Prazo</span>
+        <span />
+      </div>
 
-            <select name="priority" defaultValue={filter.priority || "all"} aria-label="Filtrar por prioridade">
-              <option value="all">Prioridade</option>
-              <option value="high">Alta</option>
-              <option value="medium">Media</option>
-              <option value="low">Baixa</option>
-            </select>
+      <div className="issue-list" aria-label="Tarefas do projeto">
+        {tasks.length ? (
+          tasks.map((task) => (
+            <article className="issue-row" key={task.id}>
+              <TaskCheckbox taskId={task.id} projectId={task.projectId} title={task.title} initialStatus={task.status} />
+              <div className="issue-title">
+                <strong>{task.title}</strong>
+                {task.description ? <span>{task.description}</span> : null}
 
-            <select name="due" defaultValue={filter.due || "all"} aria-label="Filtrar por prazo">
-              <option value="all">Prazo</option>
-              <option value="overdue">Atrasadas</option>
-              <option value="soon">Vencendo</option>
-              <option value="none">Sem prazo</option>
-            </select>
+                {task.tags && task.tags.length > 0 && (
+                  <div className="tag-list-inline">
+                    {task.tags.slice(0, 5).map((t) => (
+                      <span key={t.id} className="tag-badge">
+                        <span className="tag-dot" style={{ backgroundColor: t.color || "var(--primary)" }} />
+                        {t.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
-            <button className="button-secondary compact" type="submit">
-              Filtrar
-            </button>
-            <Link className="button-ghost compact" href={`/app/projects/${project.id}`}>
-              Limpar
-            </Link>
-          </form>
-
-          <div className="issue-head" aria-hidden="true" style={{ paddingLeft: 0, paddingRight: 0 }}>
-            <span />
-            <span>Tarefa</span>
-            <span className="hide-md">Projeto</span>
-            <span>Status</span>
-            <span>Prioridade</span>
-            <span>Prazo</span>
-            <span />
+                <SubtaskList taskId={task.id} subtasks={task.subtasks} />
+              </div>
+              <div className="issue-cell project">
+                <span className="project-dot c0" aria-hidden="true" />
+                {project.name}
+              </div>
+              <div className="issue-cell">
+                <span className={`badge ${task.status}`}>{statusLabel(task.status)}</span>
+                {recurrenceLabel(task.recurrence) && (
+                  <span className="badge" style={{ marginLeft: "4px", background: "var(--surface-hover)", border: "1px solid var(--line-strong)" }}>
+                    {recurrenceLabel(task.recurrence)}
+                  </span>
+                )}
+              </div>
+              <div className="issue-cell">
+                <span className={`badge priority-${task.priority}`}>{priorityLabel(task.priority)}</span>
+              </div>
+              <div className="issue-cell">{formatDate(task.dueDate)}</div>
+              <div className="issue-cell">
+                <EditTaskModal task={task} allTags={allTags} />
+              </div>
+            </article>
+          ))
+        ) : (
+          <div className="empty-state" style={{ margin: "16px 0" }}>
+            <strong>Nenhuma tarefa neste projeto.</strong>
+            <span>Clique no botão "+ Nova tarefa" acima para criar a primeira.</span>
           </div>
-
-          <div className="issue-list" aria-label="Tarefas do projeto">
-            {tasks.length ? (
-              tasks.map((task) => (
-                <article className="issue-row" key={task.id} style={{ paddingLeft: 0, paddingRight: 0 }}>
-                  <TaskCheckbox taskId={task.id} projectId={task.projectId} title={task.title} initialStatus={task.status} />
-                  <div className="issue-title">
-                    <strong>{task.title}</strong>
-                    {task.description ? <span>{task.description}</span> : null}
-                  </div>
-                  <div className="issue-cell project">
-                    <span className="project-dot c0" aria-hidden="true" />
-                    {project.name}
-                  </div>
-                  <div className="issue-cell">
-                    <span className={`badge ${task.status}`}>{statusLabel(task.status)}</span>
-                  </div>
-                  <div className="issue-cell">
-                    <span className={`badge priority-${task.priority}`}>{priorityLabel(task.priority)}</span>
-                  </div>
-                  <div className="issue-cell">{formatDate(task.dueDate)}</div>
-                  <div className="issue-cell">
-                    <Link className="link-button" href={`/app/tasks/${task.id}/edit`}>
-                      Editar
-                    </Link>
-                  </div>
-                </article>
-              ))
-            ) : (
-              <div className="empty-state" style={{ margin: "16px 0" }}>
-                <strong>Nenhuma tarefa neste projeto.</strong>
-                <span>Use o formulario ao lado para criar a primeira.</span>
-              </div>
-            )}
-          </div>
-        </section>
-
-        <aside className="composer">
-          <h2>Nova tarefa</h2>
-          <form action={createTaskAction} className="form-grid">
-            <input type="hidden" name="projectId" value={project.id} />
-
-            <div className="field">
-              <label htmlFor="task-title">Titulo</label>
-              <input id="task-title" name="title" required placeholder="Ex.: Fechar backlog" />
-            </div>
-
-            <div className="field">
-              <label htmlFor="task-description">Descricao</label>
-              <textarea id="task-description" name="description" placeholder="Contexto curto" />
-            </div>
-
-            <div className="form-row">
-              <div className="field">
-                <label htmlFor="task-status">Status</label>
-                <select id="task-status" name="status" defaultValue="todo">
-                  <option value="todo">A fazer</option>
-                  <option value="in_progress">Em andamento</option>
-                  <option value="done">Concluida</option>
-                </select>
-              </div>
-
-              <div className="field">
-                <label htmlFor="task-priority">Prioridade</label>
-                <select id="task-priority" name="priority" defaultValue="medium">
-                  <option value="high">Alta</option>
-                  <option value="medium">Media</option>
-                  <option value="low">Baixa</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="field">
-              <label htmlFor="task-dueDate">Prazo</label>
-              <input id="task-dueDate" name="dueDate" type="date" />
-            </div>
-
-            <button className="button" type="submit">
-              Criar tarefa
-            </button>
-          </form>
-        </aside>
+        )}
       </div>
     </div>
   );

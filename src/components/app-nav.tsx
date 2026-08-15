@@ -7,7 +7,7 @@ type AppNavProps = {
   reminderCount: number;
 };
 
-export function AppNav({ reminderCount }: AppNavProps) {
+export function AppNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const due = searchParams.get("due");
@@ -15,13 +15,9 @@ export function AppNav({ reminderCount }: AppNavProps) {
   const isMyDay = pathname === "/app" && !isReminders;
 
   return (
-    <nav className="nav-group" aria-label="Navegacao principal">
+    <nav className="nav-group" aria-label="Navegação principal">
       <Link className={`nav-link${isMyDay ? " active" : ""}`} href="/app">
         Meu dia
-      </Link>
-      <Link className={`nav-link${isReminders ? " active" : ""}`} href="/app?due=soon">
-        Lembretes
-        {reminderCount ? <span className="nav-count">{reminderCount}</span> : null}
       </Link>
     </nav>
   );
