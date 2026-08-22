@@ -5,7 +5,7 @@ import { AppNav } from "@/components/app-nav";
 import { ProjectNav } from "@/components/project-nav";
 import { NewProjectModal } from "@/components/new-project-modal";
 import { NotificationBell } from "@/components/notification-bell";
-import { logoutAction, createProjectAction } from "@/server/actions";
+import { logoutAction } from "@/server/actions";
 import { requireCurrentUser } from "@/server/auth";
 import { getProjects, getReminders } from "@/server/remind-service";
 
@@ -38,12 +38,7 @@ export default async function AppLayout({ children }: Readonly<{ children: React
         <div className="nav-label">Projetos</div>
         <div className="sidebar-projects" aria-label="Projetos">
           <ProjectNav projects={projects} />
-
           <NewProjectModal />
-        </div>
-
-        <div className="sidebar-foot">
-          <span className="muted">Workspace pessoal</span>
         </div>
       </aside>
 
@@ -51,7 +46,6 @@ export default async function AppLayout({ children }: Readonly<{ children: React
         <header className="topbar">
           <div className="topbar-title">
             <strong>Remind</strong>
-            <span className="topbar-meta">Workspace pessoal</span>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>

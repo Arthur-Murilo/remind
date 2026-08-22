@@ -10,8 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Remind",
-  description: "Ferramenta interna para projetos, tarefas e lembretes in-app."
+  title: "remind",
+  description: "Ferramenta interna para projetos, tarefas e lembretes in-app.",
+  applicationName: "remind"
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -1,65 +1,114 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { createTaskAction } from "@/server/actions";
 import { Modal } from "@/components/modal";
-import { TagSelector } from "@/components/tag-selector";
-import type { Project, Tag } from "@/domain/types";
+import { SelectPopover, DateField, CustomCheckbox } from "@/components/ui-controls";
+import { CatalogBadge } from "@/components/catalog-badge";
+import { SYSTEM_PRIORITY_ITEMS, SYSTEM_STATUS_ITEMS } from "@/domain/catalog";
+import type { CatalogItem, Project } from "@/domain/types";
 
 type NewTaskModalProps = {
   projects: Project[];
-  allTags?: Tag[];
   defaultProjectId?: string;
+  initialTitle?: string;
   buttonText?: string;
   buttonClass?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
+  statuses?: CatalogItem[];
+  priorities?: CatalogItem[];
 };
 
 export function NewTaskModal({
   projects = [],
-  allTags = [],
   defaultProjectId,
+  initialTitle = "",
   buttonText = "+ Nova tarefa",
-  buttonClass = "button compact"
+  buttonClass = "button compact",
+  open: controlledOpen,
+  onOpenChange,
+  hideTrigger = false,
+  statuses = SYSTEM_STATUS_ITEMS,
+  priorities = SYSTEM_PRIORITY_ITEMS
 }: NewTaskModalProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const selectedProject = defaultProjectId || (projects[0]?.id ?? "");
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const isOpen = controlledOpen ?? uncontrolledOpen;
+  const setIsOpen = (next: boolean) => {
+    onOpenChange?.(next);
+    if (controlledOpen === undefined) setUncontrolledOpen(next);
+  };
+
+  const [projectId, setProjectId] = useState(defaultProjectId || projects[0]?.id || "");
+  const [title, setTitle] = useState(initialTitle);
+  const [status, setStatus] = useState("todo");
+  const [priority, setPriority] = useState("medium");
+  const [dueDate, setDueDate] = useState("");
+  const [recurrence, setRecurrence] = useState("none");
+  const [repeatSubtasks, setRepeatSubtasks] = useState(true);
+
+  const reset = (projectOverride?: string, titleOverride?: string) => {
+    setProjectId(projectOverride || defaultProjectId || projects[0]?.id || "");
+    setTitle(titleOverride ?? initialTitle ?? "");
+    setStatus("todo");
+    setPriority("medium");
+    setDueDate("");
+    setRecurrence("none");
+    setRepeatSubtasks(true);
+  };
+
+  useEffect(() => {
+    if (isOpen) reset(defaultProjectId, initialTitle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, defaultProjectId, initialTitle]);
 
   return (
     <>
-      <button
-        type="button"
-        className={buttonClass}
-        onClick={() => setIsOpen(true)}
-      >
-        {buttonText}
-      </button>
+      {!hideTrigger ? (
+        <button
+          type="button"
+          className={buttonClass}
+          onClick={() => {
+            reset();
+            setIsOpen(true);
+          }}
+        >
+          {buttonText}
+        </button>
+      ) : null}
 
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Criar Nova Tarefa">
         <form
           action={async (formData) => {
+            formData.set("projectId", projectId);
+            formData.set("title", title.trim());
+            formData.set("status", status);
+            formData.set("priority", priority);
+            formData.set("dueDate", dueDate);
+            formData.set("recurrence", recurrence);
+            if (recurrence !== "none") {
+              formData.set("repeatSubtasks", repeatSubtasks ? "on" : "false");
+            }
             await createTaskAction(formData);
             setIsOpen(false);
+            reset("", "");
           }}
           className="form-grid"
         >
           {projects.length > 0 ? (
             <div className="field">
-              <label htmlFor="new-task-project">Projeto</label>
-              <select
-                id="new-task-project"
+              <label>Projeto</label>
+              <SelectPopover
                 name="projectId"
-                defaultValue={selectedProject}
-                required
-              >
-                {projects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
+                ariaLabel="Projeto"
+                value={projectId}
+                onChange={setProjectId}
+                options={projects.map((p) => ({ value: p.id, label: p.name }))}
+              />
             </div>
           ) : (
-            <input type="hidden" name="projectId" value={selectedProject} />
+            <input type="hidden" name="projectId" value={projectId} />
           )}
 
           <div className="field">
@@ -68,6 +117,8 @@ export function NewTaskModal({
               id="new-task-title"
               name="title"
               required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               placeholder="Ex.: Implementar funcionalidade..."
               autoFocus
             />
@@ -85,49 +136,66 @@ export function NewTaskModal({
 
           <div className="form-row">
             <div className="field">
-              <label htmlFor="new-task-status">Status</label>
-              <select id="new-task-status" name="status" defaultValue="todo">
-                <option value="todo">A fazer</option>
-                <option value="in_progress">Em andamento</option>
-                <option value="done">Concluída</option>
-              </select>
+              <label>Status</label>
+              <SelectPopover
+                name="status"
+                ariaLabel="Status"
+                value={status}
+                onChange={setStatus}
+                options={statuses.map((item) => ({ value: item.key, label: item.label }))}
+                renderValue={(option) => {
+                  const item = statuses.find((entry) => entry.key === option?.value);
+                  return item ? <CatalogBadge item={item} /> : option?.label;
+                }}
+              />
             </div>
 
             <div className="field">
-              <label htmlFor="new-task-priority">Prioridade</label>
-              <select id="new-task-priority" name="priority" defaultValue="medium">
-                <option value="high">Alta</option>
-                <option value="medium">Média</option>
-                <option value="low">Baixa</option>
-              </select>
+              <label>Prioridade</label>
+              <SelectPopover
+                name="priority"
+                ariaLabel="Prioridade"
+                value={priority}
+                onChange={setPriority}
+                options={priorities.map((item) => ({ value: item.key, label: item.label }))}
+                renderValue={(option) => {
+                  const item = priorities.find((entry) => entry.key === option?.value);
+                  return item ? <CatalogBadge item={item} /> : option?.label;
+                }}
+              />
             </div>
           </div>
 
           <div className="form-row">
             <div className="field">
-              <label htmlFor="new-task-dueDate">Prazo</label>
-              <input id="new-task-dueDate" name="dueDate" type="date" />
+              <label>Prazo</label>
+              <DateField name="dueDate" value={dueDate || null} onChange={setDueDate} />
             </div>
 
             <div className="field">
-              <label htmlFor="new-task-recurrence">Repetir (Rotina)</label>
-              <select id="new-task-recurrence" name="recurrence" defaultValue="none">
-                <option value="none">Não repete</option>
-                <option value="daily">Diariamente</option>
-                <option value="weekly">Semanalmente</option>
-                <option value="monthly">Mensalmente</option>
-              </select>
+              <label>Repetir (Rotina)</label>
+              <SelectPopover
+                name="recurrence"
+                ariaLabel="Repetir"
+                value={recurrence}
+                onChange={setRecurrence}
+                options={[
+                  { value: "none", label: "Não repete" },
+                  { value: "daily", label: "Diariamente" },
+                  { value: "weekly", label: "Semanalmente" },
+                  { value: "monthly", label: "Mensalmente" }
+                ]}
+              />
             </div>
           </div>
 
-          <div className="field" style={{ flexDirection: "row", alignItems: "center", gap: "8px" }}>
-            <input id="new-task-repeatSubtasks" name="repeatSubtasks" type="checkbox" defaultChecked={true} />
-            <label htmlFor="new-task-repeatSubtasks" style={{ cursor: "pointer", userSelect: "none" }}>
-              Resetar e repetir subtarefas a cada ciclo de rotina
-            </label>
-          </div>
-
-          <TagSelector allTags={allTags} />
+          {recurrence !== "none" ? (
+            <CustomCheckbox
+              checked={repeatSubtasks}
+              onChange={setRepeatSubtasks}
+              label="Repetir subtarefas a cada ciclo"
+            />
+          ) : null}
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "12px" }}>
             <button type="button" className="button-secondary compact" onClick={() => setIsOpen(false)}>
@@ -142,3 +210,119 @@ export function NewTaskModal({
     </>
   );
 }
+
+type QuickCreateProps = {
+  projects: Project[];
+  defaultProjectId?: string;
+  statuses?: CatalogItem[];
+  priorities?: CatalogItem[];
+};
+
+export function QuickCreateTask({ projects, defaultProjectId, statuses, priorities }: QuickCreateProps) {
+  const [title, setTitle] = useState("");
+  const [projectId, setProjectId] = useState(defaultProjectId || projects[0]?.id || "");
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (defaultProjectId) setProjectId(defaultProjectId);
+  }, [defaultProjectId]);
+
+  if (!projects.length) return null;
+
+  const submitQuick = () => {
+    const trimmed = title.trim();
+    if (!trimmed || !projectId) return;
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set("projectId", projectId);
+      formData.set("title", trimmed);
+      formData.set("status", "todo");
+      formData.set("priority", "medium");
+      formData.set("recurrence", "none");
+      await createTaskAction(formData);
+      setTitle("");
+    });
+  };
+
+  const createOrOpenDetails = () => {
+    if (!title.trim()) {
+      setDetailsOpen(true);
+      return;
+    }
+    submitQuick();
+  };
+
+  return (
+    <div className="quick-create">
+      <input
+        type="text"
+        className="quick-create-input"
+        placeholder="Nova tarefa… Enter para criar"
+        value={title}
+        disabled={isPending}
+        onChange={(e) => setTitle(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            createOrOpenDetails();
+          }
+        }}
+        aria-label="Título da nova tarefa"
+      />
+      {!defaultProjectId ? (
+        <SelectPopover
+          ariaLabel="Projeto da nova tarefa"
+          value={projectId}
+          onChange={setProjectId}
+          triggerClassName="quick-create-project"
+          options={projects.map((p) => ({ value: p.id, label: p.name }))}
+        />
+      ) : null}
+      <button
+        type="button"
+        className="button compact"
+        disabled={isPending}
+        onClick={createOrOpenDetails}
+      >
+        Criar
+      </button>
+      <button type="button" className="button-ghost compact" onClick={() => setDetailsOpen(true)}>
+        Detalhes
+      </button>
+      <NewTaskModal
+        projects={projects}
+        defaultProjectId={projectId || defaultProjectId}
+        initialTitle={title}
+        hideTrigger
+        statuses={statuses}
+        priorities={priorities}
+        open={detailsOpen}
+        onOpenChange={(open) => {
+          setDetailsOpen(open);
+          if (!open) setTitle("");
+        }}
+      />
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

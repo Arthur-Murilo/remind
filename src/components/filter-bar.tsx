@@ -2,20 +2,27 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useState, useEffect } from "react";
-import type { Project, TaskFilter } from "@/domain/types";
+import type { CatalogItem, Project, TaskFilter } from "@/domain/types";
+import { SelectPopover } from "@/components/ui-controls";
+import { resolveCatalogItem } from "@/domain/catalog";
+import { CatalogBadge } from "@/components/catalog-badge";
 
 type FilterBarProps = {
   projects?: Project[];
   filter: TaskFilter;
   showProjectSelect?: boolean;
   basePath?: string;
+  statuses?: CatalogItem[];
+  priorities?: CatalogItem[];
 };
 
 export function FilterBar({
   projects = [],
   filter,
   showProjectSelect = true,
-  basePath
+  basePath,
+  statuses = [],
+  priorities = []
 }: FilterBarProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -31,7 +38,7 @@ export function FilterBar({
   const updateQueryParam = useCallback(
     (key: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (value && value !== "all") {
+      if (value && value !== "all" && value !== "") {
         params.set(key, value);
       } else {
         params.delete(key);
@@ -55,117 +62,143 @@ export function FilterBar({
     router.push(currentPath as any);
   };
 
-  const hasActiveFilters = Boolean(
-    filter.search ||
-      (filter.projectId && showProjectSelect) ||
-      (filter.status && filter.status !== "all") ||
-      (filter.priority && filter.priority !== "all") ||
-      (filter.due && filter.due !== "all")
-  );
+  const chips: Array<{ key: string; label: string }> = [];
+  if (filter.search) chips.push({ key: "search", label: `Busca: ${filter.search}` });
+  if (filter.projectId && showProjectSelect) {
+    const name = projects.find((p) => p.id === filter.projectId)?.name || "Projeto";
+    chips.push({ key: "projectId", label: `Projeto: ${name}` });
+  }
+  if (filter.status && filter.status !== "all") {
+    chips.push({
+      key: "status",
+      label: `Status: ${resolveCatalogItem(statuses, filter.status).label}`
+    });
+  }
+  if (filter.priority && filter.priority !== "all") {
+    chips.push({
+      key: "priority",
+      label: `Prioridade: ${resolveCatalogItem(priorities, filter.priority).label}`
+    });
+  }
+  if (filter.due && filter.due !== "all") {
+    const dueMap: Record<string, string> = {
+      overdue: "Atrasadas",
+      soon: "Vencendo",
+      none: "Sem prazo"
+    };
+    chips.push({ key: "due", label: `Prazo: ${dueMap[filter.due] || filter.due}` });
+  }
 
   return (
-    <div className="filter-bar">
-      <div style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Buscar tarefa ou projeto..."
-          aria-label="Buscar tarefa"
+    <div className="filter-panel">
+      <div className="filter-bar">
+        <div className="filter-search">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar tarefa ou projeto..."
+            aria-label="Buscar tarefa"
+          />
+          {searchTerm ? (
+            <button
+              type="button"
+              className="filter-search-clear"
+              onClick={() => {
+                setSearchTerm("");
+                updateQueryParam("search", "");
+              }}
+              title="Limpar busca"
+              aria-label="Limpar busca"
+            >
+              ×
+            </button>
+          ) : null}
+        </div>
+
+        {showProjectSelect ? (
+          <SelectPopover
+            ariaLabel="Filtrar por projeto"
+            value={filter.projectId || ""}
+            onChange={(value) => updateQueryParam("projectId", value)}
+            placeholder="Todos os projetos"
+            triggerClassName="filter-select"
+            options={[
+              { value: "", label: "Todos os projetos" },
+              ...projects.map((project) => ({ value: project.id, label: project.name }))
+            ]}
+          />
+        ) : null}
+
+        <SelectPopover
+          ariaLabel="Filtrar por status"
+          value={filter.status || "all"}
+          onChange={(value) => updateQueryParam("status", value)}
+          triggerClassName="filter-select"
+          options={[
+            { value: "all", label: "Todos os status" },
+            ...statuses.map((item) => ({ value: item.key, label: item.label }))
+          ]}
+          renderValue={(option) => {
+            if (!option || option.value === "all") return option?.label || "Todos os status";
+            return <CatalogBadge item={resolveCatalogItem(statuses, option.value)} />;
+          }}
         />
-        {searchTerm && (
-          <button
-            type="button"
-            onClick={() => {
-              setSearchTerm("");
-              updateQueryParam("search", "");
-            }}
-            style={{
-              position: "absolute",
-              right: "8px",
-              background: "transparent",
-              border: 0,
-              color: "var(--ink-soft)",
-              cursor: "pointer",
-              fontSize: "0.85rem",
-              padding: "2px"
-            }}
-            title="Limpar busca"
-          >
-            ✕
+
+        <SelectPopover
+          ariaLabel="Filtrar por prioridade"
+          value={filter.priority || "all"}
+          onChange={(value) => updateQueryParam("priority", value)}
+          triggerClassName="filter-select"
+          options={[
+            { value: "all", label: "Todas as prioridades" },
+            ...priorities.map((item) => ({ value: item.key, label: item.label }))
+          ]}
+          renderValue={(option) => {
+            if (!option || option.value === "all") return option?.label || "Todas as prioridades";
+            return <CatalogBadge item={resolveCatalogItem(priorities, option.value)} />;
+          }}
+        />
+
+        <SelectPopover
+          ariaLabel="Filtrar por prazo"
+          value={filter.due || "all"}
+          onChange={(value) => updateQueryParam("due", value)}
+          triggerClassName="filter-select"
+          options={[
+            { value: "all", label: "Todos os prazos" },
+            { value: "overdue", label: "Atrasadas" },
+            { value: "soon", label: "Vencendo" },
+            { value: "none", label: "Sem prazo" }
+          ]}
+        />
+
+        {chips.length > 0 ? (
+          <button type="button" className="button-ghost compact filter-clear-text" onClick={handleClear}>
+            Limpar filtros
           </button>
-        )}
+        ) : null}
       </div>
 
-      {showProjectSelect && (
-        <select
-          value={filter.projectId || ""}
-          onChange={(e) => updateQueryParam("projectId", e.target.value)}
-          aria-label="Filtrar por projeto"
-        >
-          <option value="">Todos os projetos</option>
-          {projects.map((project) => (
-            <option key={project.id} value={project.id}>
-              {project.name}
-            </option>
+      {chips.length > 0 ? (
+        <div className="filter-chips" aria-label="Filtros ativos">
+          {chips.map((chip) => (
+            <button
+              key={chip.key}
+              type="button"
+              className="filter-chip"
+              onClick={() => {
+                if (chip.key === "search") setSearchTerm("");
+                updateQueryParam(chip.key, "");
+              }}
+              title={`Remover ${chip.label}`}
+            >
+              <span>{chip.label}</span>
+              <span aria-hidden="true">×</span>
+            </button>
           ))}
-        </select>
-      )}
-
-      <select
-        value={filter.status || "all"}
-        onChange={(e) => updateQueryParam("status", e.target.value)}
-        aria-label="Filtrar por status"
-      >
-        <option value="all">Todos os status</option>
-        <option value="todo">A fazer</option>
-        <option value="in_progress">Em andamento</option>
-        <option value="done">Concluída</option>
-      </select>
-
-      <select
-        value={filter.priority || "all"}
-        onChange={(e) => updateQueryParam("priority", e.target.value)}
-        aria-label="Filtrar por prioridade"
-      >
-        <option value="all">Todas as prioridades</option>
-        <option value="high">Alta</option>
-        <option value="medium">Média</option>
-        <option value="low">Baixa</option>
-      </select>
-
-      <select
-        value={filter.due || "all"}
-        onChange={(e) => updateQueryParam("due", e.target.value)}
-        aria-label="Filtrar por prazo"
-      >
-        <option value="all">Todos os prazos</option>
-        <option value="overdue">Atrasadas</option>
-        <option value="soon">Vencendo</option>
-        <option value="none">Sem prazo</option>
-      </select>
-
-      {hasActiveFilters && (
-        <button
-          type="button"
-          className="button-ghost icon-button"
-          onClick={handleClear}
-          title="Limpar todos os filtros"
-          aria-label="Limpar todos os filtros"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "30px",
-            height: "30px",
-            borderRadius: "var(--radius-sm)",
-            color: "var(--ink-soft)",
-            padding: 0
-          }}
-        >
-          ✕
-        </button>
-      )}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -152,6 +152,26 @@ async function createSchema(sql) {
       created_at timestamptz not null default now()
     )
   `;
+
+  await sql`create unique index if not exists custom_statuses_user_key on custom_statuses (user_id, key)`;
+  await sql`create unique index if not exists custom_priorities_user_key on custom_priorities (user_id, key)`;
+
+  await sql`
+    create table if not exists work_sessions (
+      id text primary key,
+      task_id text not null references tasks(id) on delete cascade,
+      owner_id text not null references users(id) on delete cascade,
+      started_at timestamptz not null,
+      ended_at timestamptz,
+      duration_seconds integer not null default 0,
+      source text not null default 'timer',
+      created_at timestamptz not null default now(),
+      updated_at timestamptz not null default now()
+    )
+  `;
+
+  await sql`create index if not exists work_sessions_owner_started on work_sessions (owner_id, started_at desc)`;
+  await sql`create unique index if not exists work_sessions_one_open on work_sessions (owner_id) where ended_at is null`;
 }
 
 async function seed(sql) {

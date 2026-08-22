@@ -1,4 +1,4 @@
-import { dueFilters, taskPriorities, taskStatuses, type TaskFilter } from "@/domain/types";
+import { dueFilters, type TaskFilter } from "@/domain/types";
 
 type SearchParamsValue = string | string[] | undefined;
 
@@ -15,8 +15,8 @@ export function getTaskFilterFromSearchParams(input: Record<string, SearchParams
 
   return {
     projectId: projectId || undefined,
-    status: taskStatuses.includes(status as (typeof taskStatuses)[number]) ? (status as TaskFilter["status"]) : "all",
-    priority: taskPriorities.includes(priority as (typeof taskPriorities)[number]) ? (priority as TaskFilter["priority"]) : "all",
+    status: status && status !== "all" ? status : "all",
+    priority: priority && priority !== "all" ? priority : "all",
     due: dueFilters.includes(due as (typeof dueFilters)[number]) ? (due as TaskFilter["due"]) : "all",
     search: search || undefined
   };

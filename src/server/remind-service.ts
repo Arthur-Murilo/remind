@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 
-import type { Project, Reminder, Task, TaskFilter, TaskPriority, TaskRecurrence, TaskStatus } from "@/domain/types";
+import type { Project, Reminder, Task, TaskFilter, TaskRecurrence, TimePeriod, WorkSession } from "@/domain/types";
+import { SYSTEM_PRIORITY_ITEMS, SYSTEM_STATUS_ITEMS, mergeCatalog, slugifyCatalogKey } from "@/domain/catalog";
 import { db } from "@/lib/db";
 
 type DashboardMetrics = {
@@ -163,7 +164,7 @@ export async function getTasks(userId: string, filter: TaskFilter = {}): Promise
 
   const taskIds = rawTasks.map((t) => t.id);
 
-  const [tagsRows, subtaskRows] = await Promise.all([
+  const [tagsRows, subtaskRows, runningRows] = await Promise.all([
     sql<{ taskId: string; id: string; userId: string; name: string; color: string; createdAt: string }[]>`
       select tt.task_id as "taskId", t.id, t.user_id as "userId", t.name, t.color, t.created_at as "createdAt"
       from task_tags tt
@@ -176,6 +177,12 @@ export async function getTasks(userId: string, filter: TaskFilter = {}): Promise
       from subtasks
       where task_id in ${sql(taskIds)}
       order by created_at asc
+    `,
+    sql<{ id: string; taskId: string; startedAt: string }[]>`
+      select id, task_id as "taskId", started_at as "startedAt"
+      from work_sessions
+      where owner_id = ${userId}
+        and ended_at is null
     `
   ]);
 
@@ -196,7 +203,8 @@ export async function getTasks(userId: string, filter: TaskFilter = {}): Promise
   return rawTasks.map((task) => ({
     ...task,
     tags: tagsByTaskId.get(task.id) || [],
-    subtasks: subtasksByTaskId.get(task.id) || []
+    subtasks: subtasksByTaskId.get(task.id) || [],
+    runningSession: runningRows.find((row) => row.taskId === task.id) || null
   }));
 }
 
@@ -271,6 +279,24 @@ export async function createProject(input: {
   return project;
 }
 
+export async function renameProject(userId: string, projectId: string, name: string) {
+  const sql = db();
+  const [project] = await sql<Project[]>`
+    update projects
+    set name = ${name}, updated_at = now()
+    where id = ${projectId} and owner_id = ${userId}
+    returning
+      id,
+      owner_id as "ownerId",
+      name,
+      description,
+      status,
+      created_at as "createdAt",
+      updated_at as "updatedAt"
+  `;
+  return project;
+}
+
 function calculateNextDueDate(currentDueDateStr: string | null, recurrence: TaskRecurrence): string {
   const baseDate = currentDueDateStr ? new Date(`${currentDueDateStr}T09:00:00Z`) : new Date();
   const validDate = isNaN(baseDate.getTime()) ? new Date() : baseDate;
@@ -291,12 +317,17 @@ export async function createTask(input: {
   projectId: string;
   title: string;
   description?: string;
-  priority: TaskPriority;
-  status: TaskStatus;
+  priority: string;
+  status: string;
   dueDate?: string | null;
   recurrence?: TaskRecurrence;
   repeatSubtasks?: boolean;
 }) {
+  const project = await getProjectById(input.userId, input.projectId);
+  if (!project) {
+    return null;
+  }
+
   const sql = db();
   const recurrence = input.recurrence || "none";
   const repeatSubtasks = input.repeatSubtasks ?? true;
@@ -341,12 +372,17 @@ export async function updateTask(input: {
   projectId: string;
   title: string;
   description?: string;
-  priority: TaskPriority;
-  status: TaskStatus;
+  priority: string;
+  status: string;
   dueDate?: string | null;
   recurrence?: TaskRecurrence;
   repeatSubtasks?: boolean;
 }) {
+  const project = await getProjectById(input.userId, input.projectId);
+  if (!project) {
+    return null;
+  }
+
   const sql = db();
   const recurrence = input.recurrence || "none";
   const repeatSubtasks = input.repeatSubtasks ?? true;
@@ -395,7 +431,7 @@ export async function markReminderAsRead(userId: string, reminderId: string) {
   `;
 }
 
-async function syncReminder(userId: string, taskId: string, dueDate: string | null, status: TaskStatus) {
+async function syncReminder(userId: string, taskId: string, dueDate: string | null, status: string) {
   const sql = db();
 
   if (!dueDate || status === "done") {
@@ -414,7 +450,7 @@ async function syncReminder(userId: string, taskId: string, dueDate: string | nu
   `;
 }
 
-export async function toggleTaskStatus(userId: string, taskId: string, status: TaskStatus) {
+export async function toggleTaskStatus(userId: string, taskId: string, status: string) {
   const sql = db();
   let nextStatus = status;
   let nextDueDate: string | null = null;
@@ -506,6 +542,13 @@ export async function setTaskTags(taskId: string, tagIds: string[]) {
 
 export async function createSubtask(userId: string, taskId: string, title: string) {
   const sql = db();
+  const [owned] = await sql<{ id: string }[]>`
+    select id from tasks where id = ${taskId} and owner_id = ${userId} limit 1
+  `;
+  if (!owned) {
+    return null;
+  }
+
   const [subtask] = await sql`
     insert into subtasks (id, task_id, owner_id, title, completed)
     values (${randomUUID()}, ${taskId}, ${userId}, ${title}, false)
@@ -531,7 +574,228 @@ export async function deleteSubtask(userId: string, subtaskId: string) {
   `;
 }
 
-/* ——— Custom Statuses & Priorities ——— */
+export async function updateSubtaskTitle(userId: string, subtaskId: string, title: string) {
+  const sql = db();
+  await sql`
+    update subtasks
+    set title = ${title}, updated_at = now()
+    where id = ${subtaskId} and owner_id = ${userId}
+  `;
+}
+
+export async function deleteTask(userId: string, taskId: string) {
+  const sql = db();
+  await sql`
+    delete from tasks
+    where id = ${taskId} and owner_id = ${userId}
+  `;
+}
+
+export async function deleteProject(userId: string, projectId: string) {
+  const sql = db();
+  await sql`
+    delete from projects
+    where id = ${projectId} and owner_id = ${userId}
+  `;
+}
+
+export async function patchTask(
+  userId: string,
+  taskId: string,
+  patch: {
+    status?: string;
+    priority?: string;
+    dueDate?: string | null;
+    projectId?: string;
+    title?: string;
+  }
+) {
+  const sql = db();
+  const [existing] = await sql<Task[]>`
+    select
+      id,
+      project_id as "projectId",
+      owner_id as "ownerId",
+      title,
+      description,
+      status,
+      priority,
+      due_date::text as "dueDate",
+      recurrence,
+      repeat_subtasks as "repeatSubtasks",
+      created_at as "createdAt",
+      updated_at as "updatedAt"
+    from tasks
+    where id = ${taskId} and owner_id = ${userId}
+    limit 1
+  `;
+
+  if (!existing) {
+    return null;
+  }
+
+  if (patch.projectId) {
+    const project = await getProjectById(userId, patch.projectId);
+    if (!project) {
+      return null;
+    }
+  }
+
+  const nextStatus = patch.status ?? existing.status;
+  const nextPriority = patch.priority ?? existing.priority;
+  const nextDueDate = patch.dueDate !== undefined ? patch.dueDate : existing.dueDate;
+  const nextProjectId = patch.projectId ?? existing.projectId;
+  const nextTitle = patch.title?.trim() || existing.title;
+
+  const [task] = await sql<Task[]>`
+    update tasks
+    set
+      project_id = ${nextProjectId},
+      title = ${nextTitle},
+      status = ${nextStatus},
+      priority = ${nextPriority},
+      due_date = ${nextDueDate},
+      updated_at = now()
+    where id = ${taskId} and owner_id = ${userId}
+    returning
+      id,
+      project_id as "projectId",
+      owner_id as "ownerId",
+      title,
+      description,
+      status,
+      priority,
+      due_date::text as "dueDate",
+      recurrence,
+      repeat_subtasks as "repeatSubtasks",
+      created_at as "createdAt",
+      updated_at as "updatedAt"
+  `;
+
+  if (task) {
+    await syncReminder(userId, taskId, task.dueDate || null, task.status);
+  }
+
+  return task;
+}
+
+export async function setTaskTagsForOwner(userId: string, taskId: string, tagIds: string[]) {
+  const sql = db();
+  const [owned] = await sql<{ id: string }[]>`
+    select id from tasks where id = ${taskId} and owner_id = ${userId} limit 1
+  `;
+  if (!owned) {
+    return;
+  }
+
+  const limited = tagIds.slice(0, 5);
+  let ownedTagIds: string[] = [];
+  if (limited.length > 0) {
+    const rows = await sql<{ id: string }[]>`
+      select id from tags
+      where user_id = ${userId}
+        and id in ${sql(limited)}
+    `;
+    ownedTagIds = rows.map((row) => row.id);
+  }
+
+  await setTaskTags(taskId, ownedTagIds);
+}
+
+export async function updateTag(userId: string, tagId: string, patch: { name?: string; color?: string }) {
+  const sql = db();
+  const [existing] = await sql<{ id: string; name: string; color: string }[]>`
+    select id, name, color from tags where id = ${tagId} and user_id = ${userId} limit 1
+  `;
+  if (!existing) return null;
+
+  const name = patch.name?.trim() || existing.name;
+  const color = patch.color || existing.color;
+  const [tag] = await sql`
+    update tags
+    set name = ${name}, color = ${color}
+    where id = ${tagId} and user_id = ${userId}
+    returning id, user_id as "userId", name, color, created_at as "createdAt"
+  `;
+  return tag;
+}
+
+export async function deleteTag(userId: string, tagId: string) {
+  const sql = db();
+  await sql`delete from tags where id = ${tagId} and user_id = ${userId}`;
+}
+
+type CatalogKind = "status" | "priority";
+
+function systemItemsFor(kind: CatalogKind) {
+  return kind === "status" ? SYSTEM_STATUS_ITEMS : SYSTEM_PRIORITY_ITEMS;
+}
+
+function uniqueCatalogKey(label: string, reserved: Set<string>) {
+  let key = slugifyCatalogKey(label);
+  if (reserved.has(key)) {
+    key = `${key}_${randomUUID().slice(0, 6)}`;
+  }
+  return key;
+}
+
+export async function createCustomStatus(userId: string, label: string, color: string = "#5b6cff") {
+  const sql = db();
+  const key = uniqueCatalogKey(label, new Set(SYSTEM_STATUS_ITEMS.map((item) => item.key)));
+  const [status] = await sql`
+    insert into custom_statuses (id, user_id, key, label, color)
+    values (${randomUUID()}, ${userId}, ${key}, ${label}, ${color})
+    on conflict (user_id, key) do nothing
+    returning id, user_id as "userId", key, label, color, created_at as "createdAt"
+  `;
+  if (status) return status;
+  const [retry] = await sql`
+    insert into custom_statuses (id, user_id, key, label, color)
+    values (${randomUUID()}, ${userId}, ${`${key}_${randomUUID().slice(0, 6)}`}, ${label}, ${color})
+    returning id, user_id as "userId", key, label, color, created_at as "createdAt"
+  `;
+  return retry;
+}
+
+export async function createCustomPriority(userId: string, label: string, color: string = "#e2a336") {
+  const sql = db();
+  const key = uniqueCatalogKey(label, new Set(SYSTEM_PRIORITY_ITEMS.map((item) => item.key)));
+  const [priority] = await sql`
+    insert into custom_priorities (id, user_id, key, label, color)
+    values (${randomUUID()}, ${userId}, ${key}, ${label}, ${color})
+    on conflict (user_id, key) do nothing
+    returning id, user_id as "userId", key, label, color, created_at as "createdAt"
+  `;
+  if (priority) return priority;
+  const [retry] = await sql`
+    insert into custom_priorities (id, user_id, key, label, color)
+    values (${randomUUID()}, ${userId}, ${`${key}_${randomUUID().slice(0, 6)}`}, ${label}, ${color})
+    returning id, user_id as "userId", key, label, color, created_at as "createdAt"
+  `;
+  return retry;
+}
+
+export async function setCatalogColor(userId: string, kind: CatalogKind, key: string, color: string) {
+  const sql = db();
+  const system = systemItemsFor(kind).find((item) => item.key === key);
+  const label = system?.label || key;
+  if (kind === "status") {
+    const [row] = await sql`
+      insert into custom_statuses (id, user_id, key, label, color)
+      values (${randomUUID()}, ${userId}, ${key}, ${label}, ${color})
+      on conflict (user_id, key) do update set color = excluded.color
+      returning id, user_id as "userId", key, label, color, created_at as "createdAt"
+    `;
+    return row;
+  }
+  const [row] = await sql`
+    insert into custom_priorities (id, user_id, key, label, color)
+    values (${randomUUID()}, ${userId}, ${key}, ${label}, ${color})
+    on conflict (user_id, key) do update set color = excluded.color
+    returning id, user_id as "userId", key, label, color, created_at as "createdAt"
+  `;
+  return row;
+}
 
 export async function getCustomStatuses(userId: string) {
   const sql = db();
@@ -541,17 +805,6 @@ export async function getCustomStatuses(userId: string) {
     where user_id = ${userId}
     order by label asc
   `;
-}
-
-export async function createCustomStatus(userId: string, label: string, color: string = "#5b6cff") {
-  const sql = db();
-  const key = label.toLowerCase().trim().replace(/\s+/g, "_");
-  const [status] = await sql`
-    insert into custom_statuses (id, user_id, key, label, color)
-    values (${randomUUID()}, ${userId}, ${key}, ${label}, ${color})
-    returning id, user_id as "userId", key, label, color, created_at as "createdAt"
-  `;
-  return status;
 }
 
 export async function getCustomPriorities(userId: string) {
@@ -564,13 +817,223 @@ export async function getCustomPriorities(userId: string) {
   `;
 }
 
-export async function createCustomPriority(userId: string, label: string, color: string = "#e2a336") {
-  const sql = db();
-  const key = label.toLowerCase().trim().replace(/\s+/g, "_");
-  const [priority] = await sql`
-    insert into custom_priorities (id, user_id, key, label, color)
-    values (${randomUUID()}, ${userId}, ${key}, ${label}, ${color})
-    returning id, user_id as "userId", key, label, color, created_at as "createdAt"
-  `;
-  return priority;
+export async function getCatalogs(userId: string) {
+  const [customStatuses, customPriorities] = await Promise.all([
+    getCustomStatuses(userId),
+    getCustomPriorities(userId)
+  ]);
+  return {
+    statuses: mergeCatalog(SYSTEM_STATUS_ITEMS, customStatuses),
+    priorities: mergeCatalog(SYSTEM_PRIORITY_ITEMS, customPriorities)
+  };
 }
+
+export async function deleteCatalogItem(userId: string, kind: CatalogKind, key: string) {
+  const systemKeys = new Set(systemItemsFor(kind).map((item) => item.key));
+  if (systemKeys.has(key)) {
+    return;
+  }
+
+  const sql = db();
+  if (kind === "status") {
+    await sql`update tasks set status = ${"todo"}, updated_at = now() where owner_id = ${userId} and status = ${key}`;
+    await sql`delete from custom_statuses where user_id = ${userId} and key = ${key}`;
+    return;
+  }
+
+  await sql`update tasks set priority = ${"medium"}, updated_at = now() where owner_id = ${userId} and priority = ${key}`;
+  await sql`delete from custom_priorities where user_id = ${userId} and key = ${key}`;
+}
+
+export async function isAllowedStatus(userId: string, key: string) {
+  if (SYSTEM_STATUS_ITEMS.some((item) => item.key === key)) return true;
+  const sql = db();
+  const rows = await sql`select 1 from custom_statuses where user_id = ${userId} and key = ${key} limit 1`;
+  return rows.length > 0;
+}
+
+export async function isAllowedPriority(userId: string, key: string) {
+  if (SYSTEM_PRIORITY_ITEMS.some((item) => item.key === key)) return true;
+  const sql = db();
+  const rows = await sql`select 1 from custom_priorities where user_id = ${userId} and key = ${key} limit 1`;
+  return rows.length > 0;
+}
+
+function periodBounds(period: TimePeriod) {
+  const now = new Date();
+  const from = new Date(now);
+  from.setHours(0, 0, 0, 0);
+
+  if (period === "week") {
+    const day = from.getDay();
+    const diff = day === 0 ? 6 : day - 1;
+    from.setDate(from.getDate() - diff);
+  } else if (period === "month") {
+    from.setDate(1);
+  }
+
+  const to = new Date(now);
+  to.setHours(23, 59, 59, 999);
+  return { from: from.toISOString(), to: to.toISOString() };
+}
+
+async function closeOpenSessions(userId: string) {
+  const sql = db();
+  await sql`
+    update work_sessions
+    set
+      ended_at = now(),
+      duration_seconds = greatest(1, floor(extract(epoch from (now() - started_at)))::int),
+      updated_at = now()
+    where owner_id = ${userId}
+      and ended_at is null
+  `;
+}
+
+export async function startWorkSession(userId: string, taskId: string) {
+  const task = await getTaskById(userId, taskId);
+  if (!task) return null;
+
+  const sql = db();
+  await closeOpenSessions(userId);
+  const [session] = await sql`
+    insert into work_sessions (id, task_id, owner_id, started_at, ended_at, duration_seconds, source)
+    values (${randomUUID()}, ${taskId}, ${userId}, now(), null, 0, ${"timer"})
+    returning
+      id,
+      task_id as "taskId",
+      owner_id as "ownerId",
+      started_at as "startedAt",
+      ended_at as "endedAt",
+      duration_seconds as "durationSeconds",
+      source
+  `;
+  return session;
+}
+
+export async function stopWorkSession(userId: string) {
+  await closeOpenSessions(userId);
+}
+
+export async function createManualSession(userId: string, taskId: string, date: string, durationSeconds: number) {
+  const task = await getTaskById(userId, taskId);
+  if (!task) return null;
+
+  const seconds = Math.max(60, Math.floor(durationSeconds));
+  const startedAt = new Date(`${date}T12:00:00`);
+  if (Number.isNaN(startedAt.getTime())) return null;
+  const endedAt = new Date(startedAt.getTime() + seconds * 1000);
+
+  const sql = db();
+  const [session] = await sql`
+    insert into work_sessions (id, task_id, owner_id, started_at, ended_at, duration_seconds, source)
+    values (${randomUUID()}, ${taskId}, ${userId}, ${startedAt.toISOString()}, ${endedAt.toISOString()}, ${seconds}, ${"manual"})
+    returning
+      id,
+      task_id as "taskId",
+      owner_id as "ownerId",
+      started_at as "startedAt",
+      ended_at as "endedAt",
+      duration_seconds as "durationSeconds",
+      source
+  `;
+  return session;
+}
+
+export async function updateWorkSessionDuration(userId: string, sessionId: string, durationSeconds: number) {
+  const seconds = Math.max(60, Math.floor(durationSeconds));
+  const sql = db();
+  await sql`
+    update work_sessions
+    set
+      duration_seconds = ${seconds},
+      ended_at = started_at + (${seconds} * interval '1 second'),
+      updated_at = now()
+    where id = ${sessionId}
+      and owner_id = ${userId}
+      and ended_at is not null
+  `;
+}
+
+export async function deleteWorkSession(userId: string, sessionId: string) {
+  const sql = db();
+  await sql`
+    delete from work_sessions
+    where id = ${sessionId} and owner_id = ${userId}
+  `;
+}
+
+export async function getTimeReport(userId: string, filter: { projectId?: string; period: TimePeriod }) {
+  const sql = db();
+  const { from, to } = periodBounds(filter.period);
+  const values: string[] = [userId, from, to];
+  const conditions = [
+    "s.owner_id = $1",
+    "s.started_at < $3",
+    "(s.ended_at is null or s.ended_at > $2)"
+  ];
+
+  if (filter.projectId) {
+    values.push(filter.projectId);
+    conditions.push(`t.project_id = $${values.length}`);
+  }
+
+  const sessions = await sql.unsafe<WorkSession[]>(
+    `select
+       s.id,
+       s.task_id as "taskId",
+       s.owner_id as "ownerId",
+       t.title as "taskTitle",
+       t.project_id as "projectId",
+       p.name as "projectName",
+       s.started_at as "startedAt",
+       s.ended_at as "endedAt",
+       case
+         when s.ended_at is null then greatest(1, floor(extract(epoch from (now() - s.started_at)))::int)
+         else s.duration_seconds
+       end as "durationSeconds",
+       s.source
+     from work_sessions s
+     join tasks t on t.id = s.task_id
+     join projects p on p.id = t.project_id
+     where ${conditions.join(" and ")}
+     order by s.started_at desc`,
+    values
+  );
+
+  const byProject = new Map<string, { projectId: string; projectName: string; durationSeconds: number }>();
+  const byTask = new Map<string, { taskId: string; taskTitle: string; projectName: string; durationSeconds: number }>();
+  let totalSeconds = 0;
+
+  for (const session of sessions) {
+    totalSeconds += session.durationSeconds;
+
+    const project = byProject.get(session.projectId) || {
+      projectId: session.projectId,
+      projectName: session.projectName,
+      durationSeconds: 0
+    };
+    project.durationSeconds += session.durationSeconds;
+    byProject.set(session.projectId, project);
+
+    const task = byTask.get(session.taskId) || {
+      taskId: session.taskId,
+      taskTitle: session.taskTitle,
+      projectName: session.projectName,
+      durationSeconds: 0
+    };
+    task.durationSeconds += session.durationSeconds;
+    byTask.set(session.taskId, task);
+  }
+
+  return {
+    period: filter.period,
+    from,
+    to,
+    totalSeconds,
+    projects: [...byProject.values()].sort((a, b) => b.durationSeconds - a.durationSeconds),
+    tasks: [...byTask.values()].sort((a, b) => b.durationSeconds - a.durationSeconds),
+    sessions
+  };
+}
+

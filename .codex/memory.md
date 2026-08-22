@@ -17,6 +17,8 @@
 - Notificações de lembretes via sininho no canto superior direito da topbar.
 - Suíte de testes E2E automatizada com Playwright (`npm run test:e2e`), rodando Chromium de forma legível e garantindo login, criação via modal, edição com fechamento de modal e status.
 - Suporte a Tarefas Recorrentes (Rotinas estilo Google Tasks): repetição `daily`, `weekly`, `monthly` com opção de resetar subtarefas a cada ciclo da rotina.
+- Sessão de trabalho: timer na tarefa (uma aberta por vez), edição manual e visão Tempo (dia/semana/mês, por projeto).
+- Status e Prioridade de sistema protegidos; extras criáveis, recoloríveis e excluíveis. Prazo continua data.
 
 ## Prioridades Atuais
 
@@ -28,6 +30,24 @@
 - Bateria TestSprite MCP: **30/30 Passed** (Batch 1 login/dashboard + Batch 2 CRUD/filtros/recorrência/lembretes/subtarefas/tags).
 - Relatório: `testsprite_tests/testsprite-mcp-test-report.md`.
 - Nenhum bug de produto encontrado nessa rodada.
+
+## Decisões UX (2026-08-14)
+
+- Exclusão permanente com cascade em projeto; confirmação em diálogo para tarefa e projeto.
+- Edição inline: Status, Prioridade, Prazo, Etiqueta, Projeto; modal para título/descrição/recorrência.
+- Coluna **Etiqueta** na lista; glossário em `CONTEXT.md`.
+- Subtarefas inline sob a linha (sem modal).
+- Larguras de coluna persistidas em `localStorage`.
+- Favicon via `src/app/icon.tsx`.
+
+## Refino operacional (2026-08-14)
+
+- Controles unificados em `ui-controls.tsx`: `SelectPopover`, `DateField`, `CustomCheckbox` (portal, Escape, hidden inputs).
+- Filtros com popovers + chips removíveis + “Limpar filtros”.
+- Criação rápida (título/projeto) + “Detalhes” para formulário completo; etiquetas só após criar.
+- `repeatSubtasks` condicional (checkbox quadrado, default marcado) respeitado nas Server Actions.
+- Métricas em faixa compacta (sem emojis); menu ⋯ de projeto com ícones; subtarefas estilo Asana com confirmação de exclusão.
+- Autorização reforçada: `projectId` e `tagIds` validados por dono em create/update/set tags.
 
 ## Restrições
 

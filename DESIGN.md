@@ -23,9 +23,12 @@
 
 - App shell: sidebar (~244px) + topbar fina + área principal full-bleed.
 - Sidebar: Meu dia, Lembretes, lista de projetos com dots e contagem, criar projeto inline.
-- Meu dia / Lembretes: toolbar + filtros + lista tabular densa (tarefa | projeto | status | prioridade | prazo).
-- Projeto: mesma lista + composer sticky de nova tarefa à direita.
-- Sem rail direito de cards na home.
+- Meu dia / Lembretes: toolbar + filtros + lista tabular densa (tarefa | projeto | status | prioridade | prazo | etiqueta | tempo | ações).
+- Edição inline nas células de status, prioridade, prazo, projeto e etiqueta; duplo clique no título para rename na linha; modal só para descrição/recorrência.
+- Colunas redimensionáveis com largura persistida no navegador.
+- Subtarefas expandem sob a linha; a seta fica à esquerda do título.
+- Sessões de trabalho: timer na linha + visão Tempo na sidebar (dia/semana/mês, por projeto).
+- Projeto: mesma lista (sem coluna projeto) + composer de nova tarefa.
 
 ## Components
 

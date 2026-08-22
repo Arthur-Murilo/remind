@@ -3,28 +3,26 @@
 ## Tarefa Atual
 
 ### Tarefa
-Bateria de testes E2E com TestSprite MCP e correção de funcionalidades quebradas.
+Implementar as 7 frentes: UX da lista, catálogos, modal, criação, cronometragem.
 
 ### Objetivo
-Validar cada funcionalidade do sistema `remind` via TestSprite (E2E frontend), analisar falhas e corrigir o que não estiver funcionando corretamente.
+Entregar o plano fechado no grill, com o ajuste da frente 5: campo vazio abre o modal; com texto, cria na hora.
 
 ### Subtarefas
-- [x] Autenticar/verificar conta TestSprite e créditos disponíveis (Free, 150 créditos).
-- [x] Garantir app local rodando (`npm run dev` em http://localhost:3000).
-- [x] Bootstrap TestSprite (config criada em `testsprite_tests/tmp/config.json`).
-- [x] Gerar sumário de código, PRD padronizado e plano de testes frontend (~50 casos).
-- [x] Executar Batch 1 (TC001–TC015): login, dashboard, concluir/reabrir, logout, filtro — **15/15 Passed**.
-- [x] Executar Batch 2 (CRUD/filtros/recorrência/lembretes/subtarefas/tags/validação) — **15/15 Passed**.
-- [x] Analisar relatório de falhas: **nenhum bug de produto detectado**.
-- [x] Gerar relatório consolidado em `testsprite_tests/testsprite-mcp-test-report.md`.
-- [ ] (Opcional) Instalar browsers Playwright e revalidar `npm run test:e2e` localmente.
+- [x] 1. Centralizar diálogo de exclusão.
+- [x] 2. Caret da subtarefa antes do título.
+- [x] 3. Status/Prioridade/Etiqueta: criar, recolorir, excluir; lista com 5 + scroll.
+- [x] 4. Modal Novo Projeto sem sangria de cabeçalhos (portal + z-index).
+- [x] 5. Criar em Meu dia: vazio → modal; com texto → cria.
+- [x] 6. Duplo clique no título para editar inline.
+- [x] 7. Sessão de trabalho: timer, edição manual, visão Tempo.
+- [x] Testes E2E das 7 frentes + typecheck (14/14).
 
 ### Status
-Concluído com sucesso (30/30 testes TestSprite Passed; sem correções de código necessárias).
+Concluída.
 
 ### Bloqueios
-Nenhum bloqueio de produto. Ambiente local Playwright sem Chromium instalado no sandbox (não afeta TestSprite).
+Nenhum.
 
 ### Próximos Passos
-1. Apresentar relatório ao usuário.
-2. Se desejar cobertura extra: `npx playwright install` + `npm run test:e2e`, ou Batch 3 no TestSprite em production mode.
+Aguardar pedido da próxima rodada (Bugbot, Security Review, TestSprite).

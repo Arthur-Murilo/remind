@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 type ModalProps = {
   isOpen: boolean;
@@ -26,9 +27,9 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === "undefined") return null;
 
-  return (
+  return createPortal(
     <div className="modal-backdrop" onClick={onClose} aria-modal="true" role="dialog">
       <div className="modal-container" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
@@ -39,6 +40,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
         </div>
         <div className="modal-body">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

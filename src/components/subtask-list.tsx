@@ -1,32 +1,28 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { createSubtaskAction, toggleSubtaskAction, deleteSubtaskAction } from "@/server/actions";
-import { Modal } from "@/components/modal";
+import { createSubtaskAction, toggleSubtaskAction, deleteSubtaskAction, updateSubtaskTitleAction } from "@/server/actions";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { TrashIcon } from "@/components/icons";
 import type { Subtask } from "@/domain/types";
 
 type SubtaskListProps = {
   taskId: string;
   subtasks?: Subtask[];
+  expanded: boolean;
 };
 
-export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
+export function SubtaskList({ taskId, subtasks = [], expanded }: SubtaskListProps) {
+  const [draft, setDraft] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<Subtask | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const completedCount = subtasks.filter((s) => s.completed).length;
-  const totalCount = subtasks.length;
-
-  const handleCreate = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle.trim()) return;
-
-    const title = newTitle.trim();
-    setNewTitle("");
-    setIsAddModalOpen(false);
-
+  const handleCreate = () => {
+    const title = draft.trim();
+    if (!title) return;
+    setDraft("");
     startTransition(async () => {
       const formData = new FormData();
       formData.append("taskId", taskId);
@@ -44,94 +40,130 @@ export function SubtaskList({ taskId, subtasks = [] }: SubtaskListProps) {
     });
   };
 
-  const handleDelete = (subtaskId: string) => {
+  const confirmDelete = () => {
+    if (!pendingDelete) return;
+    const id = pendingDelete.id;
+    setPendingDelete(null);
     startTransition(async () => {
       const formData = new FormData();
-      formData.append("subtaskId", subtaskId);
+      formData.append("subtaskId", id);
       await deleteSubtaskAction(formData);
     });
   };
 
+  const saveTitle = (subtaskId: string) => {
+    const title = editTitle.trim();
+    setEditingId(null);
+    if (!title) return;
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("subtaskId", subtaskId);
+      formData.append("title", title);
+      await updateSubtaskTitleAction(formData);
+    });
+  };
+
   return (
-    <div className="subtask-row-container">
-      <div className="subtask-header-line">
-        <button
-          type="button"
-          className="subtask-triangle-btn"
-          onClick={() => setIsOpen(!isOpen)}
-          aria-expanded={isOpen}
-          title={isOpen ? "Recolher subtarefas" : "Expandir subtarefas"}
-        >
-          <span className={`triangle-icon ${isOpen ? "open" : ""}`}>▶</span>
-          {totalCount > 0 && <span className="subtask-badge-count">{completedCount}/{totalCount}</span>}
-        </button>
+    <div className="asana-subtasks">
+      {expanded ? (
+        <div className="asana-subtasks-list">
+          {subtasks.length === 0 ? (
+            <div className="asana-subtasks-empty">Nenhuma subtarefa ainda.</div>
+          ) : null}
 
-        <button
-          type="button"
-          className="subtask-quick-add-btn"
-          onClick={() => setIsAddModalOpen(true)}
-          title="Adicionar nova subtarefa"
-        >
-          + Subtarefa
-        </button>
-      </div>
+          {subtasks.map((st) => (
+            <div key={st.id} className={`asana-subtask-row ${st.completed ? "done" : ""}`}>
+              <button
+                type="button"
+                className={`task-checkbox subtask-check ${st.completed ? "checked" : ""}`}
+                onClick={() => handleToggle(st.id, st.completed)}
+                disabled={isPending}
+                aria-label={st.completed ? "Reabrir subtarefa" : "Concluir subtarefa"}
+              >
+                {st.completed ? (
+                  <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M11.6666 3.5L5.24992 9.91667L2.33325 7"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                ) : null}
+              </button>
 
-      {isOpen && (
-        <div className="subtask-expanded-list">
-          {subtasks.length > 0 ? (
-            subtasks.map((st) => (
-              <div key={st.id} className="subtask-row-item">
+              {editingId === st.id ? (
                 <input
-                  type="checkbox"
-                  checked={st.completed}
-                  onChange={() => handleToggle(st.id, st.completed)}
-                  disabled={isPending}
+                  className="asana-subtask-input"
+                  value={editTitle}
+                  autoFocus
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  onBlur={() => saveTitle(st.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveTitle(st.id);
+                    if (e.key === "Escape") setEditingId(null);
+                  }}
+                  aria-label="Editar subtarefa"
                 />
-                <span className={`subtask-text ${st.completed ? "done" : ""}`}>
-                  {st.title}
-                </span>
+              ) : (
                 <button
                   type="button"
-                  className="subtask-remove-icon"
-                  onClick={() => handleDelete(st.id)}
-                  title="Excluir subtarefa"
+                  className="asana-subtask-title"
+                  onClick={() => {
+                    setEditingId(st.id);
+                    setEditTitle(st.title);
+                  }}
                 >
-                  ✕
+                  {st.title}
                 </button>
-              </div>
-            ))
-          ) : (
-            <div className="subtask-empty-hint">
-              Nenhuma subtarefa adicionada ainda.
-            </div>
-          )}
-        </div>
-      )}
+              )}
 
-      <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Adicionar Subtarefa">
-        <form onSubmit={handleCreate} className="form-grid">
-          <div className="field">
-            <label htmlFor={`new-subtask-${taskId}`}>Título da Subtarefa</label>
+              <button
+                type="button"
+                className="asana-subtask-delete"
+                onClick={() => setPendingDelete(st)}
+                title="Excluir subtarefa"
+                aria-label={`Excluir subtarefa ${st.title}`}
+              >
+                <TrashIcon size={13} />
+              </button>
+            </div>
+          ))}
+
+          <div className="asana-subtask-add">
+            <span className="asana-add-mark" aria-hidden="true">
+              +
+            </span>
             <input
-              id={`new-subtask-${taskId}`}
               type="text"
-              placeholder="Ex.: Revisar documentação..."
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              autoFocus
-              required
+              className="asana-subtask-input"
+              placeholder="Adicionar subtarefa…"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleCreate();
+                }
+              }}
+              disabled={isPending}
+              aria-label="Nova subtarefa"
             />
           </div>
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "12px" }}>
-            <button type="button" className="button-secondary compact" onClick={() => setIsAddModalOpen(false)}>
-              Cancelar
-            </button>
-            <button type="submit" className="button compact" disabled={!newTitle.trim() || isPending}>
-              Adicionar
-            </button>
-          </div>
-        </form>
-      </Modal>
+        </div>
+      ) : null}
+
+      <ConfirmDialog
+        open={Boolean(pendingDelete)}
+        title="Excluir subtarefa?"
+        description={
+          pendingDelete ? `A subtarefa “${pendingDelete.title}” será removida permanentemente.` : ""
+        }
+        confirmLabel="Excluir"
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
