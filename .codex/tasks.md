@@ -3,15 +3,15 @@
 ## Tarefa Atual
 
 ### Tarefa
-Corrigir o job Docker Build Validation no GitHub Actions.
+Corrigir falha do entrypoint Docker: `Cannot find package 'postgres'` em `init-db.mjs`.
 
 ### Objetivo
-Fazer o CI resolver a action oficial do Buildx (`docker/setup-buildx-action`) e voltar a validar a imagem.
+Fazer o container `remind-app` aplicar schema/seed e subir o Next.js, copiando o pacote `postgres` para a imagem standalone.
 
 ### Subtarefas
-- [x] Trocar `actions/setup-buildx-action@v3` por `docker/setup-buildx-action@v4` em `.github/workflows/ci.yml`.
-- [x] Atualizar `docker/build-push-action` para `@v7`.
-- [x] Commit e push para `origin/main`.
+- [x] Copiar `node_modules/postgres` do estágio `deps` para o `runner` no `Dockerfile`.
+- [x] Atualizar memória operacional.
+- [x] Commit e push para a VPS poder rebuildar.
 
 ### Status
 Concluída.
@@ -20,4 +20,4 @@ Concluída.
 Nenhum.
 
 ### Próximos Passos
-Acompanhar o novo run do CI no GitHub.
+Na VPS: `git pull` e `docker compose up --build -d`.

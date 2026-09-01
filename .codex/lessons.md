@@ -10,6 +10,7 @@
 - Não misturar escopo de lembretes in-app com integrações externas nesta v1.
 - Não transformar a interface em uma superfície de marketing; ela deve continuar densa, clara e operacional.
 - Não deixar o diagrama de arquitetura divergir da implementação real.
+- A imagem Next.js standalone não inclui dependências de scripts fora do `server.js`; o entrypoint precisa copiar `node_modules/postgres` para rodar `init-db.mjs`.
 - Não mascarar falha de schema/seed no entrypoint Docker com `|| echo`; o container deve recusar subir se o banco não inicializar.
 - Não publicar o Postgres em `0.0.0.0` no Compose de VPS; bind em `127.0.0.1` e senha definida no `.env`.
 - Não redefinir a senha de um usuário seed já existente a cada restart; o `.env` vale para a criação inicial.

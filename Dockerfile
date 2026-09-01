@@ -52,6 +52,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/docker-entrypoint.sh ./docker-ent
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# O standalone não rastreia scripts/init-db.mjs; o entrypoint precisa do driver postgres.
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules/postgres ./node_modules/postgres
+
 RUN chmod +x ./docker-entrypoint.sh
 
 USER nextjs
