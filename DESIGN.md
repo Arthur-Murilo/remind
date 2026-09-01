@@ -25,14 +25,15 @@
 - Sidebar: Meu dia, Lembretes, lista de projetos com dots e contagem, criar projeto inline.
 - Meu dia / Lembretes: toolbar + filtros + lista tabular densa (tarefa | projeto | status | prioridade | prazo | etiqueta | tempo | ações).
 - Edição inline nas células de status, prioridade, prazo, projeto e etiqueta; duplo clique no título para rename na linha; modal só para descrição/recorrência.
-- Colunas redimensionáveis com largura persistida no navegador.
+- Colunas redimensionáveis: a largura inicial acompanha o conteúdo (títulos longos expandem a coluna) e o ajuste manual continua persistido no navegador.
 - Subtarefas expandem sob a linha; a seta fica à esquerda do título.
-- Sessões de trabalho: timer na linha + visão Tempo na sidebar (dia/semana/mês, por projeto).
+- Sessões de trabalho: timer e chip de tempo na linha da tarefa + visão Tempo (filtros de dia/semana/mês e agrupamento do gráfico por projeto ou tarefa).
 - Projeto: mesma lista (sem coluna projeto) + composer de nova tarefa.
 
 ## Components
 
 - Botão primário (accent) para ações principais.
+- Marca: glifo de lembrete (nota com aba e check) na sidebar, login e favicon.
 - Campos e selects compactos (altura ~30px).
 - Linhas de issue com hover, não cartões.
 - Badges de status/prioridade com tint suave.
@@ -46,8 +47,10 @@
 
 ## Responsive behavior
 
-- Desktop como superfície principal.
-- Em telas menores: sidebar empilha, colunas da lista colapsam, composer deixa de ser sticky.
+- Desktop (≥960px): sidebar persistente + lista tabular densa.
+- Tablet e telefone (<960px): a sidebar vira drawer por cima do conteúdo, aberta pelo menu no topbar.
+- Telefone (<720px): a lista empilha título, metadados e ações; cabeçalho de colunas some; métricas, filtros, Tempo e modais ocupam a largura da tela.
+- Alvos de toque maiores em `pointer: coarse`; `viewport-fit: cover` e safe-area para recortes e home indicator.
 
 ## Motion
 

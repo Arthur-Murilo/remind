@@ -212,8 +212,11 @@ export function DateField({
       const rect = triggerRef.current?.getBoundingClientRect();
       if (!rect) return;
       const width = 280;
+      const menuHeight = menuRef.current?.offsetHeight || 360;
       const left = Math.min(rect.left, window.innerWidth - width - 12);
-      setCoords({ top: rect.bottom + 6, left: Math.max(12, left) });
+      const opensBelow = rect.bottom + 6 + menuHeight <= window.innerHeight - 12;
+      const top = opensBelow ? rect.bottom + 6 : Math.max(12, rect.top - menuHeight - 6);
+      setCoords({ top, left: Math.max(12, left) });
     };
     update();
     const onPointerDown = (event: MouseEvent) => {

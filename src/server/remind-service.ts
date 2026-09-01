@@ -9,6 +9,7 @@ type DashboardMetrics = {
   openTasks: number;
   dueSoon: number;
   overdue: number;
+  trackedSecondsToday: number;
 };
 
 export async function getDashboardMetrics(userId: string): Promise<DashboardMetrics> {
@@ -44,11 +45,24 @@ export async function getDashboardMetrics(userId: string): Promise<DashboardMetr
       and due_date < current_date
   `;
 
+  const [trackedRow] = await sql<{ seconds: number }[]>`
+    select coalesce(sum(
+      case
+        when ended_at is null then greatest(1, floor(extract(epoch from (now() - started_at)))::int)
+        else duration_seconds
+      end
+    ), 0)::int as seconds
+    from work_sessions
+    where owner_id = ${userId}
+      and started_at >= date_trunc('day', now())
+  `;
+
   return {
     totalProjects: projectRow?.count ?? 0,
     openTasks: openRow?.count ?? 0,
     dueSoon: soonRow?.count ?? 0,
-    overdue: overdueRow?.count ?? 0
+    overdue: overdueRow?.count ?? 0,
+    trackedSecondsToday: trackedRow?.seconds ?? 0
   };
 }
 
@@ -125,10 +139,12 @@ export async function getTasks(userId: string, filter: TaskFilter = {}): Promise
 
   if (filter.due === "overdue") {
     conditions.push("t.due_date is not null and t.due_date < current_date");
+    conditions.push("t.status <> 'done'");
   }
 
   if (filter.due === "soon") {
     conditions.push("t.due_date is not null and t.due_date between current_date and current_date + interval '3 day'");
+    conditions.push("t.status <> 'done'");
   }
 
   if (filter.due === "none") {
@@ -148,6 +164,13 @@ export async function getTasks(userId: string, filter: TaskFilter = {}): Promise
       t.due_date::text as "dueDate",
       t.recurrence,
       t.repeat_subtasks as "repeatSubtasks",
+      coalesce((
+        select sum(ws.duration_seconds)
+        from work_sessions ws
+        where ws.task_id = t.id
+          and ws.owner_id = t.owner_id
+          and ws.ended_at is not null
+      ), 0)::int as "totalTrackedSeconds",
       t.created_at as "createdAt",
       t.updated_at as "updatedAt"
     from tasks t
@@ -202,6 +225,7 @@ export async function getTasks(userId: string, filter: TaskFilter = {}): Promise
 
   return rawTasks.map((task) => ({
     ...task,
+    totalTrackedSeconds: Number(task.totalTrackedSeconds || 0),
     tags: tagsByTaskId.get(task.id) || [],
     subtasks: subtasksByTaskId.get(task.id) || [],
     runningSession: runningRows.find((row) => row.taskId === task.id) || null

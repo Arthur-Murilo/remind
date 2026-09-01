@@ -17,6 +17,7 @@ export default async function TempoPage({ searchParams }: TempoPageProps) {
   const projectId = pick(params.projectId) || undefined;
   const periodRaw = pick(params.period);
   const period: TimePeriod = periodRaw === "day" || periodRaw === "month" ? periodRaw : "week";
+  const grouping = pick(params.group) === "task" ? "task" : "project";
 
   const [projects, report] = await Promise.all([
     getProjects(user.id),
@@ -38,6 +39,7 @@ export default async function TempoPage({ searchParams }: TempoPageProps) {
         projects={projects}
         projectId={projectId}
         period={period}
+        grouping={grouping}
         totalSeconds={report.totalSeconds}
         byProject={report.projects}
         byTask={report.tasks}

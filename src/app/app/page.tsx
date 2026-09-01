@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { formatDuration } from "@/lib/format";
 import { requireCurrentUser } from "@/server/auth";
 import { getTaskFilterFromSearchParams } from "@/server/filters";
 import { getDashboardMetrics, getProjects, getTasks, getTags, getCatalogs } from "@/server/remind-service";
@@ -63,6 +64,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           <span className="metric-pill-label">Projetos</span>
           <strong className="metric-pill-value">{metrics.totalProjects}</strong>
         </div>
+
+        <Link className="metric-pill" href={"/app/tempo" as any}>
+          <span className="metric-pill-label">Tempo hoje</span>
+          <strong className="metric-pill-value">{formatDuration(metrics.trackedSecondsToday)}</strong>
+        </Link>
       </div>
 
       <FilterBar

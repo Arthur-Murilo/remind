@@ -9,6 +9,7 @@ import { PauseIcon, PlayIcon } from "@/components/icons";
 type TaskTimerProps = {
   taskId: string;
   runningStartedAt?: string | null;
+  totalTrackedSeconds?: number;
 };
 
 function todayIso() {
@@ -18,7 +19,7 @@ function todayIso() {
   return `${now.getFullYear()}-${month}-${day}`;
 }
 
-export function TaskTimer({ taskId, runningStartedAt }: TaskTimerProps) {
+export function TaskTimer({ taskId, runningStartedAt, totalTrackedSeconds = 0 }: TaskTimerProps) {
   const [open, setOpen] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [hours, setHours] = useState("0");
@@ -29,6 +30,7 @@ export function TaskTimer({ taskId, runningStartedAt }: TaskTimerProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
   const running = Boolean(runningStartedAt);
+  const displayedSeconds = totalTrackedSeconds + elapsed;
 
   useEffect(() => {
     if (!runningStartedAt) {
@@ -108,7 +110,7 @@ export function TaskTimer({ taskId, runningStartedAt }: TaskTimerProps) {
         aria-label="Ajustar tempo da tarefa"
         aria-expanded={open}
       >
-        {running ? formatDurationClock(elapsed) : "Tempo"}
+        {formatDurationClock(displayedSeconds)}
       </button>
 
       {open && typeof document !== "undefined"

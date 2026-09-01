@@ -1,6 +1,6 @@
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { randomUUID, scryptSync, timingSafeEqual } from "node:crypto";
+import { randomUUID, scryptSync } from "node:crypto";
 import postgres from "postgres";
 
 function readEnvFile() {
@@ -27,13 +27,6 @@ function hashPassword(password) {
   const salt = randomUUID();
   const hash = scryptSync(password, salt, 64).toString("hex");
   return `${salt}:${hash}`;
-}
-
-function verifyPassword(password, stored) {
-  const [salt, storedHash] = stored.split(":");
-  const incoming = scryptSync(password, salt, 64);
-  const current = Buffer.from(storedHash, "hex");
-  return timingSafeEqual(incoming, current);
 }
 
 async function createSchema(sql) {
@@ -175,9 +168,15 @@ async function createSchema(sql) {
 }
 
 async function seed(sql) {
-  const email = process.env.SEED_USER_EMAIL ?? "arthur@remind.local";
-  const password = process.env.SEED_USER_PASSWORD ?? "remind123";
+  const email = process.env.SEED_USER_EMAIL;
+  const password = process.env.SEED_USER_PASSWORD;
   const name = "Arthur";
+
+  if (!email || !password) {
+    throw new Error(
+      "SEED_USER_EMAIL e SEED_USER_PASSWORD devem estar definidos no arquivo .env."
+    );
+  }
 
   const existingUsers = await sql`select * from users where email = ${email} limit 1`;
   let user = existingUsers[0];
@@ -189,14 +188,6 @@ async function seed(sql) {
       returning *
     `;
     user = created;
-  } else if (!verifyPassword(password, user.password_hash)) {
-    const [updated] = await sql`
-      update users
-      set password_hash = ${hashPassword(password)}
-      where id = ${user.id}
-      returning *
-    `;
-    user = updated;
   }
 
   const existingProjects = await sql`select * from projects where owner_id = ${user.id} limit 1`;

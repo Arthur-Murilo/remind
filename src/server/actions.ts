@@ -214,7 +214,7 @@ export async function toggleTaskStatusAction(formData: FormData) {
   }
 
   await toggleTaskStatus(user.id, taskId, status);
-  revalidatePath("/app");
+  revalidatePath("/app", "layout");
 }
 
 export async function createSubtaskAction(formData: FormData) {

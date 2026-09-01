@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { loginAction } from "@/server/actions";
 import { getCurrentUser } from "@/server/auth";
+import { LogoMark } from "@/components/logo-mark";
 
 export const metadata: Metadata = {
   title: "Login | remind"
@@ -28,7 +29,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <section className="auth-panel-form" aria-labelledby="auth-heading">
         <div className="auth-form-inner">
           <div className="auth-brand">
-            <div className="brand-mark">r</div>
+            <div className="brand-mark">
+              <LogoMark size={22} />
+            </div>
             <span className="brand-name">remind</span>
           </div>
 

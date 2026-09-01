@@ -2,14 +2,58 @@ services:
   postgres:
     image: postgres:17-alpine
     container_name: remind-postgres
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: remind
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-remind}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina_POSTGRES_PASSWORD_no_.env}
     ports:
-      - "5432:5432"
+      # Bind em localhost: o host acessa o banco; a porta não fica aberta na internet da VPS.
+      - "${POSTGRES_BIND:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - remind_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-remind}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - remind-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: remind-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Defina_POSTGRES_PASSWORD_no_.env}@postgres:5432/${POSTGRES_DB:-remind}
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME:-remind_session}
+      SEED_USER_EMAIL: ${SEED_USER_EMAIL:?Defina_SEED_USER_EMAIL_no_.env}
+      SEED_USER_PASSWORD: ${SEED_USER_PASSWORD:?Defina_SEED_USER_PASSWORD_no_.env}
+      AUTO_RUN_DB_INIT: ${AUTO_RUN_DB_INIT:-true}
+      AUTO_RUN_DB_SEED: ${AUTO_RUN_DB_SEED:-true}
+    healthcheck:
+      test: ["CMD-SHELL", "node -e 'fetch(\"http://127.0.0.1:3000/login\").then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))'"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - remind-network
 
 volumes:
   remind_postgres_data:
+    driver: local
+
+networks:
+  remind-network:
+    driver: bridge

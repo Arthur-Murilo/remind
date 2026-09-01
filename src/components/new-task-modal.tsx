@@ -270,26 +270,28 @@ export function QuickCreateTask({ projects, defaultProjectId, statuses, prioriti
         }}
         aria-label="Título da nova tarefa"
       />
-      {!defaultProjectId ? (
-        <SelectPopover
-          ariaLabel="Projeto da nova tarefa"
-          value={projectId}
-          onChange={setProjectId}
-          triggerClassName="quick-create-project"
-          options={projects.map((p) => ({ value: p.id, label: p.name }))}
-        />
-      ) : null}
-      <button
-        type="button"
-        className="button compact"
-        disabled={isPending}
-        onClick={createOrOpenDetails}
-      >
-        Criar
-      </button>
-      <button type="button" className="button-ghost compact" onClick={() => setDetailsOpen(true)}>
-        Detalhes
-      </button>
+      <div className="quick-create-row">
+        {!defaultProjectId ? (
+          <SelectPopover
+            ariaLabel="Projeto da nova tarefa"
+            value={projectId}
+            onChange={setProjectId}
+            triggerClassName="quick-create-project"
+            options={projects.map((p) => ({ value: p.id, label: p.name }))}
+          />
+        ) : null}
+        <button
+          type="button"
+          className="button compact"
+          disabled={isPending}
+          onClick={createOrOpenDetails}
+        >
+          Criar
+        </button>
+        <button type="button" className="button-ghost compact" onClick={() => setDetailsOpen(true)}>
+          Detalhes
+        </button>
+      </div>
       <NewTaskModal
         projects={projects}
         defaultProjectId={projectId || defaultProjectId}

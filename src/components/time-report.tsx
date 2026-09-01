@@ -6,10 +6,13 @@ import { deleteWorkSessionAction, updateWorkSessionDurationAction } from "@/serv
 import { formatDuration } from "@/lib/format";
 import type { Project, TimePeriod, WorkSession } from "@/domain/types";
 
+type TimeGrouping = "project" | "task";
+
 type TimeReportViewProps = {
   projects: Project[];
   projectId?: string;
   period: TimePeriod;
+  grouping: TimeGrouping;
   totalSeconds: number;
   byProject: Array<{ projectId: string; projectName: string; durationSeconds: number }>;
   byTask: Array<{ taskId: string; taskTitle: string; projectName: string; durationSeconds: number }>;
@@ -20,6 +23,7 @@ export function TimeReportView({
   projects,
   projectId,
   period,
+  grouping,
   totalSeconds,
   byProject,
   byTask,
@@ -31,10 +35,27 @@ export function TimeReportView({
   const [hours, setHours] = useState("0");
   const [minutes, setMinutes] = useState("30");
 
-  const push = (nextProject: string, nextPeriod: string) => {
+  const chartRows =
+    grouping === "project"
+      ? byProject.map((row) => ({
+          id: row.projectId,
+          label: row.projectName,
+          detail: "",
+          durationSeconds: row.durationSeconds
+        }))
+      : byTask.map((row) => ({
+          id: row.taskId,
+          label: row.taskTitle,
+          detail: row.projectName,
+          durationSeconds: row.durationSeconds
+        }));
+  const chartMaximum = Math.max(...chartRows.map((row) => row.durationSeconds), 1);
+
+  const push = (nextProject: string, nextPeriod: string, nextGrouping = grouping) => {
     const params = new URLSearchParams();
     if (nextProject) params.set("projectId", nextProject);
     if (nextPeriod && nextPeriod !== "week") params.set("period", nextPeriod);
+    if (nextGrouping && nextGrouping !== "project") params.set("group", nextGrouping);
     const query = params.toString();
     router.push((query ? `/app/tempo?${query}` : "/app/tempo") as any);
   };
@@ -91,6 +112,22 @@ export function TimeReportView({
             </button>
           ))}
         </div>
+
+        <div className="period-toggle" role="group" aria-label="Agrupar gráfico">
+          {([
+            ["project", "Por projeto"],
+            ["task", "Por tarefa"]
+          ] as const).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              className={`period-btn ${grouping === value ? "active" : ""}`}
+              onClick={() => push(projectId || "", period, value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="metrics-strip" aria-label="Total do período">
@@ -108,38 +145,36 @@ export function TimeReportView({
         </div>
       </div>
 
-      <section className="time-section">
-        <h2>Por projeto</h2>
-        {byProject.length ? (
-          <div className="time-table">
-            {byProject.map((row) => (
-              <div className="time-row" key={row.projectId}>
-                <span>{row.projectName}</span>
-                <strong>{formatDuration(row.durationSeconds)}</strong>
-              </div>
-            ))}
+      <section className="time-section time-chart-section">
+        <div className="time-section-heading">
+          <h2>Distribuição do tempo</h2>
+          <span>{grouping === "project" ? "Projetos" : "Tarefas"}</span>
+        </div>
+        {chartRows.length ? (
+          <div
+            className="time-bars"
+            role="img"
+            aria-label={`Gráfico de tempo ${grouping === "project" ? "por projeto" : "por tarefa"}`}
+          >
+            {chartRows.map((row) => {
+              const percentage = Math.max(6, (row.durationSeconds / chartMaximum) * 100);
+              return (
+                <div className="time-bar-col" key={row.id} title={`${row.label}${row.detail ? ` · ${row.detail}` : ""}`}>
+                  <strong>{formatDuration(row.durationSeconds)}</strong>
+                  <div className="time-bar-track">
+                    <span className="time-bar-fill" style={{ height: `${percentage}%` }} />
+                  </div>
+                  <span className="time-bar-label">{row.label}</span>
+                  {row.detail ? <em className="time-bar-detail">{row.detail}</em> : null}
+                </div>
+              );
+            })}
           </div>
         ) : (
-          <p className="muted">Nenhum tempo neste período.</p>
-        )}
-      </section>
-
-      <section className="time-section">
-        <h2>Por tarefa</h2>
-        {byTask.length ? (
-          <div className="time-table">
-            {byTask.map((row) => (
-              <div className="time-row" key={row.taskId}>
-                <span>
-                  {row.taskTitle}
-                  <em>{row.projectName}</em>
-                </span>
-                <strong>{formatDuration(row.durationSeconds)}</strong>
-              </div>
-            ))}
+          <div className="time-chart-empty">
+            <strong>Nenhum tempo neste período.</strong>
+            <span>Inicie um cronômetro em uma tarefa ou registre uma sessão manual.</span>
           </div>
-        ) : (
-          <p className="muted">Nenhuma tarefa cronometrada neste período.</p>
         )}
       </section>
 

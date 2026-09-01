@@ -55,6 +55,18 @@
         <mxCell id="scope" value="Sem email, push ou WhatsApp&#xa;Sem colaboracao avancada" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;fontColor=#152033;" vertex="1" parent="lane5">
           <mxGeometry x="120" y="45" width="220" height="60" as="geometry"/>
         </mxCell>
+        <mxCell id="lane6" value="Infraestrutura &amp; CI" style="swimlane;horizontal=0;startSize=110;fillColor=#f3e5f5;strokeColor=#d1c4e9;html=1;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="750" width="1740" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="docker_infra" value="Docker &amp; Compose&#xa;Multi-stage Standalone&#xa;Healthchecks &amp; Volumes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9575cd;fontColor=#152033;" vertex="1" parent="lane6">
+          <mxGeometry x="120" y="45" width="180" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="ci_infra" value="GitHub Actions CI&#xa;Typecheck, Build,&#xa;Playwright E2E &amp; Docker" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9575cd;fontColor=#152033;" vertex="1" parent="lane6">
+          <mxGeometry x="340" y="45" width="180" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="vps_deploy" value="VPS Deploy&#xa;Port 3000 / Reverse Proxy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9575cd;fontColor=#152033;" vertex="1" parent="lane6">
+          <mxGeometry x="560" y="45" width="180" height="60" as="geometry"/>
+        </mxCell>
         <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1A1A1A;endArrow=block;endFill=1;" edge="1" source="user" target="login_ui" parent="1">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>

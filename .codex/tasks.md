@@ -3,20 +3,18 @@
 ## Tarefa Atual
 
 ### Tarefa
-Implementar as 7 frentes: UX da lista, catálogos, modal, criação, cronometragem.
+Corrigir achados de Bugbot e Security Review no caminho Docker/VPS, depois commit e push.
 
 ### Objetivo
-Entregar o plano fechado no grill, com o ajuste da frente 5: campo vazio abre o modal; com texto, cria na hora.
+Endurecer entrypoint, exposição do Postgres e seed de usuário sem deixar de ler e-mail e senha do `.env`, e publicar as alterações locais no repositório remoto.
 
 ### Subtarefas
-- [x] 1. Centralizar diálogo de exclusão.
-- [x] 2. Caret da subtarefa antes do título.
-- [x] 3. Status/Prioridade/Etiqueta: criar, recolorir, excluir; lista com 5 + scroll.
-- [x] 4. Modal Novo Projeto sem sangria de cabeçalhos (portal + z-index).
-- [x] 5. Criar em Meu dia: vazio → modal; com texto → cria.
-- [x] 6. Duplo clique no título para editar inline.
-- [x] 7. Sessão de trabalho: timer, edição manual, visão Tempo.
-- [x] Testes E2E das 7 frentes + typecheck (14/14).
+- [x] Remover mascaramento de falha em `docker-entrypoint.sh` para que schema/seed quebrem a subida do container.
+- [x] Bind do Postgres em `127.0.0.1` no `docker-compose.yml` (acesso local, sem publicação na internet).
+- [x] Exigir `POSTGRES_PASSWORD`, `SEED_USER_EMAIL` e `SEED_USER_PASSWORD` via `.env`, sem fallback fraco no compose.
+- [x] Seed cria usuário inicial a partir do `.env` e não sobrescreve senha de usuário existente.
+- [x] Atualizar `.env-example`, README e memória/arquitetura.
+- [x] Commit e push para o repositório remoto.
 
 ### Status
 Concluída.
@@ -25,4 +23,4 @@ Concluída.
 Nenhum.
 
 ### Próximos Passos
-Aguardar pedido da próxima rodada (Bugbot, Security Review, TestSprite).
+Acompanhar o CI no GitHub após o push e, se desejado, fazer o deploy na VPS.

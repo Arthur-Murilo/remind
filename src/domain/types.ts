@@ -83,6 +83,7 @@ export type Task = {
   tags?: Tag[];
   subtasks?: Subtask[];
   runningSession?: { id: string; startedAt: string } | null;
+  totalTrackedSeconds?: number;
   createdAt: string;
   updatedAt: string;
 };
