@@ -2975,6 +2975,8 @@ code {
 
 .catalog-menu {
   min-width: 260px;
+  max-height: calc(100vh - 24px);
+  overflow: auto;
 }
 
 .catalog-menu-list {

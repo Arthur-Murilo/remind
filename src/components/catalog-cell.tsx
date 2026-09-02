@@ -71,9 +71,14 @@ export function CatalogCell({ kind, value, items, ariaLabel, onChange }: Catalog
     const update = () => {
       const rect = buttonRef.current?.getBoundingClientRect();
       if (!rect) return;
-      setCoords({ top: rect.bottom + 4, left: Math.min(rect.left, window.innerWidth - 280) });
+      const menuHeight = menuRef.current?.offsetHeight || 360;
+      const left = Math.min(rect.left, window.innerWidth - 280);
+      const opensBelow = rect.bottom + 4 + menuHeight <= window.innerHeight - 12;
+      const top = opensBelow ? rect.bottom + 4 : Math.max(12, rect.top - menuHeight - 6);
+      setCoords({ top, left: Math.max(12, left) });
     };
     update();
+    const frame = window.requestAnimationFrame(update);
     const onPointerDown = (event: MouseEvent) => {
       const target = event.target as Node;
       if (buttonRef.current?.contains(target) || menuRef.current?.contains(target)) return;
@@ -87,6 +92,7 @@ export function CatalogCell({ kind, value, items, ariaLabel, onChange }: Catalog
     window.addEventListener("mousedown", onPointerDown);
     window.addEventListener("keydown", onKey);
     return () => {
+      window.cancelAnimationFrame(frame);
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
       window.removeEventListener("mousedown", onPointerDown);

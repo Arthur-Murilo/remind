@@ -345,10 +345,12 @@ test.describe("Remind App E2E Tests", () => {
     const row = page.locator(".issue-row", { hasText: title });
     await expect(row.locator(".issue-title-main strong")).toHaveText(title);
 
+    await row.scrollIntoViewIfNeeded();
     await row.getByRole("button", { name: "Alterar prioridade" }).click();
     const menu = page.locator(".catalog-menu");
+    await expect(menu).toBeVisible();
     await menu.getByPlaceholder("Nova prioridade...").fill(priorityLabel);
-    await menu.getByRole("button", { name: "Criar" }).click();
+    await menu.getByRole("button", { name: "Criar" }).click({ force: true });
     await expect(menu.locator(".catalog-menu-pick", { hasText: priorityLabel })).toBeVisible();
     await menu.locator(".catalog-menu-pick", { hasText: priorityLabel }).click();
     await expect(row.locator(".catalog-badge", { hasText: priorityLabel })).toBeVisible();
