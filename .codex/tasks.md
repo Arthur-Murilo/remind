@@ -3,6 +3,34 @@
 ## Tarefa Atual
 
 ### Tarefa
+Ajustar cascata de subtarefas, lembretes por prazo e ordem das prioridades.
+
+### Objetivo
+Três correções de produto: (1) concluir subtarefas não fecha a tarefa pai, mas concluir a pai fecha as subtarefas; (2) lembretes e datas só alertam no dia do prazo (amarelo) ou atrasadas (vermelho); (3) prioridades customizadas (e as de sistema) podem ser reordenadas por arrastar, e a lista de tarefas segue essa ordem.
+
+### Subtarefas
+- [ ] Concluir todas as subtarefas não marca a tarefa como concluída.
+- [ ] Marcar a tarefa principal como concluída marca todas as subtarefas como concluídas.
+- [ ] Sininho e métrica de lembretes só incluem prazo de hoje ou atrasado.
+- [ ] Data de hoje em amarelo; data atrasada em vermelho (lista e notificações).
+- [ ] Prazo futuro não aparece no sininho.
+- [ ] Prioridades com `sort_order` e drag-and-drop no menu do catálogo.
+- [ ] Tarefas ordenadas pela ordem do catálogo de prioridades.
+- [ ] Testes E2E cobrindo os três fluxos.
+- [ ] typecheck e verificação no browser.
+
+### Status
+Em andamento.
+
+### Bloqueios
+Nenhum.
+
+### Próximos Passos
+Implementar as três correções no serviço, na UI e nos testes.
+
+## Tarefa Anterior
+
+### Tarefa
 Corrigir falha do entrypoint Docker: `Cannot find package 'postgres'` em `init-db.mjs`.
 
 ### Objetivo
@@ -15,9 +43,3 @@ Fazer o container `remind-app` aplicar schema/seed e subir o Next.js, copiando o
 
 ### Status
 Concluída.
-
-### Bloqueios
-Nenhum.
-
-### Próximos Passos
-Na VPS: `git pull` e `docker compose up --build -d`.

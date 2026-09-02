@@ -29,22 +29,29 @@ export function slugifyCatalogKey(label: string) {
   return base || `item_${Date.now().toString(36)}`;
 }
 
-export function mergeCatalog(
-  system: CatalogItem[],
-  custom: Array<{ id: string; key: string; label: string; color: string }>
-): CatalogItem[] {
+type CatalogOverride = {
+  id: string;
+  key: string;
+  label: string;
+  color: string;
+  sortOrder?: number | null;
+};
+
+export function mergeCatalog(system: CatalogItem[], custom: CatalogOverride[]): CatalogItem[] {
   const customByKey = new Map(custom.map((item) => [item.key, item]));
   const systemKeys = new Set(system.map((item) => item.key));
 
-  const items: CatalogItem[] = system.map((item) => {
+  const items: CatalogItem[] = system.map((item, index) => {
     const override = customByKey.get(item.key);
     return {
       ...item,
       color: override?.color || item.color,
-      id: override?.id
+      id: override?.id,
+      sortOrder: override?.sortOrder ?? index
     };
   });
 
+  let customIndex = 0;
   for (const item of custom) {
     if (!systemKeys.has(item.key)) {
       items.push({
@@ -52,12 +59,24 @@ export function mergeCatalog(
         label: item.label,
         color: item.color,
         system: false,
-        id: item.id
+        id: item.id,
+        sortOrder: item.sortOrder ?? 100 + customIndex
       });
+      customIndex += 1;
     }
   }
 
   return items;
+}
+
+export function sortCatalogItems(items: CatalogItem[]) {
+  return items
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      const order = (a.item.sortOrder ?? 0) - (b.item.sortOrder ?? 0);
+      return order !== 0 ? order : a.index - b.index;
+    })
+    .map((entry) => entry.item);
 }
 
 export function resolveCatalogItem(items: CatalogItem[], key: string): CatalogItem {

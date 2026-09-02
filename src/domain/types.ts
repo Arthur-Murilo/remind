@@ -16,6 +16,7 @@ export type CatalogItem = {
   color: string;
   system: boolean;
   id?: string;
+  sortOrder?: number;
 };
 
 export type WorkSession = {

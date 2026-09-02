@@ -17,15 +17,15 @@ Estado operacional da Tarefa. Os de sistema são A fazer, Em andamento e Conclu�
 _Avoid_: coluna, etapa, workflow
 
 **Prioridade**:
-Grau de urgência da Tarefa. As de sistema são Alta, Média e Baixa; as demais são definidas pelo usuário.
+Grau de urgência da Tarefa. As de sistema são Alta, Média e Baixa; as demais são definidas pelo usuário. A ordem do catálogo (arrastar para cima ou para baixo) define a ordem das tarefas na lista.
 _Avoid_: severidade, peso
 
 **Prazo**:
-Data opcional de vencimento da Tarefa. Não é um catálogo criável.
+Data opcional de vencimento da Tarefa. Não é um catálogo criável. Lembretes e o sininho só avisam no dia do prazo (amarelo) ou quando a tarefa está atrasada (vermelho).
 _Avoid_: rótulo de prazo, sprint name como se fosse prazo
 
 **Subtarefa**:
-Passo de um único nível ligado a uma tarefa; não possui projeto próprio nem subtarefas aninhadas.
+Passo de um único nível ligado a uma tarefa; não possui projeto próprio nem subtarefas aninhadas. Concluir subtarefas não fecha a tarefa pai; concluir a pai marca as subtarefas como concluídas.
 _Avoid_: Checklist item (como sinônimo frouxo), sub-issue
 
 **Etiqueta**:

@@ -11,7 +11,7 @@
 - Gestão de tarefas
 - Filtros operacionais de tarefas
 - Lembretes in-app
-- Catálogos de status e prioridade definidos pelo usuário
+- Catálogos de status e prioridade definidos pelo usuário, com ordem persistida nas prioridades
 - Sessões de trabalho e relatório de tempo
 
 ## Limites
@@ -25,7 +25,7 @@
 1. O usuário autentica na aplicação.
 2. A interface consulta projetos e tarefas no backend do próprio app.
 3. Os filtros reduzem a visão operacional por projeto, status, prioridade, prazo e busca textual.
-4. Os lembretes são derivados de tarefas com prazo e exibidos no app.
+4. Os lembretes são derivados de tarefas com prazo para hoje ou atrasadas e exibidos no app.
 5. O PostgreSQL armazena usuários, sessões de autenticação, projetos, tarefas, lembretes, etiquetas, catálogos e sessões de trabalho.
 
 ## Convenções Técnicas

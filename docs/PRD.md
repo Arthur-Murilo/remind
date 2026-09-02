@@ -44,8 +44,10 @@
 - **RF12:** A interface deve fornecer filtros dinâmicos e de fácil acesso para buscar e refinar tarefas. Os critérios incluem: projeto, status da tarefa, prioridade, prazos associados e termo de busca (busca textual livre).
 
 ### 3.5. Lembretes In-App
-- **RF13:** O sistema deve derivar lembretes automaticamente a partir de tarefas que possuem prazos próximos ou vencidos.
-- **RF14:** A interface deve exibir esses lembretes de forma destacada, mas não intrusiva (sem ruído excessivo), operando no modo de "somente leitura" dentro do aplicativo.
+- **RF13:** O sistema deve derivar lembretes automaticamente a partir de tarefas cujo prazo é hoje ou já venceu. Prazos futuros não geram alerta até o dia.
+- **RF14:** A interface deve exibir esses lembretes de forma destacada, mas não intrusiva (sem ruído excessivo), operando no modo de "somente leitura" dentro do aplicativo. Prazo de hoje usa ênfase amarela; prazo atrasado usa ênfase vermelha.
+- **RF15:** Concluir subtarefas não conclui a tarefa pai. Concluir a tarefa pai marca todas as subtarefas como concluídas.
+- **RF16:** O usuário deve poder reordenar o catálogo de prioridades (incluindo as de sistema) por arrastar; a lista de tarefas segue essa ordem.
 
 ## 4. Requisitos Não Funcionais (RNF)
 

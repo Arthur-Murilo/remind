@@ -1960,7 +1960,15 @@ code {
 }
 
 .due-tag {
+  color: var(--ink-soft);
+}
+
+.due-tag.due-today {
   color: var(--warn);
+}
+
+.due-tag.due-overdue {
+  color: var(--danger);
 }
 
 .notification-check-btn {
@@ -2739,6 +2747,16 @@ code {
   background: var(--surface-hover);
 }
 
+.ui-select-trigger.date-trigger.due-today,
+.ui-select-trigger.date-trigger.due-today .ui-select-value {
+  color: var(--warn);
+}
+
+.ui-select-trigger.date-trigger.due-overdue,
+.ui-select-trigger.date-trigger.due-overdue .ui-select-value {
+  color: var(--danger);
+}
+
 .ui-select-trigger.filter-select,
 .ui-select-trigger.quick-create-project {
   width: auto;
@@ -2974,8 +2992,39 @@ code {
   border-radius: 6px;
 }
 
+.catalog-menu-row.reorderable {
+  grid-template-columns: 18px minmax(0, 1fr) 22px 22px;
+}
+
 .catalog-menu-row.selected {
   background: var(--surface-active);
+}
+
+.catalog-menu-row.dragging {
+  opacity: 0.45;
+}
+
+.catalog-drag-handle {
+  width: 18px;
+  height: 22px;
+  border: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--ink-faint);
+  cursor: grab;
+}
+
+.catalog-drag-handle:active {
+  cursor: grabbing;
+}
+
+.catalog-drag-handle:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+  border-radius: 4px;
 }
 
 .catalog-menu-pick {

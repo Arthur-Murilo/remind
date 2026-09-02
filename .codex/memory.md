@@ -19,7 +19,9 @@
 - Suporte a Tarefas Recorrentes (Rotinas estilo Google Tasks): repetição `daily`, `weekly`, `monthly` com opção de resetar subtarefas a cada ciclo da rotina.
 - Sessão de trabalho: timer na tarefa (uma aberta por vez), edição manual e visão Tempo (dia/semana/mês; gráfico agrupável por projeto ou tarefa).
 - Mobile: sidebar em drawer abaixo de 960px; lista empilhada abaixo de 720px.
-- Status e Prioridade de sistema protegidos; extras criáveis, recoloríveis e excluíveis. Prazo continua data.
+- Status e Prioridade de sistema protegidos; extras criáveis, recoloríveis e excluíveis. Prioridades (sistema e extras) têm ordem persistida por arrastar no menu; a lista de tarefas segue essa ordem. Prazo continua data.
+- Subtarefas não fecham a tarefa pai; concluir a pai marca as subtarefas como concluídas.
+- Lembretes in-app só avisam no dia do prazo (amarelo) ou atrasadas (vermelho); prazos futuros não entram no sininho.
 - Containerização e Deploy: Next.js compilado em modo `output: "standalone"`, Dockerfile multi-stage com Alpine, usuário não-root, docker-entrypoint com auto-schema/seed (falha de init interrompe o boot) e Docker Compose com Postgres bound a `127.0.0.1`. `POSTGRES_PASSWORD`, `SEED_USER_EMAIL` e `SEED_USER_PASSWORD` vêm obrigatoriamente do `.env`; o seed cria o usuário só se o e-mail ainda não existir. A imagem runner copia `node_modules/postgres` além do standalone, porque `scripts/init-db.mjs` não entra no file tracing do Next.js.
 - Integração Contínua (CI): GitHub Actions em `.github/workflows/ci.yml` com typecheck, build, container Postgres de serviço e testes E2E Playwright.
 

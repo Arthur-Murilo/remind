@@ -83,7 +83,7 @@ export function FilterBar({
   if (filter.due && filter.due !== "all") {
     const dueMap: Record<string, string> = {
       overdue: "Atrasadas",
-      soon: "Vencendo",
+      soon: "Hoje",
       none: "Sem prazo"
     };
     chips.push({ key: "due", label: `Prazo: ${dueMap[filter.due] || filter.due}` });
@@ -168,7 +168,7 @@ export function FilterBar({
           options={[
             { value: "all", label: "Todos os prazos" },
             { value: "overdue", label: "Atrasadas" },
-            { value: "soon", label: "Vencendo" },
+            { value: "soon", label: "Hoje" },
             { value: "none", label: "Sem prazo" }
           ]}
         />
