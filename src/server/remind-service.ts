@@ -292,7 +292,6 @@ export async function getReminders(userId: string): Promise<Reminder[]> {
       case when t.due_date < current_date then 0 else 1 end,
       t.due_date asc,
       r.remind_at asc
-    limit 8
   `;
 }
 
