@@ -323,11 +323,18 @@ test.describe("Remind App E2E Tests", () => {
 
     const bell = page.locator(".notification-bell-btn");
     await bell.click();
-    await expect(page.locator(".notification-item", { hasText: futureTitle })).toHaveCount(0);
-    await expect(page.locator(".notification-item", { hasText: todayTitle })).toBeVisible();
-    await expect(page.locator(".notification-item", { hasText: overdueTitle })).toBeVisible();
-    await expect(page.locator(".notification-item", { hasText: todayTitle }).locator(".due-tag")).toHaveClass(/due-today/);
-    await expect(page.locator(".notification-item", { hasText: overdueTitle }).locator(".due-tag")).toHaveClass(/due-overdue/);
+    const dropdown = page.locator(".notification-dropdown");
+    await expect(dropdown).toBeVisible();
+    await expect(dropdown.locator(".notification-item", { hasText: futureTitle })).toHaveCount(0);
+
+    const todayItem = dropdown.locator(".notification-item", { hasText: todayTitle });
+    const overdueItem = dropdown.locator(".notification-item", { hasText: overdueTitle });
+    await todayItem.scrollIntoViewIfNeeded();
+    await expect(todayItem).toBeVisible();
+    await expect(todayItem.locator(".due-tag")).toHaveClass(/due-today/);
+    await overdueItem.scrollIntoViewIfNeeded();
+    await expect(overdueItem).toBeVisible();
+    await expect(overdueItem.locator(".due-tag")).toHaveClass(/due-overdue/);
     await bell.click();
 
     await expect(page.locator(".issue-row", { hasText: todayTitle }).locator(".date-trigger")).toHaveClass(/due-today/);
