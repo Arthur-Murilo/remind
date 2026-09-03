@@ -11,6 +11,7 @@ import type { CatalogItem, Project } from "@/domain/types";
 type NewTaskModalProps = {
   projects: Project[];
   defaultProjectId?: string;
+  defaultDueDate?: string;
   initialTitle?: string;
   buttonText?: string;
   buttonClass?: string;
@@ -24,6 +25,7 @@ type NewTaskModalProps = {
 export function NewTaskModal({
   projects = [],
   defaultProjectId,
+  defaultDueDate,
   initialTitle = "",
   buttonText = "+ Nova tarefa",
   buttonClass = "button compact",
@@ -44,7 +46,7 @@ export function NewTaskModal({
   const [title, setTitle] = useState(initialTitle);
   const [status, setStatus] = useState("todo");
   const [priority, setPriority] = useState("medium");
-  const [dueDate, setDueDate] = useState("");
+  const [dueDate, setDueDate] = useState(defaultDueDate || "");
   const [recurrence, setRecurrence] = useState("none");
   const [repeatSubtasks, setRepeatSubtasks] = useState(true);
 
@@ -53,7 +55,7 @@ export function NewTaskModal({
     setTitle(titleOverride ?? initialTitle ?? "");
     setStatus("todo");
     setPriority("medium");
-    setDueDate("");
+    setDueDate(defaultDueDate || "");
     setRecurrence("none");
     setRepeatSubtasks(true);
   };
@@ -214,11 +216,18 @@ export function NewTaskModal({
 type QuickCreateProps = {
   projects: Project[];
   defaultProjectId?: string;
+  defaultDueDate?: string;
   statuses?: CatalogItem[];
   priorities?: CatalogItem[];
 };
 
-export function QuickCreateTask({ projects, defaultProjectId, statuses, priorities }: QuickCreateProps) {
+export function QuickCreateTask({
+  projects,
+  defaultProjectId,
+  defaultDueDate,
+  statuses,
+  priorities
+}: QuickCreateProps) {
   const [title, setTitle] = useState("");
   const [projectId, setProjectId] = useState(defaultProjectId || projects[0]?.id || "");
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -240,6 +249,7 @@ export function QuickCreateTask({ projects, defaultProjectId, statuses, prioriti
       formData.set("status", "todo");
       formData.set("priority", "medium");
       formData.set("recurrence", "none");
+      if (defaultDueDate) formData.set("dueDate", defaultDueDate);
       await createTaskAction(formData);
       setTitle("");
     });
@@ -295,6 +305,7 @@ export function QuickCreateTask({ projects, defaultProjectId, statuses, prioriti
       <NewTaskModal
         projects={projects}
         defaultProjectId={projectId || defaultProjectId}
+        defaultDueDate={defaultDueDate}
         initialTitle={title}
         hideTrigger
         statuses={statuses}

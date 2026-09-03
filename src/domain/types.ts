@@ -1,7 +1,7 @@
 export const taskStatuses = ["todo", "in_progress", "done"] as const;
 export const taskPriorities = ["low", "medium", "high"] as const;
 export const taskRecurrences = ["none", "daily", "weekly", "monthly"] as const;
-export const dueFilters = ["all", "overdue", "soon", "none"] as const;
+export const dueFilters = ["all", "myday", "overdue", "soon", "none"] as const;
 
 export type TaskStatus = string;
 export type TaskPriority = string;

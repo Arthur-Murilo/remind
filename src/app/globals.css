@@ -2271,6 +2271,62 @@ code {
   justify-content: flex-start;
 }
 
+.asana-caret-btn.has-subtasks {
+  color: var(--ink-soft);
+}
+
+.subtask-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  margin-left: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-faint);
+  font: inherit;
+  cursor: pointer;
+}
+
+.subtask-hint:hover {
+  color: var(--ink-soft);
+}
+
+.subtask-hint-bars {
+  display: grid;
+  gap: 2px;
+  width: 11px;
+}
+
+.issue-title .subtask-hint-bars span {
+  display: block;
+  height: 1px;
+  overflow: visible;
+  text-overflow: unset;
+  background: currentColor;
+  opacity: 0.72;
+}
+
+.issue-title .subtask-hint-bars span:nth-child(2) {
+  width: 78%;
+}
+
+.issue-title .subtask-hint-bars span:nth-child(3) {
+  width: 55%;
+}
+
+.issue-title .subtask-hint-count {
+  overflow: visible;
+  text-overflow: unset;
+  color: inherit;
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
 /* Asana-like subtasks */
 .asana-subtasks {
   margin-top: 6px;

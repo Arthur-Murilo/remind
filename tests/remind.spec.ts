@@ -282,6 +282,15 @@ test.describe("Remind App E2E Tests", () => {
     await input.press("Enter");
     await expect(row.locator(".asana-subtask-title", { hasText: "Passo 2" })).toBeVisible();
 
+    await page.reload();
+    await expect(row.locator(".issue-title-main strong")).toHaveText(title);
+    await expect(row.locator(".asana-subtask-title")).toHaveCount(0);
+    await expect(row.getByRole("button", { name: "Mostrar 2 subtarefas" })).toBeVisible();
+    await expect(row.locator(".subtask-hint-count")).toHaveText("2");
+    await row.getByRole("button", { name: "Mostrar 2 subtarefas" }).click();
+    await expect(row.locator(".asana-subtask-title", { hasText: "Passo 1" })).toBeVisible();
+    await expect(row.locator(".asana-subtask-title", { hasText: "Passo 2" })).toBeVisible();
+
     const subChecks = row.locator(".asana-subtask-row .task-checkbox");
     await subChecks.nth(0).click();
     await expect(row.locator(".asana-subtask-row.done")).toHaveCount(1);
@@ -308,7 +317,14 @@ test.describe("Remind App E2E Tests", () => {
     await page.fill("#new-task-title", futureTitle);
     await pickRelativeDate(page, 7);
     await page.click('button:has-text("Criar Tarefa")');
+    await expect(page.locator(".issue-title-main strong", { hasText: futureTitle })).toHaveCount(0);
+
+    await page.locator('a.metric-pill[href="/app?due=all"]').click();
+    await expect(page.locator("h1")).toHaveText("Todas as tarefas");
     await expect(page.locator(".issue-title-main strong", { hasText: futureTitle })).toBeVisible();
+    await page.getByRole("link", { name: "Meu dia" }).click();
+    await expect(page.locator("h1")).toHaveText("Meu dia");
+    await expect(page.locator(".issue-title-main strong", { hasText: futureTitle })).toHaveCount(0);
 
     await openCreateDetails(page);
     await page.fill("#new-task-title", todayTitle);
@@ -341,6 +357,8 @@ test.describe("Remind App E2E Tests", () => {
 
     await expect(page.locator(".issue-row", { hasText: todayTitle }).locator(".date-trigger")).toHaveClass(/due-today/);
     await expect(page.locator(".issue-row", { hasText: overdueTitle }).locator(".date-trigger")).toHaveClass(/due-overdue/);
+
+    await page.locator('a.metric-pill[href="/app?due=all"]').click();
     await expect(page.locator(".issue-row", { hasText: futureTitle }).locator(".date-trigger")).not.toHaveClass(/due-today|due-overdue/);
   });
 

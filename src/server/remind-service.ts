@@ -147,6 +147,11 @@ export async function getTasks(userId: string, filter: TaskFilter = {}): Promise
     conditions.push("t.status <> 'done'");
   }
 
+  if (filter.due === "myday") {
+    conditions.push("t.due_date is not null and t.due_date <= current_date");
+    conditions.push("(t.status <> 'done' or t.due_date = current_date)");
+  }
+
   if (filter.due === "none") {
     conditions.push("t.due_date is null");
   }

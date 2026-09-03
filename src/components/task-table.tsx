@@ -96,6 +96,8 @@ type TaskTableProps = {
   statuses: CatalogItem[];
   priorities: CatalogItem[];
   showProjectColumn?: boolean;
+  emptyTitle?: string;
+  emptyHint?: string;
 };
 
 function projectDotClass(name: string) {
@@ -138,10 +140,19 @@ function TaskTimeChip({
   );
 }
 
+const expandedTaskIds = new Set<string>();
+
 function TaskTitleCell({ task, onPatch }: { task: Task; onPatch: (field: string, value: string) => void }) {
-  const [expanded, setExpanded] = useState((task.subtasks?.length ?? 0) > 0);
+  const [expanded, setExpanded] = useState(() => expandedTaskIds.has(task.id));
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(task.title);
+  const subtaskCount = task.subtasks?.length ?? 0;
+
+  const toggleExpanded = (next: boolean) => {
+    if (next) expandedTaskIds.add(task.id);
+    else expandedTaskIds.delete(task.id);
+    setExpanded(next);
+  };
 
   useEffect(() => {
     setDraft(task.title);
@@ -162,10 +173,10 @@ function TaskTitleCell({ task, onPatch }: { task: Task; onPatch: (field: string,
       <div className="issue-title-main">
         <button
           type="button"
-          className="asana-caret-btn"
+          className={`asana-caret-btn${subtaskCount > 0 ? " has-subtasks" : ""}`}
           aria-label={expanded ? "Ocultar subtarefas" : "Mostrar subtarefas"}
           aria-expanded={expanded}
-          onClick={() => setExpanded((value) => !value)}
+          onClick={() => toggleExpanded(!expanded)}
         >
           <span className={`asana-caret ${expanded ? "open" : ""}`} aria-hidden="true" />
         </button>
@@ -198,6 +209,21 @@ function TaskTitleCell({ task, onPatch }: { task: Task; onPatch: (field: string,
           runningStartedAt={task.runningSession?.startedAt}
         />
       </div>
+      {!expanded && subtaskCount > 0 ? (
+        <button
+          type="button"
+          className="subtask-hint"
+          onClick={() => toggleExpanded(true)}
+          aria-label={`Mostrar ${subtaskCount} ${subtaskCount === 1 ? "subtarefa" : "subtarefas"}`}
+        >
+          <span className="subtask-hint-bars" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
+          <span className="subtask-hint-count">{subtaskCount}</span>
+        </button>
+      ) : null}
       {task.description ? <span>{task.description}</span> : null}
       {recurrenceLabel(task.recurrence) ? (
         <span className="recurrence-inline">{recurrenceLabel(task.recurrence)}</span>
@@ -213,7 +239,9 @@ export function TaskTable({
   allTags,
   statuses,
   priorities,
-  showProjectColumn = true
+  showProjectColumn = true,
+  emptyTitle = "Nenhuma tarefa nessa visão.",
+  emptyHint = "Limpe os filtros ou crie uma tarefa dentro de um projeto."
 }: TaskTableProps) {
   const [manualWidths, setManualWidths] = useState<WidthOverrides>({});
   const [measuredWidths, setMeasuredWidths] = useState<WidthOverrides>({});
@@ -471,8 +499,8 @@ export function TaskTable({
             ))
           ) : (
             <div className="empty-state">
-              <strong>Nenhuma tarefa nessa visão.</strong>
-              <span>Limpe os filtros ou crie uma tarefa dentro de um projeto.</span>
+              <strong>{emptyTitle}</strong>
+              <span>{emptyHint}</span>
             </div>
           )}
         </div>

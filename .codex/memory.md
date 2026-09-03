@@ -21,6 +21,8 @@
 - Mobile: sidebar em drawer abaixo de 960px; lista empilhada abaixo de 720px.
 - Status e Prioridade de sistema protegidos; extras criáveis, recoloríveis e excluíveis. Prioridades (sistema e extras) têm ordem persistida por arrastar no menu; a lista de tarefas segue essa ordem. Prazo continua data.
 - Subtarefas não fecham a tarefa pai; concluir a pai marca as subtarefas como concluídas.
+- Subtarefas começam recolhidas; a linha mostra um aviso discreto com a contagem.
+- Meu dia lista só tarefas abertas com prazo de hoje ou atrasadas; o restante fica nos projetos ou em Abertas.
 - Lembretes in-app só avisam no dia do prazo (amarelo) ou atrasadas (vermelho); prazos futuros não entram no sininho.
 - Containerização e Deploy: Next.js compilado em modo `output: "standalone"`, Dockerfile multi-stage com Alpine, usuário não-root, docker-entrypoint com auto-schema/seed (falha de init interrompe o boot) e Docker Compose com Postgres bound a `127.0.0.1`. `POSTGRES_PASSWORD`, `SEED_USER_EMAIL` e `SEED_USER_PASSWORD` vêm obrigatoriamente do `.env`; o seed cria o usuário só se o e-mail ainda não existir. A imagem runner copia `node_modules/postgres` além do standalone, porque `scripts/init-db.mjs` não entra no file tracing do Next.js.
 - Integração Contínua (CI): GitHub Actions em `.github/workflows/ci.yml` com typecheck, build, container Postgres de serviço e testes E2E Playwright.

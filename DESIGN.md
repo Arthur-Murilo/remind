@@ -22,13 +22,14 @@
 ## Layout
 
 - App shell: sidebar (~244px) + topbar fina + área principal full-bleed.
-- Sidebar: Meu dia, Lembretes, lista de projetos com dots e contagem, criar projeto inline.
-- Meu dia / Lembretes: toolbar + filtros + lista tabular densa (tarefa | projeto | status | prioridade | prazo | etiqueta | tempo | ações).
+- Sidebar: Meu dia, lista de projetos com dots e contagem, criar projeto inline.
+- Meu dia: só tarefas abertas com prazo de hoje ou atrasadas. Tarefa criada nessa visão já nasce com prazo de hoje. O atalho Abertas mostra a lista completa.
+- Lembretes: toolbar + filtros + lista tabular densa via pílulas Hoje/Atrasadas (tarefa | projeto | status | prioridade | prazo | etiqueta | tempo | ações).
 - Edição inline nas células de status, prioridade, prazo, projeto e etiqueta; duplo clique no título para rename na linha; modal só para descrição/recorrência.
 - Prioridades reordenáveis por arrastar no menu do catálogo; a lista de tarefas segue essa ordem.
 - Prazo de hoje em amarelo e prazo atrasado em vermelho, na lista e no sininho.
 - Colunas redimensionáveis: a largura inicial acompanha o conteúdo (títulos longos expandem a coluna) e o ajuste manual continua persistido no navegador.
-- Subtarefas expandem sob a linha; a seta fica à esquerda do título.
+- Subtarefas começam recolhidas; a seta à esquerda do título abre a lista. Recolhida, um aviso discreto (três barrinhas + contagem) fica abaixo do nome.
 - Sessões de trabalho: timer e chip de tempo na linha da tarefa + visão Tempo (filtros de dia/semana/mês e agrupamento do gráfico por projeto ou tarefa).
 - Projeto: mesma lista (sem coluna projeto) + composer de nova tarefa.
 

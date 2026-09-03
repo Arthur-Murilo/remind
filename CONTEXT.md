@@ -25,8 +25,12 @@ Data opcional de vencimento da Tarefa. Não é um catálogo criável. Lembretes 
 _Avoid_: rótulo de prazo, sprint name como se fosse prazo
 
 **Subtarefa**:
-Passo de um único nível ligado a uma tarefa; não possui projeto próprio nem subtarefas aninhadas. Concluir subtarefas não fecha a tarefa pai; concluir a pai marca as subtarefas como concluídas.
+Passo de um único nível ligado a uma tarefa; não possui projeto próprio nem subtarefas aninhadas. Começa recolhida sob a tarefa pai, com aviso de contagem. Concluir subtarefas não fecha a tarefa pai; concluir a pai marca as subtarefas como concluídas.
 _Avoid_: Checklist item (como sinônimo frouxo), sub-issue
+
+**Meu dia**:
+Visão da pauta do dia: tarefas abertas com prazo de hoje ou atrasadas, mais as concluídas que venciam hoje. Não é o backlog completo.
+_Avoid_: Inbox, todas as tarefas, board do dia
 
 **Etiqueta**:
 Rótulo colorido reutilizável que o usuário associa a tarefas para classificação. Nome e cor são editáveis; a exclusão remove o rótulo das tarefas.

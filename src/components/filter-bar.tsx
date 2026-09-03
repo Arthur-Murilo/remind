@@ -38,7 +38,13 @@ export function FilterBar({
   const updateQueryParam = useCallback(
     (key: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (value && value !== "all" && value !== "") {
+      if (key === "due") {
+        if (!value || value === "myday" || (value === "all" && currentPath !== "/app")) {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      } else if (value && value !== "all" && value !== "") {
         params.set(key, value);
       } else {
         params.delete(key);
@@ -80,7 +86,7 @@ export function FilterBar({
       label: `Prioridade: ${resolveCatalogItem(priorities, filter.priority).label}`
     });
   }
-  if (filter.due && filter.due !== "all") {
+  if (filter.due && filter.due !== "all" && filter.due !== "myday") {
     const dueMap: Record<string, string> = {
       overdue: "Atrasadas",
       soon: "Hoje",
@@ -166,6 +172,7 @@ export function FilterBar({
           onChange={(value) => updateQueryParam("due", value)}
           triggerClassName="filter-select"
           options={[
+            ...(currentPath === "/app" ? [{ value: "myday", label: "Hoje e atrasadas" }] : []),
             { value: "all", label: "Todos os prazos" },
             { value: "overdue", label: "Atrasadas" },
             { value: "soon", label: "Hoje" },

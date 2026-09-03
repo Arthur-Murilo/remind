@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { formatDuration } from "@/lib/format";
+import { formatDuration, todayIsoDate } from "@/lib/format";
 import { requireCurrentUser } from "@/server/auth";
 import { getTaskFilterFromSearchParams } from "@/server/filters";
 import { getDashboardMetrics, getProjects, getTasks, getTags, getCatalogs } from "@/server/remind-service";
@@ -16,6 +16,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const user = await requireCurrentUser();
   const resolvedSearchParams = await searchParams;
   const filter = getTaskFilterFromSearchParams(resolvedSearchParams);
+  if (resolvedSearchParams.due === undefined) {
+    filter.due = "myday";
+  }
 
   const [metrics, projects, tasks, allTags, catalogs] = await Promise.all([
     getDashboardMetrics(user.id),
@@ -26,12 +29,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   ]);
 
   const isRemindersView = filter.due === "soon" || filter.due === "overdue";
+  const isMyDayView = filter.due === "myday";
+  const isPlainMyDay =
+    isMyDayView &&
+    !filter.search &&
+    (!filter.status || filter.status === "all") &&
+    (!filter.priority || filter.priority === "all") &&
+    !filter.projectId;
 
   return (
     <div className="issues-view">
       <div className="issues-toolbar">
         <div>
-          <h1>{isRemindersView ? "Lembretes" : "Meu dia"}</h1>
+          <h1>{isRemindersView ? "Lembretes" : filter.due === "all" ? "Todas as tarefas" : "Meu dia"}</h1>
         </div>
         <div className="issues-toolbar-actions">
           {projects.length > 0 ? (
@@ -39,13 +49,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               projects={projects}
               statuses={catalogs.statuses}
               priorities={catalogs.priorities}
+              defaultDueDate={todayIsoDate()}
             />
           ) : null}
         </div>
       </div>
 
       <div className="metrics-strip" aria-label="Resumo operacional">
-        <Link className="metric-pill" href="/app">
+        <Link className="metric-pill" href="/app?due=all">
           <span className="metric-pill-label">Abertas</span>
           <strong className="metric-pill-value">{metrics.openTasks}</strong>
         </Link>
@@ -85,6 +96,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         statuses={catalogs.statuses}
         priorities={catalogs.priorities}
         showProjectColumn
+        emptyTitle={isPlainMyDay ? "Nenhuma tarefa para hoje." : undefined}
+        emptyHint={
+          isPlainMyDay
+            ? "O Meu dia mostra só o que vence hoje ou já atrasou. O restante fica nos projetos."
+            : undefined
+        }
       />
     </div>
   );

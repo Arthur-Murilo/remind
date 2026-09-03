@@ -8,7 +8,7 @@ export function AppNav() {
   const searchParams = useSearchParams();
   const due = searchParams.get("due");
   const isReminders = pathname === "/app" && (due === "soon" || due === "overdue");
-  const isMyDay = pathname === "/app" && !isReminders;
+  const isMyDay = pathname === "/app" && !due;
   const isTime = pathname === "/app/tempo";
 
   return (

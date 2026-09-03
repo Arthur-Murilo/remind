@@ -3,18 +3,17 @@
 ## Tarefa Atual
 
 ### Tarefa
-Corrigir riscado da tarefa pai, permissões do CI e revisão do Copilot.
+Recolher subtarefas por padrão e restringir o Meu dia ao que é do dia.
 
 ### Objetivo
-O título da tarefa pai não deve ficar riscado ao concluir só subtarefas; o workflow do GitHub Actions precisa de `permissions` explícitas; e as sugestões do Copilot sobre `sort_order`, upsert em lote e `persistOrder` duplicado devem ser aplicadas.
+A lista não deve abrir todas as subtarefas ao entrar num projeto (ou no Meu dia). O usuário precisa de um aviso discreto de que há continuação. O Meu dia deve mostrar só tarefas com prazo de hoje ou atrasadas, não o backlog inteiro.
 
 ### Subtarefas
-- [x] Restringir o CSS de riscado ao checkbox da coluna da tarefa pai.
-- [x] Adicionar `permissions: contents: read` em `.github/workflows/ci.yml`.
-- [x] Corrigir `nextPrioritySortOrder` com `greatest(...)`.
-- [x] Tornar `reorderPriorities` atômico com upsert em lote.
-- [x] Evitar `persistOrder` duplo no drop/dragEnd do catálogo.
-- [x] Validar typecheck/E2E e atualizar o PR.
+- [x] Recolher subtarefas por padrão na linha da tarefa.
+- [x] Mostrar indicador discreto (barrinhas + contagem) quando houver subtarefas fechadas.
+- [x] Filtrar Meu dia para prazo de hoje e atrasadas (`myday`).
+- [x] Criar tarefa no Meu dia já com prazo de hoje, para ela aparecer na lista.
+- [x] Ajustar seed, testes E2E e docs de produto/memória.
 
 ### Status
 Concluída.

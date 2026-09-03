@@ -227,7 +227,7 @@ async function seed(sql) {
         description: "Registrar prioridades e próximos passos do produto.",
         status: "in_progress",
         priority: "high",
-        dueDate: new Date(Date.now() + 86400000).toISOString().slice(0, 10)
+        dueDate: new Date().toISOString().slice(0, 10)
       },
       {
         title: "Definir critérios dos lembretes",
