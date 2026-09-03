@@ -289,9 +289,11 @@ test.describe("Remind App E2E Tests", () => {
     await expect(row.locator(".asana-subtask-row.done")).toHaveCount(2);
     await expect(row.locator(".col-check .task-checkbox")).not.toHaveClass(/checked/);
     await expect(row.getByRole("button", { name: "Marcar como concluída" })).toBeVisible();
+    await expect(row.locator(".issue-title-main strong")).toHaveCSS("text-decoration-line", "none");
 
     await row.locator(".col-check .task-checkbox").click();
     await expect(row.locator(".col-check .task-checkbox")).toHaveClass(/checked/);
+    await expect(row.locator(".issue-title-main strong")).toHaveCSS("text-decoration-line", "line-through");
     await expect(row.locator(".asana-subtask-row.done")).toHaveCount(2);
     await expect(row.locator(".asana-subtask-row .task-checkbox.checked")).toHaveCount(2);
   });

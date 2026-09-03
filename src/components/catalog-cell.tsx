@@ -200,7 +200,6 @@ export function CatalogCell({ kind, value, items, ariaLabel, onChange }: Catalog
                       canReorder
                         ? (event) => {
                             event.preventDefault();
-                            persistOrder(orderedRef.current);
                             setDragKey(null);
                           }
                         : undefined

@@ -1378,11 +1378,11 @@ code {
   0% { transform: scale(0.88); }
   100% { transform: scale(1); }
 }
-.issue-row:has(.task-checkbox.checked) .issue-title strong {
+.issue-row:has(.col-check .task-checkbox.checked) .issue-title strong {
   text-decoration: line-through;
   opacity: 0.4;
 }
-.issue-row:has(.task-checkbox.checked) .issue-title span {
+.issue-row:has(.col-check .task-checkbox.checked) .issue-title span {
   opacity: 0.25;
 }
 

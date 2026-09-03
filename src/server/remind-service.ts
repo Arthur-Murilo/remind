@@ -818,7 +818,7 @@ async function nextPrioritySortOrder(userId: string) {
   const sql = db();
   const fallback = SYSTEM_PRIORITY_ITEMS.length - 1;
   const [row] = await sql<{ next: number }[]>`
-    select coalesce(max(sort_order), ${fallback}) + 1 as next
+    select greatest(coalesce(max(sort_order), 0), ${fallback}) + 1 as next
     from custom_priorities
     where user_id = ${userId}
   `;
@@ -913,19 +913,31 @@ export async function reorderPriorities(userId: string, orderedKeys: string[]) {
   }
 
   const byKey = new Map(catalogs.priorities.map((item) => [item.key, item]));
-  const sql = db();
-  for (let index = 0; index < keys.length; index += 1) {
-    const key = keys[index];
+  const rows = keys.flatMap((key, index) => {
     const item = byKey.get(key);
-    if (!item) continue;
-    await sql`
-      insert into custom_priorities (id, user_id, key, label, color, sort_order)
-      values (${randomUUID()}, ${userId}, ${key}, ${item.label}, ${item.color}, ${index})
-      on conflict (user_id, key) do update
-        set sort_order = excluded.sort_order,
-            label = excluded.label
-    `;
+    if (!item) return [];
+    return [
+      {
+        id: randomUUID(),
+        user_id: userId,
+        key,
+        label: item.label,
+        color: item.color,
+        sort_order: index
+      }
+    ];
+  });
+  if (rows.length === 0) {
+    return catalogs.priorities;
   }
+
+  const sql = db();
+  await sql`
+    insert into custom_priorities ${sql(rows, "id", "user_id", "key", "label", "color", "sort_order")}
+    on conflict (user_id, key) do update
+      set sort_order = excluded.sort_order,
+          label = excluded.label
+  `;
 
   return (await getCatalogs(userId)).priorities;
 }

@@ -3,6 +3,31 @@
 ## Tarefa Atual
 
 ### Tarefa
+Corrigir riscado da tarefa pai, permissões do CI e revisão do Copilot.
+
+### Objetivo
+O título da tarefa pai não deve ficar riscado ao concluir só subtarefas; o workflow do GitHub Actions precisa de `permissions` explícitas; e as sugestões do Copilot sobre `sort_order`, upsert em lote e `persistOrder` duplicado devem ser aplicadas.
+
+### Subtarefas
+- [ ] Restringir o CSS de riscado ao checkbox da coluna da tarefa pai.
+- [ ] Adicionar `permissions: contents: read` em `.github/workflows/ci.yml`.
+- [ ] Corrigir `nextPrioritySortOrder` com `greatest(...)`.
+- [ ] Tornar `reorderPriorities` atômico com upsert em lote.
+- [ ] Evitar `persistOrder` duplo no drop/dragEnd do catálogo.
+- [ ] Validar typecheck/E2E e atualizar o PR.
+
+### Status
+Em andamento.
+
+### Bloqueios
+Nenhum.
+
+### Próximos Passos
+Implementar as correções e testar.
+
+## Tarefa Anterior
+
+### Tarefa
 Ajustar cascata de subtarefas, lembretes por prazo e ordem das prioridades.
 
 ### Objetivo
@@ -18,28 +43,6 @@ Três correções de produto: (1) concluir subtarefas não fecha a tarefa pai, m
 - [x] Tarefas ordenadas pela ordem do catálogo de prioridades.
 - [x] Testes E2E cobrindo os três fluxos.
 - [x] typecheck e verificação no browser.
-
-### Status
-Concluída.
-
-### Bloqueios
-Nenhum.
-
-### Próximos Passos
-Nenhum.
-
-## Tarefa Anterior
-
-### Tarefa
-Corrigir falha do entrypoint Docker: `Cannot find package 'postgres'` em `init-db.mjs`.
-
-### Objetivo
-Fazer o container `remind-app` aplicar schema/seed e subir o Next.js, copiando o pacote `postgres` para a imagem standalone.
-
-### Subtarefas
-- [x] Copiar `node_modules/postgres` do estágio `deps` para o `runner` no `Dockerfile`.
-- [x] Atualizar memória operacional.
-- [x] Commit e push para a VPS poder rebuildar.
 
 ### Status
 Concluída.
