@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { markReminderAsReadAction } from "@/server/actions";
+import { formatDate, dueDateTone } from "@/lib/format";
 import type { Reminder } from "@/domain/types";
 
 type NotificationBellProps = {
@@ -54,7 +55,15 @@ export function NotificationBell({ reminders = [] }: NotificationBellProps) {
 
           <div className="notification-list">
             {count > 0 ? (
-              reminders.map((reminder) => (
+              reminders.map((reminder) => {
+                const tone = dueDateTone(reminder.dueDate);
+                const dueLabel =
+                  tone === "overdue"
+                    ? `Atrasada: ${formatDate(reminder.dueDate)}`
+                    : tone === "today"
+                      ? `Hoje: ${formatDate(reminder.dueDate)}`
+                      : `Prazo: ${reminder.dueDate || "Em breve"}`;
+                return (
                 <div key={reminder.id} className="notification-item">
                   <div className="notification-content">
                     <Link href={`/app?search=${encodeURIComponent(reminder.taskTitle)}`} onClick={() => setIsOpen(false)}>
@@ -63,7 +72,7 @@ export function NotificationBell({ reminders = [] }: NotificationBellProps) {
                     <div className="notification-meta">
                       <span>{reminder.projectName}</span>
                       <span className="bullet">•</span>
-                      <span className="due-tag">Prazo: {reminder.dueDate || "Em breve"}</span>
+                      <span className={`due-tag${tone ? ` due-${tone}` : ""}`}>{dueLabel}</span>
                     </div>
                   </div>
                   <form action={markReminderAsReadAction}>
@@ -73,7 +82,8 @@ export function NotificationBell({ reminders = [] }: NotificationBellProps) {
                     </button>
                   </form>
                 </div>
-              ))
+                );
+              })
             ) : (
               <div className="notification-empty">
                 <span>Nenhum lembrete pendente no momento! 🎉</span>

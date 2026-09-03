@@ -51,7 +51,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         </Link>
 
         <Link className={`metric-pill accent-soon${metrics.dueSoon > 0 ? " hot" : ""}`} href="/app?due=soon">
-          <span className="metric-pill-label">Vencendo</span>
+          <span className="metric-pill-label">Hoje</span>
           <strong className="metric-pill-value">{metrics.dueSoon}</strong>
         </Link>
 

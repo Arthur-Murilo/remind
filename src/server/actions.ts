@@ -28,6 +28,7 @@ import {
   deleteTag,
   setCatalogColor,
   deleteCatalogItem,
+  reorderPriorities,
   startWorkSession,
   stopWorkSession,
   createManualSession,
@@ -405,6 +406,14 @@ export async function deleteCatalogItemAction(formData: FormData) {
   const key = getString(formData, "key");
   if ((kind !== "status" && kind !== "priority") || !key) return;
   await deleteCatalogItem(user.id, kind, key);
+  revalidatePath("/app", "layout");
+}
+
+export async function reorderPrioritiesAction(formData: FormData) {
+  const user = await requireCurrentUser();
+  const keys = formData.getAll("keys").map((value) => String(value).trim()).filter(Boolean);
+  if (keys.length === 0) return;
+  await reorderPriorities(user.id, keys);
   revalidatePath("/app", "layout");
 }
 

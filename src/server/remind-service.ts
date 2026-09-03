@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import type { Project, Reminder, Task, TaskFilter, TaskRecurrence, TimePeriod, WorkSession } from "@/domain/types";
-import { SYSTEM_PRIORITY_ITEMS, SYSTEM_STATUS_ITEMS, mergeCatalog, slugifyCatalogKey } from "@/domain/catalog";
+import { SYSTEM_PRIORITY_ITEMS, SYSTEM_STATUS_ITEMS, mergeCatalog, slugifyCatalogKey, sortCatalogItems } from "@/domain/catalog";
 import { db } from "@/lib/db";
 
 type DashboardMetrics = {
@@ -33,7 +33,7 @@ export async function getDashboardMetrics(userId: string): Promise<DashboardMetr
     where owner_id = ${userId}
       and status <> 'done'
       and due_date is not null
-      and due_date between current_date and current_date + interval '3 day'
+      and due_date = current_date
   `;
 
   const [overdueRow] = await sql<{ count: number }[]>`
@@ -143,7 +143,7 @@ export async function getTasks(userId: string, filter: TaskFilter = {}): Promise
   }
 
   if (filter.due === "soon") {
-    conditions.push("t.due_date is not null and t.due_date between current_date and current_date + interval '3 day'");
+    conditions.push("t.due_date is not null and t.due_date = current_date");
     conditions.push("t.status <> 'done'");
   }
 
@@ -175,9 +175,19 @@ export async function getTasks(userId: string, filter: TaskFilter = {}): Promise
       t.updated_at as "updatedAt"
     from tasks t
     join projects p on p.id = t.project_id
+    left join custom_priorities cp
+      on cp.user_id = t.owner_id and cp.key = t.priority
     where ${conditions.join(" and ")}
     order by
-      case t.priority when 'high' then 1 when 'medium' then 2 else 3 end,
+      coalesce(
+        cp.sort_order,
+        case t.priority
+          when 'high' then 0
+          when 'medium' then 1
+          when 'low' then 2
+          else 100
+        end
+      ) asc,
       t.due_date asc nulls last,
       t.updated_at desc
   `;
@@ -276,8 +286,12 @@ export async function getReminders(userId: string): Promise<Reminder[]> {
     where r.user_id = ${userId}
       and r.read_at is null
       and t.status <> 'done'
-    order by r.remind_at asc
-    limit 8
+      and t.due_date is not null
+      and t.due_date <= current_date
+    order by
+      case when t.due_date < current_date then 0 else 1 end,
+      t.due_date asc,
+      r.remind_at asc
   `;
 }
 
@@ -441,6 +455,9 @@ export async function updateTask(input: {
   `;
 
   await syncReminder(input.userId, input.taskId, input.dueDate || null, input.status);
+  if (task && input.status === "done") {
+    await completeAllSubtasks(input.userId, input.taskId);
+  }
 
   return task;
 }
@@ -523,12 +540,13 @@ export async function toggleTaskStatus(userId: string, taskId: string, status: s
 
   if (task) {
     await syncReminder(userId, taskId, task.dueDate || null, task.status);
+    if (task.status === "done") {
+      await completeAllSubtasks(userId, taskId);
+    }
   }
 
   return task;
 }
-
-/* ——— Tag & Subtask Services ——— */
 
 export async function getTags(userId: string) {
   const sql = db();
@@ -583,10 +601,22 @@ export async function createSubtask(userId: string, taskId: string, title: strin
 
 export async function toggleSubtask(userId: string, subtaskId: string, completed: boolean) {
   const sql = db();
+  // Concluir subtarefas nunca fecha a tarefa pai, mesmo se todas estiverem feitas.
   await sql`
     update subtasks
     set completed = ${completed}, updated_at = now()
     where id = ${subtaskId} and owner_id = ${userId}
+  `;
+}
+
+async function completeAllSubtasks(userId: string, taskId: string) {
+  const sql = db();
+  await sql`
+    update subtasks
+    set completed = true, updated_at = now()
+    where task_id = ${taskId}
+      and owner_id = ${userId}
+      and completed = false
   `;
 }
 
@@ -698,6 +728,9 @@ export async function patchTask(
 
   if (task) {
     await syncReminder(userId, taskId, task.dueDate || null, task.status);
+    if (task.status === "done") {
+      await completeAllSubtasks(userId, taskId);
+    }
   }
 
   return task;
@@ -781,20 +814,32 @@ export async function createCustomStatus(userId: string, label: string, color: s
   return retry;
 }
 
+async function nextPrioritySortOrder(userId: string) {
+  const sql = db();
+  const fallback = SYSTEM_PRIORITY_ITEMS.length - 1;
+  const [row] = await sql<{ next: number }[]>`
+    select greatest(coalesce(max(sort_order), 0), ${fallback}) + 1 as next
+    from custom_priorities
+    where user_id = ${userId}
+  `;
+  return row?.next ?? SYSTEM_PRIORITY_ITEMS.length;
+}
+
 export async function createCustomPriority(userId: string, label: string, color: string = "#e2a336") {
   const sql = db();
   const key = uniqueCatalogKey(label, new Set(SYSTEM_PRIORITY_ITEMS.map((item) => item.key)));
+  const sortOrder = await nextPrioritySortOrder(userId);
   const [priority] = await sql`
-    insert into custom_priorities (id, user_id, key, label, color)
-    values (${randomUUID()}, ${userId}, ${key}, ${label}, ${color})
+    insert into custom_priorities (id, user_id, key, label, color, sort_order)
+    values (${randomUUID()}, ${userId}, ${key}, ${label}, ${color}, ${sortOrder})
     on conflict (user_id, key) do nothing
-    returning id, user_id as "userId", key, label, color, created_at as "createdAt"
+    returning id, user_id as "userId", key, label, color, sort_order as "sortOrder", created_at as "createdAt"
   `;
   if (priority) return priority;
   const [retry] = await sql`
-    insert into custom_priorities (id, user_id, key, label, color)
-    values (${randomUUID()}, ${userId}, ${`${key}_${randomUUID().slice(0, 6)}`}, ${label}, ${color})
-    returning id, user_id as "userId", key, label, color, created_at as "createdAt"
+    insert into custom_priorities (id, user_id, key, label, color, sort_order)
+    values (${randomUUID()}, ${userId}, ${`${key}_${randomUUID().slice(0, 6)}`}, ${label}, ${color}, ${sortOrder + 1})
+    returning id, user_id as "userId", key, label, color, sort_order as "sortOrder", created_at as "createdAt"
   `;
   return retry;
 }
@@ -812,11 +857,13 @@ export async function setCatalogColor(userId: string, kind: CatalogKind, key: st
     `;
     return row;
   }
+  const systemIndex = SYSTEM_PRIORITY_ITEMS.findIndex((item) => item.key === key);
+  const sortOrder = systemIndex >= 0 ? systemIndex : await nextPrioritySortOrder(userId);
   const [row] = await sql`
-    insert into custom_priorities (id, user_id, key, label, color)
-    values (${randomUUID()}, ${userId}, ${key}, ${label}, ${color})
+    insert into custom_priorities (id, user_id, key, label, color, sort_order)
+    values (${randomUUID()}, ${userId}, ${key}, ${label}, ${color}, ${sortOrder})
     on conflict (user_id, key) do update set color = excluded.color
-    returning id, user_id as "userId", key, label, color, created_at as "createdAt"
+    returning id, user_id as "userId", key, label, color, sort_order as "sortOrder", created_at as "createdAt"
   `;
   return row;
 }
@@ -833,11 +880,11 @@ export async function getCustomStatuses(userId: string) {
 
 export async function getCustomPriorities(userId: string) {
   const sql = db();
-  return sql<{ id: string; userId: string; key: string; label: string; color: string; createdAt: string }[]>`
-    select id, user_id as "userId", key, label, color, created_at as "createdAt"
+  return sql<{ id: string; userId: string; key: string; label: string; color: string; sortOrder: number; createdAt: string }[]>`
+    select id, user_id as "userId", key, label, color, sort_order as "sortOrder", created_at as "createdAt"
     from custom_priorities
     where user_id = ${userId}
-    order by label asc
+    order by sort_order asc, created_at asc
   `;
 }
 
@@ -848,8 +895,51 @@ export async function getCatalogs(userId: string) {
   ]);
   return {
     statuses: mergeCatalog(SYSTEM_STATUS_ITEMS, customStatuses),
-    priorities: mergeCatalog(SYSTEM_PRIORITY_ITEMS, customPriorities)
+    priorities: sortCatalogItems(mergeCatalog(SYSTEM_PRIORITY_ITEMS, customPriorities))
   };
+}
+
+export async function reorderPriorities(userId: string, orderedKeys: string[]) {
+  const catalogs = await getCatalogs(userId);
+  const allowed = new Set(catalogs.priorities.map((item) => item.key));
+  const keys = orderedKeys.filter((key) => allowed.has(key));
+  for (const item of catalogs.priorities) {
+    if (!keys.includes(item.key)) {
+      keys.push(item.key);
+    }
+  }
+  if (keys.length === 0) {
+    return catalogs.priorities;
+  }
+
+  const byKey = new Map(catalogs.priorities.map((item) => [item.key, item]));
+  const rows = keys.flatMap((key, index) => {
+    const item = byKey.get(key);
+    if (!item) return [];
+    return [
+      {
+        id: randomUUID(),
+        user_id: userId,
+        key,
+        label: item.label,
+        color: item.color,
+        sort_order: index
+      }
+    ];
+  });
+  if (rows.length === 0) {
+    return catalogs.priorities;
+  }
+
+  const sql = db();
+  await sql`
+    insert into custom_priorities ${sql(rows, "id", "user_id", "key", "label", "color", "sort_order")}
+    on conflict (user_id, key) do update
+      set sort_order = excluded.sort_order,
+          label = excluded.label
+  `;
+
+  return (await getCatalogs(userId)).priorities;
 }
 
 export async function deleteCatalogItem(userId: string, kind: CatalogKind, key: string) {

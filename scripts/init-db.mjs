@@ -142,9 +142,15 @@ async function createSchema(sql) {
       key text not null,
       label text not null,
       color text not null default '#e2a336',
+      sort_order integer not null default 100,
       created_at timestamptz not null default now()
     )
   `;
+
+  await sql`alter table custom_priorities add column if not exists sort_order integer not null default 100`;
+  await sql`update custom_priorities set sort_order = 0 where key = 'high' and sort_order = 100`;
+  await sql`update custom_priorities set sort_order = 1 where key = 'medium' and sort_order = 100`;
+  await sql`update custom_priorities set sort_order = 2 where key = 'low' and sort_order = 100`;
 
   await sql`create unique index if not exists custom_statuses_user_key on custom_statuses (user_id, key)`;
   await sql`create unique index if not exists custom_priorities_user_key on custom_priorities (user_id, key)`;

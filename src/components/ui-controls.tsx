@@ -3,6 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { CalendarIcon } from "@/components/icons";
+import { dueDateTone } from "@/lib/format";
 
 export type SelectOption = {
   value: string;
@@ -260,6 +261,7 @@ export function DateField({
   }, [cursor]);
 
   const monthLabel = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(cursor);
+  const tone = dueDateTone(value);
   const shown =
     display ||
     (value
@@ -277,7 +279,7 @@ export function DateField({
       <button
         ref={triggerRef}
         type="button"
-        className={`ui-select-trigger date-trigger ${triggerClassName} ${open ? "open" : ""}`}
+        className={`ui-select-trigger date-trigger ${triggerClassName} ${open ? "open" : ""} ${tone ? `due-${tone}` : ""}`}
         aria-label={ariaLabel}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}

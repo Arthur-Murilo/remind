@@ -5,6 +5,29 @@ async function openCreateDetails(page: import("@playwright/test").Page) {
   await expect(page.locator(".modal-title")).toHaveText("Criar Nova Tarefa");
 }
 
+async function pickRelativeDate(page: import("@playwright/test").Page, daysFromToday: number) {
+  await page.locator(".modal-body").getByRole("button", { name: "Selecionar prazo" }).click();
+  const popover = page.locator(".date-popover");
+  const target = new Date();
+  target.setDate(target.getDate() + daysFromToday);
+  const targetMonth = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(target);
+
+  for (let step = 0; step < 14; step += 1) {
+    const shown = ((await popover.locator("strong").textContent()) || "").toLowerCase();
+    if (shown === targetMonth.toLowerCase()) break;
+    if (daysFromToday < 0) {
+      await popover.getByRole("button", { name: "Mês anterior" }).click();
+    } else {
+      await popover.getByRole("button", { name: "Próximo mês" }).click();
+    }
+  }
+
+  await popover
+    .locator(".date-cell:not(.muted)")
+    .filter({ hasText: new RegExp(`^${target.getDate()}$`) })
+    .click();
+}
+
 async function choosePopoverOption(page: import("@playwright/test").Page, ariaLabel: string, optionLabel: string) {
   await page.locator(`.modal-body button[aria-label="${ariaLabel}"]`).click();
   await page.locator(`.inline-menu[aria-label="${ariaLabel}"] button[role="option"]`, { hasText: optionLabel }).click();
@@ -240,5 +263,118 @@ test.describe("Remind App E2E Tests", () => {
     await expect(page.locator("h1")).toHaveText("Tempo");
     await expect(page.getByRole("button", { name: "Abrir menu" })).toBeVisible();
     await expect(page.locator(".time-report")).toBeVisible();
+  });
+
+  test("concluir subtarefas não fecha a tarefa; concluir a pai fecha as subtarefas", async ({ page }) => {
+    const title = `Cascata ${Date.now()}`;
+    await page.getByLabel("Título da nova tarefa").fill(title);
+    await page.getByRole("button", { name: "Criar", exact: true }).click();
+
+    const row = page.locator(".issue-row", { hasText: title });
+    await expect(row.locator(".issue-title-main strong")).toHaveText(title);
+
+    await row.locator(".asana-caret-btn").click();
+    const input = row.getByLabel("Nova subtarefa");
+    await input.fill("Passo 1");
+    await input.press("Enter");
+    await expect(row.locator(".asana-subtask-title", { hasText: "Passo 1" })).toBeVisible();
+    await input.fill("Passo 2");
+    await input.press("Enter");
+    await expect(row.locator(".asana-subtask-title", { hasText: "Passo 2" })).toBeVisible();
+
+    const subChecks = row.locator(".asana-subtask-row .task-checkbox");
+    await subChecks.nth(0).click();
+    await expect(row.locator(".asana-subtask-row.done")).toHaveCount(1);
+    await row.locator(".asana-subtask-row:not(.done) .task-checkbox").click();
+    await expect(row.locator(".asana-subtask-row.done")).toHaveCount(2);
+    await expect(row.locator(".col-check .task-checkbox")).not.toHaveClass(/checked/);
+    await expect(row.getByRole("button", { name: "Marcar como concluída" })).toBeVisible();
+    await expect(row.locator(".issue-title-main strong")).toHaveCSS("text-decoration-line", "none");
+
+    await row.locator(".col-check .task-checkbox").click();
+    await expect(row.locator(".col-check .task-checkbox")).toHaveClass(/checked/);
+    await expect(row.locator(".issue-title-main strong")).toHaveCSS("text-decoration-line", "line-through");
+    await expect(row.locator(".asana-subtask-row.done")).toHaveCount(2);
+    await expect(row.locator(".asana-subtask-row .task-checkbox.checked")).toHaveCount(2);
+  });
+
+  test("sininho só mostra prazo de hoje em amarelo e atrasado em vermelho", async ({ page }) => {
+    const suffix = Date.now();
+    const futureTitle = `Futuro ${suffix}`;
+    const todayTitle = `Hoje ${suffix}`;
+    const overdueTitle = `Atrasada ${suffix}`;
+
+    await openCreateDetails(page);
+    await page.fill("#new-task-title", futureTitle);
+    await pickRelativeDate(page, 7);
+    await page.click('button:has-text("Criar Tarefa")');
+    await expect(page.locator(".issue-title-main strong", { hasText: futureTitle })).toBeVisible();
+
+    await openCreateDetails(page);
+    await page.fill("#new-task-title", todayTitle);
+    await page.locator(".modal-body").getByRole("button", { name: "Selecionar prazo" }).click();
+    await page.locator(".date-popover").getByRole("button", { name: "Hoje" }).click();
+    await page.click('button:has-text("Criar Tarefa")');
+    await expect(page.locator(".issue-title-main strong", { hasText: todayTitle })).toBeVisible();
+
+    await openCreateDetails(page);
+    await page.fill("#new-task-title", overdueTitle);
+    await pickRelativeDate(page, -1);
+    await page.click('button:has-text("Criar Tarefa")');
+    await expect(page.locator(".issue-title-main strong", { hasText: overdueTitle })).toBeVisible();
+
+    const bell = page.locator(".notification-bell-btn");
+    await bell.click();
+    const dropdown = page.locator(".notification-dropdown");
+    await expect(dropdown).toBeVisible();
+    await expect(dropdown.locator(".notification-item", { hasText: futureTitle })).toHaveCount(0);
+
+    const todayItem = dropdown.locator(".notification-item", { hasText: todayTitle });
+    const overdueItem = dropdown.locator(".notification-item", { hasText: overdueTitle });
+    await todayItem.scrollIntoViewIfNeeded();
+    await expect(todayItem).toBeVisible();
+    await expect(todayItem.locator(".due-tag")).toHaveClass(/due-today/);
+    await overdueItem.scrollIntoViewIfNeeded();
+    await expect(overdueItem).toBeVisible();
+    await expect(overdueItem.locator(".due-tag")).toHaveClass(/due-overdue/);
+    await bell.click();
+
+    await expect(page.locator(".issue-row", { hasText: todayTitle }).locator(".date-trigger")).toHaveClass(/due-today/);
+    await expect(page.locator(".issue-row", { hasText: overdueTitle }).locator(".date-trigger")).toHaveClass(/due-overdue/);
+    await expect(page.locator(".issue-row", { hasText: futureTitle }).locator(".date-trigger")).not.toHaveClass(/due-today|due-overdue/);
+  });
+
+  test("reordenar prioridade customizada coloca as tarefas no topo", async ({ page }) => {
+    const suffix = Date.now();
+    const priorityLabel = `Urgente ${suffix}`;
+    const title = `Topo ${suffix}`;
+
+    await page.getByLabel("Título da nova tarefa").fill(title);
+    await page.getByRole("button", { name: "Criar", exact: true }).click();
+    const row = page.locator(".issue-row", { hasText: title });
+    await expect(row.locator(".issue-title-main strong")).toHaveText(title);
+
+    await row.scrollIntoViewIfNeeded();
+    await row.getByRole("button", { name: "Alterar prioridade" }).click();
+    const menu = page.locator(".catalog-menu");
+    await expect(menu).toBeVisible();
+    await menu.getByPlaceholder("Nova prioridade...").fill(priorityLabel);
+    await menu.getByRole("button", { name: "Criar" }).click({ force: true });
+    await expect(menu.locator(".catalog-menu-pick", { hasText: priorityLabel })).toBeVisible();
+    await menu.locator(".catalog-menu-pick", { hasText: priorityLabel }).click();
+    await expect(row.locator(".catalog-badge", { hasText: priorityLabel })).toBeVisible();
+
+    await row.getByRole("button", { name: "Alterar prioridade" }).click();
+    const handle = page.getByRole("button", { name: `Reordenar ${priorityLabel}` });
+    await expect(handle).toBeVisible();
+    for (let step = 0; step < 8; step += 1) {
+      const firstRow = page.locator(".catalog-menu-row").first();
+      if ((await firstRow.innerText()).includes(priorityLabel)) break;
+      await page.getByRole("button", { name: `Reordenar ${priorityLabel}` }).press("ArrowUp");
+    }
+    await expect(page.locator(".catalog-menu-row").first()).toContainText(priorityLabel);
+    await page.keyboard.press("Escape");
+
+    await expect(page.locator(".issue-row").first().locator(".issue-title-main strong")).toHaveText(title);
   });
 });
