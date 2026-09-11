@@ -79,6 +79,8 @@ jobs:
           SESSION_COOKIE_NAME: remind_session
           SEED_USER_EMAIL: arthur@remind.local
           SEED_USER_PASSWORD: remind123
+          MCP_API_TOKEN: mcp-ci-test-token-not-for-production
+          MCP_USER_EMAIL: arthur@remind.local
           CI: "true"
         run: npm run test:e2e
 
