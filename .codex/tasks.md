@@ -3,25 +3,26 @@
 ## Tarefa Atual
 
 ### Tarefa
-Corrigir alertas de segurança do Dependabot (next, sharp, baseline-browser-mapping).
+Resolver conflitos de merge do PR de segurança solicitado em comentário.
 
 ### Objetivo
-Consolidar upgrades de dependências num único PR de segurança: next >=16.3.3, sharp >=0.35.4, baseline-browser-mapping >=2.11.0.
+Sincronizar o branch do PR com `main`, resolver conflitos preservando os upgrades de segurança e validar que o projeto continua íntegro.
 
 ### Subtarefas
-- [x] Atualizar `next` para >=16.3.3 (último patch 16.x).
-- [x] Regenerar `package-lock.json` com sharp >=0.35.4 e baseline-browser-mapping >=2.11.0.
-- [x] Rodar typecheck e build.
-- [x] Abrir PR consolidado (supersedendo PRs Dependabot #3, #4, #5).
+- [x] Ler contexto obrigatório (`.codex/*`, `PRODUCT.md`, `DESIGN.md`).
+- [x] Inspecionar estado do git e identificar branch base padrão.
+- [ ] Executar merge de `main` no branch atual e resolver conflitos.
+- [ ] Validar com `npm run typecheck` e `npm run build`.
+- [ ] Responder ao comentário no PR com o commit de resolução.
 
 ### Status
-Concluída.
+Em andamento.
 
 ### Bloqueios
 Nenhum.
 
 ### Próximos Passos
-Instalar dependências e validar build.
+Executar o merge com `main` e tratar conflitos resultantes.
 
 ---
 
