@@ -17,6 +17,10 @@
 - Não mascarar falha de schema/seed no entrypoint Docker com `|| echo`; o container deve recusar subir se o banco não inicializar.
 - Não publicar o Postgres em `0.0.0.0` no Compose de VPS; bind em `127.0.0.1` e senha definida no `.env`.
 - Não redefinir a senha de um usuário seed já existente a cada restart; o `.env` vale para a criação inicial.
+- Comparar Bearer de MCP com SHA-256 nos dois lados e `timingSafeEqual` só nos digestos de 32 bytes; nunca `timingSafeEqual` em strings de tamanhos diferentes.
+- Nunca logar `Authorization`, nunca aceitar token MCP na query string, nunca usar `NEXT_PUBLIC_*` para o token.
+- Rate limit MCP é in-memory por processo (documentar nó único); 429 precisa de `Retry-After`.
+- Linguagem de domínio no MCP: Tarefa/Subtarefa, não “atividades”.
 
 ## Padrões Confirmados
 

@@ -13,6 +13,7 @@
 - Lembretes in-app
 - Catálogos de status e prioridade definidos pelo usuário, com ordem persistida nas prioridades
 - Sessões de trabalho e relatório de tempo
+- MCP Streamable HTTP em `/api/mcp` (Bearer `MCP_API_TOKEN`, quatro tools fechadas)
 
 ## Limites
 
@@ -35,6 +36,7 @@
 - A modelagem de domínio inclui `User`, `Project`, `Task`, `Subtask`, `Etiqueta`, `Reminder`, `TaskFilter`, `CatalogItem` e `Sessão de trabalho`.
 - Os contratos visíveis ao usuário permanecem em português.
 - A distribuição em produção e VPS é realizada via Docker (multi-stage standalone) e orquestrada por Docker Compose: Postgres acessível só em localhost da VPS (rede interna entre containers), credenciais de seed e senha do banco lidas do `.env`, healthchecks no banco e na aplicação.
+- Agentes acessam o mesmo processo Next.js em `/api/mcp` (Streamable HTTP + Bearer). Não há serviço MCP separado. Rate limit in-memory (nó único).
 - A integração contínua (CI) é executada no GitHub Actions cobrindo validação de tipos, build, execução do schema em PostgreSQL de serviço, testes E2E com Playwright e compilação da imagem Docker.
 
 ## Referência Visual e de Arquitetura

@@ -3,23 +3,27 @@
 ## Tarefa Atual
 
 ### Tarefa
-Recolher subtarefas por padrão e restringir o Meu dia ao que é do dia.
+MCP Agent Access — expor Streamable HTTP MCP em `/api/mcp` para agentes Cursor/Grok.
 
 ### Objetivo
-A lista não deve abrir todas as subtarefas ao entrar num projeto (ou no Meu dia). O usuário precisa de um aviso discreto de que há continuação. O Meu dia deve mostrar só tarefas com prazo de hoje ou atrasadas, não o backlog inteiro.
+Permitir listar tarefas, criar tarefa/subtarefa e obter relatório de tempo via MCP autenticado com Bearer API token, reusando `remind-service`.
 
 ### Subtarefas
-- [x] Recolher subtarefas por padrão na linha da tarefa.
-- [x] Mostrar indicador discreto (barrinhas + contagem) quando houver subtarefas fechadas.
-- [x] Filtrar Meu dia para prazo de hoje e atrasadas (`myday`).
-- [x] Criar tarefa no Meu dia já com prazo de hoje, para ela aparecer na lista.
-- [x] Ajustar seed, testes E2E e docs de produto/memória.
+- [x] Escrever specs (spec.md, design.md, tasks.md) com REQ-MCP-01..09
+- [x] Auth Bearer segura (SHA-256 + timingSafeEqual) e matriz de testes
+- [x] Rate limit 60 req/min (IP + token) com 429 + Retry-After
+- [x] Schemas Zod estritos (caps de título, descrição, search, limit)
+- [x] Quatro tools ligadas a remind-service (list_tasks, create_task, create_subtask, get_time_report)
+- [x] Rota Next.js `/api/mcp` Streamable HTTP, body 64 KiB, Cache-Control no-store
+- [x] Playwright smoke + testes de contrato
+- [x] Docs (`docs/mcp.md`), `.env-example`, README, CI
+- [ ] Validar typecheck, E2E MCP e abrir PR
 
 ### Status
-Concluída.
+Em andamento.
 
 ### Bloqueios
 Nenhum.
 
 ### Próximos Passos
-Nenhum.
+Instalar dependências, typecheck e rodar testes Playwright MCP.
