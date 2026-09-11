@@ -9,13 +9,13 @@ Corrigir alertas de segurança do Dependabot (next, sharp, baseline-browser-mapp
 Consolidar upgrades de dependências num único PR de segurança: next >=16.3.3, sharp >=0.35.4, baseline-browser-mapping >=2.11.0.
 
 ### Subtarefas
-- [ ] Atualizar `next` para >=16.3.3 (último patch 16.x).
-- [ ] Regenerar `package-lock.json` com sharp >=0.35.4 e baseline-browser-mapping >=2.11.0.
-- [ ] Rodar typecheck e build.
-- [ ] Abrir PR consolidado (supersedendo PRs Dependabot #3, #4, #5).
+- [x] Atualizar `next` para >=16.3.3 (último patch 16.x).
+- [x] Regenerar `package-lock.json` com sharp >=0.35.4 e baseline-browser-mapping >=2.11.0.
+- [x] Rodar typecheck e build.
+- [x] Abrir PR consolidado (supersedendo PRs Dependabot #3, #4, #5).
 
 ### Status
-Em andamento.
+Concluída.
 
 ### Bloqueios
 Nenhum.
