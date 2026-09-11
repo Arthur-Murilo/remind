@@ -11,6 +11,7 @@ Aplicação interna para gestão de projetos, tarefas, filtros operacionais e le
 - **Testes**: Playwright (E2E)
 - **Containerização**: Docker e Docker Compose (Multi-stage build para produção)
 - **CI**: GitHub Actions
+- **MCP**: Streamable HTTP em `/api/mcp` (agentes com Bearer token). Guia: [`docs/mcp.md`](docs/mcp.md)
 
 ---
 
@@ -126,6 +127,7 @@ Caso prefira rodar o Next.js localmente e apenas o PostgreSQL via Docker:
   ```bash
   npm run build
   ```
+- **MCP (agentes)**: configure `MCP_API_TOKEN` no `.env` e siga [`docs/mcp.md`](docs/mcp.md). A suíte Playwright inclui contrato e smoke em `tests/mcp`.
 
 ---
 
@@ -134,5 +136,5 @@ Caso prefira rodar o Next.js localmente e apenas o PostgreSQL via Docker:
 O repositório conta com um workflow configurado no **GitHub Actions** (`.github/workflows/ci.yml`) que roda a cada `push` ou `pull_request` para as branches principais (`main`/`master`):
 
 1. **Typecheck & Build**: Valida tipos estáticos TypeScript e gera o build standalone do Next.js.
-2. **E2E Tests**: Sobe um container de serviço do PostgreSQL 17, executa o seed e roda a bateria completa de testes automatizados com Playwright.
+2. **E2E Tests**: Sobe um container de serviço do PostgreSQL 17, executa o seed e roda a bateria completa de testes automatizados com Playwright (UI + contrato/smoke MCP com token de teste).
 3. **Docker Build Validation**: Garante que o `Dockerfile` multi-stage é compilado com sucesso sem quebras.

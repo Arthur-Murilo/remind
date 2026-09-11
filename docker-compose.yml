@@ -39,6 +39,8 @@ services:
       SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME:-remind_session}
       SEED_USER_EMAIL: ${SEED_USER_EMAIL:?Defina_SEED_USER_EMAIL_no_.env}
       SEED_USER_PASSWORD: ${SEED_USER_PASSWORD:?Defina_SEED_USER_PASSWORD_no_.env}
+      MCP_API_TOKEN: ${MCP_API_TOKEN:-}
+      MCP_USER_EMAIL: ${MCP_USER_EMAIL:-}
       AUTO_RUN_DB_INIT: ${AUTO_RUN_DB_INIT:-true}
       AUTO_RUN_DB_SEED: ${AUTO_RUN_DB_SEED:-true}
     healthcheck:
