@@ -57,11 +57,11 @@ async function handle(request: Request): Promise<Response> {
 
     return await handleMcpTransport(request, user, parsedBody);
   } catch (error) {
-    const detail = error instanceof Error ? error.message : String(error);
     if (process.env.NODE_ENV !== "production") {
+      const detail = error instanceof Error ? error.message : "erro interno";
       console.error("[mcp]", detail);
     }
-    return internalErrorResponse(process.env.NODE_ENV !== "production", detail);
+    return internalErrorResponse();
   }
 }
 

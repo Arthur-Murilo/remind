@@ -10,13 +10,8 @@ export function payloadTooLargeResponse(): Response {
   });
 }
 
-export function internalErrorResponse(includeDetail: boolean, detail?: string): Response {
-  const body =
-    includeDetail && detail
-      ? { error: "Internal Server Error", detail }
-      : { error: "Internal Server Error" };
-
-  return new Response(JSON.stringify(body), {
+export function internalErrorResponse(): Response {
+  return new Response(JSON.stringify({ error: "Internal Server Error" }), {
     status: 500,
     headers: {
       "Content-Type": "application/json",

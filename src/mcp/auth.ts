@@ -1,11 +1,12 @@
-import { createHash, timingSafeEqual } from "node:crypto";
+import { hash, timingSafeEqual } from "node:crypto";
 
 const UNAUTHORIZED_BODY = { error: "Unauthorized" } as const;
 
 export const MCP_UNAUTHORIZED_STATUS = 401;
 
+/** SHA-256 digest (32 bytes) so timingSafeEqual never sees unequal lengths. */
 function sha256(value: string): Buffer {
-  return createHash("sha256").update(value, "utf8").digest();
+  return hash("sha256", value, "buffer");
 }
 
 /**
