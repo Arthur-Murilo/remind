@@ -52,7 +52,7 @@ Um túnel (Cloudflare Tunnel, ngrok, etc.) deve publicar **somente a app Next.js
 
 ## Rate limit e corpo
 
-- 60 pedidos por minuto por chave `IP + token`, **in-memory no processo**. Em um único container isso basta; vários nós não compartilham o contador.
+- 60 pedidos por minuto **por IP**, antes da auth, **in-memory no processo** (nó único). Tokens Bearer diferentes no mesmo IP contam no mesmo bucket. Vários nós não compartilham o contador.
 - Corpo máximo: 64 KiB.
 - Falha de auth: HTTP 401 genérico, igual para header ausente, Bearer malformado, vazio, curto, longo ou errado.
 

@@ -3,27 +3,22 @@
 ## Tarefa Atual
 
 ### Tarefa
-MCP Agent Access — expor Streamable HTTP MCP em `/api/mcp` para agentes Cursor/Grok.
+Rate limit MCP pré-auth por IP (follow-up do PR).
 
 ### Objetivo
-Permitir listar tarefas, criar tarefa/subtarefa e obter relatório de tempo via MCP autenticado com Bearer API token, reusando `remind-service`.
+Impedir que tokens Bearer falsos rotacionados diluam o limite de 60 req/min. Todas as requisições a `/api/mcp` contam no bucket do IP antes da auth.
 
 ### Subtarefas
-- [x] Escrever specs (spec.md, design.md, tasks.md) com REQ-MCP-01..09
-- [x] Auth Bearer segura (SHA-256 + timingSafeEqual) e matriz de testes
-- [x] Rate limit 60 req/min (IP + token) com 429 + Retry-After
-- [x] Schemas Zod estritos (caps de título, descrição, search, limit)
-- [x] Quatro tools ligadas a remind-service (list_tasks, create_task, create_subtask, get_time_report)
-- [x] Rota Next.js `/api/mcp` Streamable HTTP, body 64 KiB, Cache-Control no-store
-- [x] Playwright smoke + testes de contrato
-- [x] Docs (`docs/mcp.md`), `.env-example`, README, CI
-- [x] Validar typecheck, E2E MCP e abrir PR
+- [ ] Rate limit pré-auth só por IP (60/min, 429 + Retry-After)
+- [ ] Teste HTTP: tokens errados distintos no mesmo IP ainda tomam 429
+- [ ] Atualizar docs/mcp.md e notas de spec/design
+- [ ] Commit e push no branch do PR
 
 ### Status
-Concluída.
+Em andamento.
 
 ### Bloqueios
 Nenhum.
 
 ### Próximos Passos
-Nenhum.
+Ajustar rota, testes e documentação.

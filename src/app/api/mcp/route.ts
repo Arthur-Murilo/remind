@@ -2,7 +2,6 @@ import { getUserByEmail, mcpOwnerEmail } from "@/server/auth";
 import {
   clientIp,
   isMcpRequestAuthorized,
-  presentedTokenDigest,
   unauthorizedResponse
 } from "@/mcp/auth";
 import {
@@ -28,7 +27,7 @@ async function handle(request: Request): Promise<Response> {
       return payloadTooLargeResponse();
     }
 
-    const limit = consumeMcpRateLimit(`${clientIp(request)}:${presentedTokenDigest(request)}`);
+    const limit = consumeMcpRateLimit(clientIp(request));
     if (!limit.ok) {
       return rateLimitExceededResponse(limit.retryAfterSeconds);
     }

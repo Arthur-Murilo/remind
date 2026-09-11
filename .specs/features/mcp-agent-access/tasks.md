@@ -14,7 +14,7 @@
 
 ## 3. Rate limit (REQ-MCP-02)
 
-- [x] `src/mcp/rate-limit.ts` 60/min, chave IP+token
+- [x] `src/mcp/rate-limit.ts` 60/min, chave IP (pré-auth)
 - [x] 429 + `Retry-After`
 
 ## 4. Schemas (REQ-MCP-07)
@@ -37,6 +37,7 @@
 - [x] `tests/mcp/rate-limit.spec.ts`
 - [x] `tests/mcp/tools.spec.ts`
 - [x] `tests/mcp/mcp.smoke.spec.ts`
+- [x] `tests/mcp/z-rate-limit.http.spec.ts`
 
 ## 8. Docs e CI (REQ-MCP-08, REQ-MCP-09)
 

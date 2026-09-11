@@ -18,7 +18,7 @@ Expor um endpoint MCP Streamable HTTP em `/api/mcp` para que agentes (Cursor/Gro
 
 ### REQ-MCP-02 — Rate limit
 
-- 60 requisições por minuto por chave composta `IP + token` (digest do token; token ausente usa sentinela compartilhada por IP).
+- 60 requisições por minuto **por IP**, antes da autenticação (tokens Bearer falsos rotacionados compartilham o mesmo bucket).
 - Implementação in-memory. Documentar que vale para processo/nó único.
 - Excedido: HTTP 429 e header `Retry-After` (segundos).
 

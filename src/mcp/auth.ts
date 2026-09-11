@@ -64,11 +64,6 @@ export function unauthorizedResponse(): Response {
   });
 }
 
-export function presentedTokenDigest(request: Request): string {
-  const token = extractBearerToken(request.headers.get("authorization"));
-  return sha256(token ?? "missing").toString("hex");
-}
-
 export function clientIp(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {

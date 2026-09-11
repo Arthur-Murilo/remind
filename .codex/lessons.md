@@ -20,7 +20,7 @@
 - Comparar Bearer de MCP com SHA-256 nos dois lados e `timingSafeEqual` só nos digestos de 32 bytes; nunca `timingSafeEqual` em strings de tamanhos diferentes. Isso não é armazenamento de senha (CodeQL `js/insufficient-password-hash` é falso positivo neste caso).
 - Nunca enviar stack/detalhe de exceção no corpo HTTP de `/api/mcp`; logar só no servidor em não-produção.
 - Nunca logar `Authorization`, nunca aceitar token MCP na query string, nunca usar `NEXT_PUBLIC_*` para o token.
-- Rate limit MCP é in-memory por processo (documentar nó único); 429 precisa de `Retry-After`.
+- Rate limit MCP é in-memory por processo e **por IP antes da auth**; rotacionar Bearer falso não dilui o limite. 429 precisa de `Retry-After`.
 - Linguagem de domínio no MCP: Tarefa/Subtarefa, não “atividades”.
 
 ## Padrões Confirmados

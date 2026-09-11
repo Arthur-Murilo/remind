@@ -12,13 +12,12 @@ A hipótese confirmada contra o SDK atual (`@modelcontextprotocol/sdk` 1.x): `We
 
 1. Recusar token na query string (não ler `token`/`access_token` da URL).
 2. Se `Content-Length` > 64 KiB → 413.
-3. Extrair Bearer (ou ausência).
-4. Rate limit in-memory na chave `IP + sha256(token|missing)`.
-5. Comparar token (SHA-256 + `timingSafeEqual` de 32 bytes). Falha → 401 genérico, antes de qualquer tool.
-6. Resolver o usuário dono (`MCP_USER_EMAIL` || `SEED_USER_EMAIL`).
-7. Conectar MCP e `transport.handleRequest(request)`.
-8. Espelhar a resposta com `Cache-Control: no-store`.
-9. `try/catch`: em produção, 500 genérico sem stack.
+3. Rate limit in-memory **por IP** (pré-auth; 60/min). Tokens distintos no mesmo IP compartilham o bucket.
+4. Comparar token (SHA-256 + `timingSafeEqual` de 32 bytes). Falha → 401 genérico, antes de qualquer tool.
+5. Resolver o usuário dono (`MCP_USER_EMAIL` || `SEED_USER_EMAIL`).
+6. Conectar MCP e `transport.handleRequest(request)`.
+7. Espelhar a resposta com `Cache-Control: no-store`.
+8. `try/catch`: em produção, 500 genérico sem stack.
 
 ## Módulos
 
@@ -41,7 +40,7 @@ Handlers fecham sobre `userId` do dono. 404 de domínio vira resultado de tool c
 
 ## Rate limit
 
-Mapa em memória no processo Node. Em deploy de um container (Compose/VPS atual) isso é suficiente. Vários nós não compartilham contadores — documentado em `docs/mcp.md`.
+Mapa em memória no processo Node, chave = IP do cliente, aplicado **antes** da auth. Tokens Bearer rotacionados no mesmo IP não diluem o limite. Em deploy de um container (Compose/VPS atual) isso basta. Vários nós não compartilham contadores — documentado em `docs/mcp.md`.
 
 ## Testes
 
