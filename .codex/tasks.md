@@ -3,22 +3,23 @@
 ## Tarefa Atual
 
 ### Tarefa
-Rate limit MCP pré-auth por IP (follow-up do PR).
+Resolver conflitos de merge do PR `feat: MCP Agent Access em /api/mcp`.
 
 ### Objetivo
-Impedir que tokens Bearer falsos rotacionados diluam o limite de 60 req/min. Todas as requisições a `/api/mcp` contam no bucket do IP antes da auth.
+Mesclar a branch base (`main`) na branch do PR, resolver conflitos sem perder as mudanças do MCP e manter build/testes verdes.
 
 ### Subtarefas
-- [ ] Rate limit pré-auth só por IP (60/min, 429 + Retry-After)
-- [ ] Teste HTTP: tokens errados distintos no mesmo IP ainda tomam 429
-- [ ] Atualizar docs/mcp.md e notas de spec/design
-- [ ] Commit e push no branch do PR
+- [ ] Buscar e atualizar referência de `origin/main` no clone raso
+- [ ] Executar merge de `origin/main` na branch atual
+- [ ] Resolver conflitos preservando comportamento esperado do MCP
+- [ ] Rodar validações relevantes (typecheck/testes-alvo)
+- [ ] Publicar commit e responder comentário do PR
 
 ### Status
-Em andamento.
+Em andamento (fase de merge e resolução de conflitos).
 
 ### Bloqueios
 Nenhum.
 
 ### Próximos Passos
-Ajustar rota, testes e documentação.
+Atualizar `origin/main`, executar merge e tratar conflitos arquivo a arquivo.
