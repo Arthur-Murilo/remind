@@ -17,13 +17,13 @@ Permitir listar tarefas, criar tarefa/subtarefa e obter relatório de tempo via 
 - [x] Rota Next.js `/api/mcp` Streamable HTTP, body 64 KiB, Cache-Control no-store
 - [x] Playwright smoke + testes de contrato
 - [x] Docs (`docs/mcp.md`), `.env-example`, README, CI
-- [ ] Validar typecheck, E2E MCP e abrir PR
+- [x] Validar typecheck, E2E MCP e abrir PR
 
 ### Status
-Em andamento.
+Concluída.
 
 ### Bloqueios
 Nenhum.
 
 ### Próximos Passos
-Instalar dependências, typecheck e rodar testes Playwright MCP.
+Nenhum.

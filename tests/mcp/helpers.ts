@@ -100,7 +100,14 @@ export async function mcpCall(
   };
 
   const text = payload.result?.content?.[0]?.text;
-  const data = text ? JSON.parse(text) : null;
+  let data: any = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { error: "invalid_input", message: text };
+    }
+  }
   return {
     response,
     payload,
