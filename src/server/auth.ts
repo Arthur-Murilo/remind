@@ -45,6 +45,26 @@ export async function requireCurrentUser() {
   return user;
 }
 
+export async function getUserByEmail(email: string): Promise<User | null> {
+  const sql = db();
+  const rows = await sql<User[]>`
+    select
+      id,
+      name,
+      email,
+      created_at as "createdAt"
+    from users
+    where email = ${email}
+    limit 1
+  `;
+
+  return rows[0] ?? null;
+}
+
+export function mcpOwnerEmail(): string {
+  return process.env.MCP_USER_EMAIL || process.env.SEED_USER_EMAIL || "";
+}
+
 export async function login(email: string, password: string) {
   const sql = db();
   const users = await sql<{ id: string; password_hash: string }[]>`
