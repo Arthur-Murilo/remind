@@ -25,6 +25,9 @@
         <mxCell id="reminders_ui" value="Lembretes&#xa;in-app" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7da2b8;fontColor=#152033;" vertex="1" parent="lane2">
           <mxGeometry x="660" y="45" width="140" height="60" as="geometry"/>
         </mxCell>
+        <mxCell id="mcp_agent" value="Agente MCP&#xa;Cursor / Grok" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;fontColor=#152033;" vertex="1" parent="lane1">
+          <mxGeometry x="840" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
         <mxCell id="lane3" value="Backend Integrado" style="swimlane;horizontal=0;startSize=110;fillColor=#fff0e6;strokeColor=#e5c7ae;html=1;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="0" y="300" width="1740" height="150" as="geometry"/>
         </mxCell>
@@ -39,6 +42,9 @@
         </mxCell>
         <mxCell id="reminder_engine" value="Sincronizacao de&#xa;lembretes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;fontColor=#152033;" vertex="1" parent="lane3">
           <mxGeometry x="660" y="45" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="mcp_route" value="MCP /api/mcp&#xa;Streamable HTTP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;fontColor=#152033;" vertex="1" parent="lane3">
+          <mxGeometry x="840" y="45" width="140" height="60" as="geometry"/>
         </mxCell>
         <mxCell id="lane4" value="Dados" style="swimlane;horizontal=0;startSize=110;fillColor=#e8f5e9;strokeColor=#c2dbbf;html=1;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="0" y="450" width="1740" height="150" as="geometry"/>
@@ -101,6 +107,12 @@
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
         <mxCell id="e12" value="consulta reminders" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1A1A1A;endArrow=block;endFill=1;" edge="1" source="reminder_engine" target="postgres" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e13" value="Bearer + tools" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1A1A1A;endArrow=block;endFill=1;" edge="1" source="mcp_agent" target="mcp_route" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e14" value="remind-service" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1A1A1A;endArrow=block;endFill=1;" edge="1" source="mcp_route" target="service" parent="1">
           <mxGeometry relative="1" as="geometry"/>
         </mxCell>
       </root>

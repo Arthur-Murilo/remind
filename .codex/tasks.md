@@ -11,18 +11,18 @@ Sincronizar o branch do PR com `main`, resolver conflitos preservando os upgrade
 ### Subtarefas
 - [x] Ler contexto obrigatório (`.codex/*`, `PRODUCT.md`, `DESIGN.md`).
 - [x] Inspecionar estado do git e identificar branch base padrão.
-- [ ] Executar merge de `main` no branch atual e resolver conflitos.
-- [ ] Validar com `npm run typecheck` e `npm run build`.
+- [x] Executar merge de `main` no branch atual e resolver conflitos.
+- [x] Validar com `npm run typecheck` e tentar `npm run build` (falha de rede ao baixar Google Fonts no ambiente).
 - [ ] Responder ao comentário no PR com o commit de resolução.
 
 ### Status
 Em andamento.
 
 ### Bloqueios
-Nenhum.
+Build depende de acesso externo a `fonts.googleapis.com` no ambiente de execução.
 
 ### Próximos Passos
-Executar o merge com `main` e tratar conflitos resultantes.
+Finalizar commit de merge e responder ao comentário no PR.
 
 ---
 
