@@ -30,8 +30,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    ports:
-      - "${PORT:-3000}:3000"
     environment:
       NODE_ENV: production
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Defina_POSTGRES_PASSWORD_no_.env}@postgres:5432/${POSTGRES_DB:-remind}
@@ -51,6 +49,7 @@ services:
       start_period: 15s
     networks:
       - remind-network
+      - web
 
 volumes:
   remind_postgres_data:
@@ -59,3 +58,5 @@ volumes:
 networks:
   remind-network:
     driver: bridge
+  web:
+    external: true

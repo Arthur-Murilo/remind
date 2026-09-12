@@ -3,6 +3,32 @@
 ## Tarefa Atual
 
 ### Tarefa
+Preparar e validar MCP + Docker no ambiente (token/e-mail no `.env`).
+
+### Objetivo
+Analisar a melhoria MCP já mergeada, conferir specs/docs/compose, deixar o stack Docker pronto e orientar as duas variáveis `MCP_API_TOKEN` e `MCP_USER_EMAIL`.
+
+### Subtarefas
+- [x] Ler contexto obrigatório (`.codex/*`, `PRODUCT.md`, `DESIGN.md`).
+- [x] Cruzar specs MCP (`.specs`, `docs/mcp.md`) com código, compose e `.env-example`.
+- [x] Validar typecheck (`tsc --noEmit` via Node 22) e `docker compose config`.
+- [x] Preparar `.env` com chaves MCP (vazias; usuário preenche token/e-mail).
+- [x] Rebuild/`docker compose up --build -d`; app e Postgres healthy; `/api/mcp` responde 401 sem token.
+
+### Status
+Concluída (aguardando o usuário preencher `MCP_API_TOKEN` e opcionalmente `MCP_USER_EMAIL`, depois reiniciar o app).
+
+### Bloqueios
+Nenhum.
+
+### Próximos Passos
+Usuário define as duas envs no `.env` e roda `docker compose up -d --force-recreate app`.
+
+---
+
+## Tarefa Anterior
+
+### Tarefa
 Implementar o piloto de UX **Meu dia (telefone)** a partir do Figma e das decisões travadas.
 
 ### Objetivo
@@ -31,7 +57,7 @@ Nenhum.
 
 ---
 
-## Tarefa Anterior
+## Tarefa Anterior (2)
 
 ### Tarefa
 Resolver conflitos de merge do PR de segurança solicitado em comentário.
@@ -47,10 +73,10 @@ Sincronizar o branch do PR com `main`, resolver conflitos preservando os upgrade
 - [ ] Responder ao comentário no PR com o commit de resolução.
 
 ### Status
-Em andamento.
+Em andamento (pendência externa de comentário no PR).
 
 ### Bloqueios
 Build depende de acesso externo a `fonts.googleapis.com` no ambiente de execução.
 
 ### Próximos Passos
-Finalizar commit de merge e responder ao comentário no PR.
+Finalizar resposta ao comentário no PR quando solicitado.
