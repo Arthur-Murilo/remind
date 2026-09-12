@@ -5,10 +5,10 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { NavHomeIcon, NavMoreIcon, NavProjectsIcon, NavTimeIcon } from "@/components/icons";
 
 const items = [
-  { href: "/app", label: "Meu dia", icon: NavHomeIcon, match: "myday" as const },
-  { href: "/app/projetos", label: "Projetos", icon: NavProjectsIcon, match: "projects" as const },
-  { href: "/app/tempo", label: "Tempo", icon: NavTimeIcon, match: "time" as const },
-  { href: "/app/mais", label: "Mais", icon: NavMoreIcon, match: "more" as const }
+  { href: "/app" as const, label: "Meu dia", icon: NavHomeIcon, match: "myday" as const },
+  { href: "/app/projetos" as const, label: "Projetos", icon: NavProjectsIcon, match: "projects" as const },
+  { href: "/app/tempo" as const, label: "Tempo", icon: NavTimeIcon, match: "time" as const },
+  { href: "/app/mais" as const, label: "Mais", icon: NavMoreIcon, match: "more" as const }
 ];
 
 export function BottomNav() {
