@@ -3,17 +3,17 @@
 ## Tarefa Atual
 
 ### Tarefa
-Recolher subtarefas por padrão e restringir o Meu dia ao que é do dia.
+Adotar o novo ícone (sino + plus) como marca padrão do remind.
 
 ### Objetivo
-A lista não deve abrir todas as subtarefas ao entrar num projeto (ou no Meu dia). O usuário precisa de um aviso discreto de que há continuação. O Meu dia deve mostrar só tarefas com prazo de hoje ou atrasadas, não o backlog inteiro.
+Usar o ícone criado pelo usuário no favicon (aba do navegador) e em todos os pontos de marca da UI (login, sidebar, topbar).
 
 ### Subtarefas
-- [x] Recolher subtarefas por padrão na linha da tarefa.
-- [x] Mostrar indicador discreto (barrinhas + contagem) quando houver subtarefas fechadas.
-- [x] Filtrar Meu dia para prazo de hoje e atrasadas (`myday`).
-- [x] Criar tarefa no Meu dia já com prazo de hoje, para ela aparecer na lista.
-- [x] Ajustar seed, testes E2E e docs de produto/memória.
+- [x] Copiar o `.ico` para `src/app/favicon.ico`.
+- [x] Atualizar `LogoMark` para o glifo sino + plus.
+- [x] Alinhar `src/app/icon.tsx` (favicon gerado) ao novo desenho.
+- [x] Atualizar referências em `DESIGN.md` e `.codex/memory.md`.
+- [x] Ajustar `.brand-mark` no CSS para o círculo do ícone.
 
 ### Status
 Concluída.

@@ -36,7 +36,7 @@
 ## Components
 
 - Botão primário (accent) para ações principais.
-- Marca: glifo de lembrete (nota com aba e check) na sidebar, login e favicon.
+- Marca: glifo de lembrete (sino com plus no círculo azul) na sidebar, login e favicon.
 - Campos e selects compactos (altura ~30px).
 - Linhas de issue com hover, não cartões.
 - Badges de status/prioridade com tint suave.

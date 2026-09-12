@@ -139,12 +139,11 @@ code {
 .brand-mark {
   width: 28px;
   height: 28px;
-  border-radius: 8px;
+  border-radius: 50%;
   display: grid;
   place-items: center;
-  background: var(--primary-soft);
-  color: var(--primary-ink);
-  border: 1px solid color-mix(in oklab, var(--primary) 35%, var(--line));
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .brand-name {
@@ -279,7 +278,8 @@ code {
 }
 
 .topbar-logo {
-  color: var(--primary-ink);
+  display: block;
+  border-radius: 50%;
 }
 
 .topbar-meta {

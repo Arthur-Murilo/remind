@@ -45,7 +45,7 @@
 - Coluna **Etiqueta** na lista; glossário em `CONTEXT.md`.
 - Subtarefas inline sob a linha (sem modal).
 - Larguras de coluna persistidas em `localStorage`.
-- Favicon via `src/app/icon.tsx`.
+- Marca padrão: sino + plus em círculo azul (`LogoMark`); favicon via `src/app/favicon.ico` e `src/app/icon.tsx`.
 
 ## Refino operacional (2026-08-14)
 

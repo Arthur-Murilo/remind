@@ -13,23 +13,28 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#006eee",
-          borderRadius: 9
+          background: "linear-gradient(90deg, #00d2ff 0%, #007cff 100%)",
+          borderRadius: "50%"
         }}
       >
-        <svg width="20" height="20" viewBox="0 0 32 32" fill="none">
+        <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
           <path
-            d="M9.4 4.6h8.7c.9 0 1.7.5 2.1 1.3l5.3 10.2c.5 1-.2 2.2-1.3 2.2h-5.6v7.4c0 .9-1.1 1.4-1.8.8l-4.4-3.6H9.4c-1.5 0-2.8-1.2-2.8-2.8V7.4c0-1.5 1.3-2.8 2.8-2.8Z"
+            d="M16 7.2c-3.1 0-5.2 2.1-5.2 5.4v4.1l-1.7 2.4c-.4.5-.1 1.3.5 1.3h13c.6 0 1-.8.5-1.3l-1.7-2.4v-4.1c0-3.3-2.1-5.4-5.4-5.4Z"
             stroke="#ffffff"
             strokeWidth="2.2"
             strokeLinejoin="round"
           />
           <path
-            d="M11.3 13.1 13.9 15.6 19.4 9.8"
+            d="M13.6 21.6a2.4 2.4 0 0 0 4.8 0"
             stroke="#ffffff"
             strokeWidth="2.2"
             strokeLinecap="round"
-            strokeLinejoin="round"
+          />
+          <path
+            d="M22.2 20.2v4.4M20 22.4h4.4"
+            stroke="#ffffff"
+            strokeWidth="2.3"
+            strokeLinecap="round"
           />
         </svg>
       </div>
