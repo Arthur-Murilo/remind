@@ -20,7 +20,12 @@ export default defineConfig({
   webServer: {
     command: "npm run dev",
     url: "http://localhost:3000",
-    reuseExistingServer: true,
+    reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
+    env: {
+      ...process.env,
+      MCP_API_TOKEN: process.env.MCP_API_TOKEN || "mcp-ci-test-token-not-for-production",
+      MCP_USER_EMAIL: process.env.MCP_USER_EMAIL || process.env.SEED_USER_EMAIL || "arthur@remind.local"
+    }
   },
 });

@@ -18,14 +18,16 @@
 - Suíte de testes E2E automatizada com Playwright (`npm run test:e2e`), rodando Chromium de forma legível e garantindo login, criação via modal, edição com fechamento de modal e status.
 - Suporte a Tarefas Recorrentes (Rotinas estilo Google Tasks): repetição `daily`, `weekly`, `monthly` com opção de resetar subtarefas a cada ciclo da rotina.
 - Sessão de trabalho: timer na tarefa (uma aberta por vez), edição manual e visão Tempo (dia/semana/mês; gráfico agrupável por projeto ou tarefa).
-- Mobile: sidebar em drawer abaixo de 960px; lista empilhada abaixo de 720px.
+- Mobile: sidebar em drawer entre 768px e 959px; telefone ≤767px no Meu dia usa cards, bottom sheet, FAB e bottom nav. Desktop ≥1200px mantém tabela + modal.
+- Empty state do Meu dia no telefone: título “Nada para hoje”; corpo sobre criar tarefas com prazo de hoje; CTA Nova tarefa.
 - Status e Prioridade de sistema protegidos; extras criáveis, recoloríveis e excluíveis. Prioridades (sistema e extras) têm ordem persistida por arrastar no menu; a lista de tarefas segue essa ordem. Prazo continua data.
 - Subtarefas não fecham a tarefa pai; concluir a pai marca as subtarefas como concluídas.
 - Subtarefas começam recolhidas; a linha mostra um aviso discreto com a contagem.
 - Meu dia lista só tarefas abertas com prazo de hoje ou atrasadas; o restante fica nos projetos ou em Abertas.
 - Lembretes in-app só avisam no dia do prazo (amarelo) ou atrasadas (vermelho); prazos futuros não entram no sininho.
 - Containerização e Deploy: Next.js compilado em modo `output: "standalone"`, Dockerfile multi-stage com Alpine, usuário não-root, docker-entrypoint com auto-schema/seed (falha de init interrompe o boot) e Docker Compose com Postgres bound a `127.0.0.1`. `POSTGRES_PASSWORD`, `SEED_USER_EMAIL` e `SEED_USER_PASSWORD` vêm obrigatoriamente do `.env`; o seed cria o usuário só se o e-mail ainda não existir. A imagem runner copia `node_modules/postgres` além do standalone, porque `scripts/init-db.mjs` não entra no file tracing do Next.js.
-- Integração Contínua (CI): GitHub Actions em `.github/workflows/ci.yml` com typecheck, build, container Postgres de serviço e testes E2E Playwright.
+- Integração Contínua (CI): GitHub Actions em `.github/workflows/ci.yml` com typecheck, build, container Postgres de serviço, testes E2E Playwright e contrato/smoke MCP (`MCP_API_TOKEN` de teste).
+- MCP Agent Access: Streamable HTTP em `/api/mcp`, token só no `.env` do servidor, usuário dono único (`MCP_USER_EMAIL` ou seed). Tools: `list_tasks`, `create_task`, `create_subtask`, `get_time_report`.
 
 ## Prioridades Atuais
 
@@ -37,6 +39,12 @@
 - Bateria TestSprite MCP: **30/30 Passed** (Batch 1 login/dashboard + Batch 2 CRUD/filtros/recorrência/lembretes/subtarefas/tags).
 - Relatório: `testsprite_tests/testsprite-mcp-test-report.md`.
 - Nenhum bug de produto encontrado nessa rodada.
+
+## Decisões UX (2026-09-12)
+
+- Piloto Meu dia no telefone (≤767): cards agrupados em Atrasadas / Hoje, FAB +, sheet parcial (criar) e full-height (editar), bottom nav com ícones claros e estado ativo em pílula.
+- Formulário de tarefa extraído para `TaskForm`; casca `TaskDialog` vira modal no desktop e sheet no telefone.
+- Projetos e Mais no telefone são rotas simples (`/app/projetos`, `/app/mais`); Tempo reutiliza a rota existente.
 
 ## Decisões UX (2026-08-14)
 

@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { CloseIcon, MenuIcon } from "@/components/icons";
 import { LogoMark } from "@/components/logo-mark";
+import { BottomNav } from "@/components/bottom-nav";
+import { PhonePageTitle } from "@/components/phone-page-title";
 
 type AppShellProps = {
   sidebar: ReactNode;
@@ -79,13 +81,19 @@ export function AppShell({ sidebar, topbarEnd, children }: AppShellProps) {
               {open ? <CloseIcon /> : <MenuIcon />}
             </button>
             <div className="topbar-title">
-              <LogoMark size={18} className="topbar-logo" />
-              <strong>Remind</strong>
+              <LogoMark size={18} className="topbar-logo desktop-brand" />
+              <strong className="desktop-brand">Remind</strong>
+              <Suspense fallback={<strong className="phone-page-title">Remind</strong>}>
+                <PhonePageTitle />
+              </Suspense>
             </div>
           </div>
           <div className="topbar-end">{topbarEnd}</div>
         </header>
         <main className="page-wrap">{children}</main>
+        <Suspense fallback={null}>
+          <BottomNav />
+        </Suspense>
       </div>
     </div>
   );

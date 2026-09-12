@@ -4,6 +4,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "standalone",
   typedRoutes: true,
+  serverExternalPackages: ["@modelcontextprotocol/sdk"],
   turbopack: {
     root: path.join(__dirname)
   }

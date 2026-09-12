@@ -30,8 +30,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    ports:
-      - "${PORT:-3000}:3000"
     environment:
       NODE_ENV: production
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Defina_POSTGRES_PASSWORD_no_.env}@postgres:5432/${POSTGRES_DB:-remind}
@@ -39,6 +37,8 @@ services:
       SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME:-remind_session}
       SEED_USER_EMAIL: ${SEED_USER_EMAIL:?Defina_SEED_USER_EMAIL_no_.env}
       SEED_USER_PASSWORD: ${SEED_USER_PASSWORD:?Defina_SEED_USER_PASSWORD_no_.env}
+      MCP_API_TOKEN: ${MCP_API_TOKEN:-}
+      MCP_USER_EMAIL: ${MCP_USER_EMAIL:-}
       AUTO_RUN_DB_INIT: ${AUTO_RUN_DB_INIT:-true}
       AUTO_RUN_DB_SEED: ${AUTO_RUN_DB_SEED:-true}
     healthcheck:
@@ -49,6 +49,7 @@ services:
       start_period: 15s
     networks:
       - remind-network
+      - web
 
 volumes:
   remind_postgres_data:
@@ -57,3 +58,5 @@ volumes:
 networks:
   remind-network:
     driver: bridge
+  web:
+    external: true

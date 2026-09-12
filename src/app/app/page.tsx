@@ -7,6 +7,7 @@ import { getDashboardMetrics, getProjects, getTasks, getTags, getCatalogs } from
 import { QuickCreateTask } from "@/components/new-task-modal";
 import { FilterBar } from "@/components/filter-bar";
 import { TaskTable } from "@/components/task-table";
+import { TaskDayList } from "@/components/task-day-list";
 
 type DashboardPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -37,11 +38,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     (!filter.priority || filter.priority === "all") &&
     !filter.projectId;
 
+  const heading = isRemindersView ? "Lembretes" : filter.due === "all" ? "Todas as tarefas" : "Meu dia";
+
   return (
-    <div className="issues-view">
-      <div className="issues-toolbar">
+    <div className={`issues-view${isPlainMyDay ? " my-day-view" : ""}`}>
+      <div className="issues-toolbar desktop-toolbar">
         <div>
-          <h1>{isRemindersView ? "Lembretes" : filter.due === "all" ? "Todas as tarefas" : "Meu dia"}</h1>
+          <h1>{heading}</h1>
         </div>
         <div className="issues-toolbar-actions">
           {projects.length > 0 ? (
@@ -55,7 +58,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         </div>
       </div>
 
-      <div className="metrics-strip" aria-label="Resumo operacional">
+      <div className="metrics-strip desktop-toolbar" aria-label="Resumo operacional">
         <Link className="metric-pill" href="/app?due=all">
           <span className="metric-pill-label">Abertas</span>
           <strong className="metric-pill-value">{metrics.openTasks}</strong>
@@ -82,27 +85,49 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         </Link>
       </div>
 
-      <FilterBar
-        projects={projects}
-        filter={filter}
-        statuses={catalogs.statuses}
-        priorities={catalogs.priorities}
-      />
+      <div className="desktop-toolbar">
+        <FilterBar
+          projects={projects}
+          filter={filter}
+          statuses={catalogs.statuses}
+          priorities={catalogs.priorities}
+        />
+      </div>
 
-      <TaskTable
-        tasks={tasks}
-        projects={projects}
-        allTags={allTags}
-        statuses={catalogs.statuses}
-        priorities={catalogs.priorities}
-        showProjectColumn
-        emptyTitle={isPlainMyDay ? "Nenhuma tarefa para hoje." : undefined}
-        emptyHint={
-          isPlainMyDay
-            ? "O Meu dia mostra só o que vence hoje ou já atrasou. O restante fica nos projetos."
-            : undefined
-        }
-      />
+      <div className="desktop-only">
+        <TaskTable
+          tasks={tasks}
+          projects={projects}
+          allTags={allTags}
+          statuses={catalogs.statuses}
+          priorities={catalogs.priorities}
+          showProjectColumn
+          emptyTitle={isPlainMyDay ? "Nenhuma tarefa para hoje." : undefined}
+          emptyHint={
+            isPlainMyDay
+              ? "O Meu dia mostra só o que vence hoje ou já atrasou. O restante fica nos projetos."
+              : undefined
+          }
+        />
+      </div>
+
+      <div className="phone-only">
+        <TaskDayList
+          tasks={tasks}
+          projects={projects}
+          allTags={allTags}
+          statuses={catalogs.statuses}
+          priorities={catalogs.priorities}
+          defaultDueDate={todayIsoDate()}
+          grouped={isMyDayView}
+          emptyTitle={isPlainMyDay ? "Nada para hoje" : "Nenhuma tarefa nessa visão."}
+          emptyHint={
+            isPlainMyDay
+              ? "Quando criar tarefas com prazo de hoje, elas aparecem aqui."
+              : "Limpe os filtros ou crie uma tarefa dentro de um projeto."
+          }
+        />
+      </div>
     </div>
   );
 }
