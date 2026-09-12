@@ -52,7 +52,7 @@
 
 - Desktop (≥960px): sidebar persistente + lista tabular densa. Em ≥1200px, tabela e modal de tarefa permanecem o fluxo principal.
 - Tablet (768–959px): a sidebar vira drawer por cima do conteúdo, aberta pelo menu no topbar; a lista continua tabular.
-- Telefone (≤767px), piloto Meu dia: cards em pilha (não tabela comprimida), criação/edição em bottom sheet (`<dialog>`), FAB +, bottom nav (Meu dia / Projetos / Tempo / Mais) e empty state “Nada para hoje”. Sem swipe; ações pelo menu ⋯.
+- Telefone (≤767px), piloto Meu dia: cards em pilha (não tabela comprimida), criação/edição em bottom sheet (`<dialog>`), FAB +, bottom nav (Meu dia / Projetos / Tempo / Mais) com pílula ativa, sombra suave e rótulos semibold. Ícones brancos no shell/nav/overflow (inativos ~55% de opacidade). Empty state “Nada para hoje”. Sem swipe; ações pelo menu ⋯.
 - iPad e desktop não recebem o piloto; a tabela e o modal atuais continuam.
 - Alvos de toque ≥44px; inputs do telefone com fonte ≥16px; `viewport-fit: cover` e safe-area na topbar, bottom nav e sheet.
 

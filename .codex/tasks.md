@@ -18,16 +18,16 @@ Em viewports ≤767px, Meu dia passa a cards + bottom sheet + bottom nav + FAB, 
 - [x] Safe-area, alvos ≥44px, inputs ≥16px no telefone.
 - [x] Projetos/Mais como rotas simples; Tempo reutiliza a rota existente.
 - [x] Smoke Playwright no viewport de telefone.
-- [ ] Typecheck e verificação visual; abrir PR.
+- [x] Typecheck, E2E e verificação visual; abrir PR.
 
 ### Status
-Em andamento.
+Concluída.
 
 ### Bloqueios
 Nenhum.
 
 ### Próximos Passos
-Validar typecheck/E2E, revisar no browser e abrir o PR.
+Nenhum.
 
 ---
 
