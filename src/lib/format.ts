@@ -20,6 +20,14 @@ export function dueDateTone(dueDate: string | null, today = todayIsoDate()): Due
   return null;
 }
 
+export function formatDueChip(dueDate: string | null, today = todayIsoDate()) {
+  const tone = dueDateTone(dueDate, today);
+  if (tone === "overdue") return "Atrasado";
+  if (tone === "today") return "Hoje";
+  if (!dueDate) return "Sem prazo";
+  return formatDate(dueDate);
+}
+
 export function formatDate(date: string | null) {
   if (!date) {
     return "Sem prazo";

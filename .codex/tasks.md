@@ -3,6 +3,37 @@
 ## Tarefa Atual
 
 ### Tarefa
+Implementar o piloto de UX **Meu dia (telefone)** a partir do Figma e das decisões travadas.
+
+### Objetivo
+Em viewports ≤767px, Meu dia passa a cards + bottom sheet + bottom nav + FAB, sem regressão da tabela/modal no desktop. Sem novas regras de negócio.
+
+### Subtarefas
+- [x] Ler contexto obrigatório (`.codex/*`, `PRODUCT.md`, `DESIGN.md`) e o Figma (frames 01–04 + tokens).
+- [x] Mapear shell, lista de tarefas e modais atuais.
+- [x] Extrair `TaskForm` compartilhado; casca `TaskDialog` (sheet no telefone, modal no desktop).
+- [x] Cards/stack no Meu dia ≤767; grupos Atrasadas / Hoje; empty state acordado.
+- [x] Bottom nav (Meu dia / Projetos / Tempo / Mais) com polish e ícones claros.
+- [x] FAB +; menu ⋯ (Editar / Concluir / Excluir); sem swipe.
+- [x] Safe-area, alvos ≥44px, inputs ≥16px no telefone.
+- [x] Projetos/Mais como rotas simples; Tempo reutiliza a rota existente.
+- [x] Smoke Playwright no viewport de telefone.
+- [x] Typecheck, E2E e verificação visual; abrir PR.
+
+### Status
+Concluída.
+
+### Bloqueios
+Nenhum.
+
+### Próximos Passos
+Nenhum.
+
+---
+
+## Tarefa Anterior
+
+### Tarefa
 Resolver conflitos de merge do PR de segurança solicitado em comentário.
 
 ### Objetivo
@@ -23,29 +54,3 @@ Build depende de acesso externo a `fonts.googleapis.com` no ambiente de execuç�
 
 ### Próximos Passos
 Finalizar commit de merge e responder ao comentário no PR.
-
----
-
-## Tarefa Anterior
-
-### Tarefa
-Recolher subtarefas por padrão e restringir o Meu dia ao que é do dia.
-
-### Objetivo
-A lista não deve abrir todas as subtarefas ao entrar num projeto (ou no Meu dia). O usuário precisa de um aviso discreto de que há continuação. O Meu dia deve mostrar só tarefas com prazo de hoje ou atrasadas, não o backlog inteiro.
-
-### Subtarefas
-- [x] Recolher subtarefas por padrão na linha da tarefa.
-- [x] Mostrar indicador discreto (barrinhas + contagem) quando houver subtarefas fechadas.
-- [x] Filtrar Meu dia para prazo de hoje e atrasadas (`myday`).
-- [x] Criar tarefa no Meu dia já com prazo de hoje, para ela aparecer na lista.
-- [x] Ajustar seed, testes E2E e docs de produto/memória.
-
-### Status
-Concluída.
-
-### Bloqueios
-Nenhum.
-
-### Próximos Passos
-Nenhum.

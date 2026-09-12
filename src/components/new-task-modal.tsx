@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { createTaskAction } from "@/server/actions";
-import { Modal } from "@/components/modal";
-import { SelectPopover, DateField, CustomCheckbox } from "@/components/ui-controls";
-import { CatalogBadge } from "@/components/catalog-badge";
+import { TaskDialog } from "@/components/task-dialog";
+import { TaskForm, type TaskFormState } from "@/components/task-form";
+import { SelectPopover } from "@/components/ui-controls";
+import { useIsPhone } from "@/lib/use-is-phone";
 import { SYSTEM_PRIORITY_ITEMS, SYSTEM_STATUS_ITEMS } from "@/domain/catalog";
 import type { CatalogItem, Project } from "@/domain/types";
 
@@ -22,6 +23,24 @@ type NewTaskModalProps = {
   priorities?: CatalogItem[];
 };
 
+function initialState(
+  projects: Project[],
+  defaultProjectId?: string,
+  defaultDueDate?: string,
+  initialTitle = ""
+): TaskFormState {
+  return {
+    projectId: defaultProjectId || projects[0]?.id || "",
+    title: initialTitle,
+    description: "",
+    status: "todo",
+    priority: "medium",
+    dueDate: defaultDueDate || "",
+    recurrence: "none",
+    repeatSubtasks: true
+  };
+}
+
 export function NewTaskModal({
   projects = [],
   defaultProjectId,
@@ -35,6 +54,7 @@ export function NewTaskModal({
   statuses = SYSTEM_STATUS_ITEMS,
   priorities = SYSTEM_PRIORITY_ITEMS
 }: NewTaskModalProps) {
+  const isPhone = useIsPhone();
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const isOpen = controlledOpen ?? uncontrolledOpen;
   const setIsOpen = (next: boolean) => {
@@ -42,22 +62,12 @@ export function NewTaskModal({
     if (controlledOpen === undefined) setUncontrolledOpen(next);
   };
 
-  const [projectId, setProjectId] = useState(defaultProjectId || projects[0]?.id || "");
-  const [title, setTitle] = useState(initialTitle);
-  const [status, setStatus] = useState("todo");
-  const [priority, setPriority] = useState("medium");
-  const [dueDate, setDueDate] = useState(defaultDueDate || "");
-  const [recurrence, setRecurrence] = useState("none");
-  const [repeatSubtasks, setRepeatSubtasks] = useState(true);
+  const [state, setState] = useState<TaskFormState>(() =>
+    initialState(projects, defaultProjectId, defaultDueDate, initialTitle)
+  );
 
   const reset = (projectOverride?: string, titleOverride?: string) => {
-    setProjectId(projectOverride || defaultProjectId || projects[0]?.id || "");
-    setTitle(titleOverride ?? initialTitle ?? "");
-    setStatus("todo");
-    setPriority("medium");
-    setDueDate(defaultDueDate || "");
-    setRecurrence("none");
-    setRepeatSubtasks(true);
+    setState(initialState(projects, projectOverride || defaultProjectId, defaultDueDate, titleOverride ?? initialTitle));
   };
 
   useEffect(() => {
@@ -80,135 +90,31 @@ export function NewTaskModal({
         </button>
       ) : null}
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Criar Nova Tarefa">
-        <form
-          action={async (formData) => {
-            formData.set("projectId", projectId);
-            formData.set("title", title.trim());
-            formData.set("status", status);
-            formData.set("priority", priority);
-            formData.set("dueDate", dueDate);
-            formData.set("recurrence", recurrence);
-            if (recurrence !== "none") {
-              formData.set("repeatSubtasks", repeatSubtasks ? "on" : "false");
-            }
+      <TaskDialog
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        variant="create"
+        title={isPhone ? "Nova tarefa" : "Criar Nova Tarefa"}
+      >
+        <TaskForm
+          mode="create"
+          presentation={isPhone ? "sheet" : "modal"}
+          projects={projects}
+          statuses={statuses}
+          priorities={priorities}
+          state={state}
+          onStateChange={(patch) => setState((current) => ({ ...current, ...patch }))}
+          titleId="new-task-title"
+          descriptionId="new-task-description"
+          submitLabel={isPhone ? "Criar" : "Criar Tarefa"}
+          onCancel={() => setIsOpen(false)}
+          onSubmit={async (formData) => {
             await createTaskAction(formData);
             setIsOpen(false);
             reset("", "");
           }}
-          className="form-grid"
-        >
-          {projects.length > 0 ? (
-            <div className="field">
-              <label>Projeto</label>
-              <SelectPopover
-                name="projectId"
-                ariaLabel="Projeto"
-                value={projectId}
-                onChange={setProjectId}
-                options={projects.map((p) => ({ value: p.id, label: p.name }))}
-              />
-            </div>
-          ) : (
-            <input type="hidden" name="projectId" value={projectId} />
-          )}
-
-          <div className="field">
-            <label htmlFor="new-task-title">Título da Tarefa</label>
-            <input
-              id="new-task-title"
-              name="title"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Ex.: Implementar funcionalidade..."
-              autoFocus
-            />
-          </div>
-
-          <div className="field">
-            <label htmlFor="new-task-description">Descrição (Opcional)</label>
-            <textarea
-              id="new-task-description"
-              name="description"
-              placeholder="Contexto curto ou detalhes adicionais..."
-              rows={3}
-            />
-          </div>
-
-          <div className="form-row">
-            <div className="field">
-              <label>Status</label>
-              <SelectPopover
-                name="status"
-                ariaLabel="Status"
-                value={status}
-                onChange={setStatus}
-                options={statuses.map((item) => ({ value: item.key, label: item.label }))}
-                renderValue={(option) => {
-                  const item = statuses.find((entry) => entry.key === option?.value);
-                  return item ? <CatalogBadge item={item} /> : option?.label;
-                }}
-              />
-            </div>
-
-            <div className="field">
-              <label>Prioridade</label>
-              <SelectPopover
-                name="priority"
-                ariaLabel="Prioridade"
-                value={priority}
-                onChange={setPriority}
-                options={priorities.map((item) => ({ value: item.key, label: item.label }))}
-                renderValue={(option) => {
-                  const item = priorities.find((entry) => entry.key === option?.value);
-                  return item ? <CatalogBadge item={item} /> : option?.label;
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="field">
-              <label>Prazo</label>
-              <DateField name="dueDate" value={dueDate || null} onChange={setDueDate} />
-            </div>
-
-            <div className="field">
-              <label>Repetir (Rotina)</label>
-              <SelectPopover
-                name="recurrence"
-                ariaLabel="Repetir"
-                value={recurrence}
-                onChange={setRecurrence}
-                options={[
-                  { value: "none", label: "Não repete" },
-                  { value: "daily", label: "Diariamente" },
-                  { value: "weekly", label: "Semanalmente" },
-                  { value: "monthly", label: "Mensalmente" }
-                ]}
-              />
-            </div>
-          </div>
-
-          {recurrence !== "none" ? (
-            <CustomCheckbox
-              checked={repeatSubtasks}
-              onChange={setRepeatSubtasks}
-              label="Repetir subtarefas a cada ciclo"
-            />
-          ) : null}
-
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "12px" }}>
-            <button type="button" className="button-secondary compact" onClick={() => setIsOpen(false)}>
-              Cancelar
-            </button>
-            <button type="submit" className="button compact">
-              Criar Tarefa
-            </button>
-          </div>
-        </form>
-      </Modal>
+        />
+      </TaskDialog>
     </>
   );
 }
@@ -319,23 +225,3 @@ export function QuickCreateTask({
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
