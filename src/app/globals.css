@@ -30,6 +30,21 @@
   --z-modal: 90;
   --z-popover: 110;
   --z-toast: 120;
+  --surface-base: var(--bg);
+  --surface-elevated: var(--bg-elevated);
+  --border-subtle: var(--line-strong);
+  --text-primary: var(--ink);
+  --text-muted: var(--ink-soft);
+  --text-danger: var(--danger);
+  --accent: var(--primary);
+  --accent-fg: #ffffff;
+  --control-min: 44px;
+  --radius-card: 10px;
+  --space-2: 8px;
+  --space-4: 16px;
+  --phone-nav-height: 68px;
+  --z-phone-nav: 24;
+  --z-fab: 26;
   --auth-gradient-start: #004bb5;
   --auth-gradient-mid: #006eee;
   --auth-gradient-end: #5eb3ff;
@@ -1097,7 +1112,7 @@ code {
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 767px) {
   .topbar,
   .issues-toolbar,
   .filter-bar,
@@ -3014,7 +3029,7 @@ code {
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 767px) {
   .filter-search,
   .filter-search input,
   .ui-select-trigger.filter-select,
@@ -3420,7 +3435,7 @@ code {
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 767px) {
   .time-bars {
     min-height: 220px;
     gap: 12px;
@@ -3480,6 +3495,631 @@ code {
   border-radius: 6px;
   background: var(--bg);
   color: var(--ink);
+}
+
+/* ——— Task dialog (modal desktop / sheet phone) ——— */
+
+.task-dialog {
+  position: fixed;
+  inset: 0;
+  width: auto;
+  max-width: none;
+  height: auto;
+  max-height: none;
+  margin: 0;
+  padding: 16px;
+  border: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
+}
+
+.task-dialog:not([open]) {
+  display: none;
+}
+
+.task-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.task-sheet-handle {
+  display: none;
+}
+
+.task-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: row-reverse;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.phone-only,
+.phone-page-title,
+.bottom-nav {
+  display: none;
+}
+
+.phone-index-view {
+  padding: 16px 20px 24px;
+}
+
+.phone-index-toolbar h1 {
+  margin: 0 0 16px;
+  font-size: 1.05rem;
+}
+
+.project-card-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.project-card-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.project-card-count,
+.mais-link-meta,
+.mais-card span {
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
+.mais-card,
+.mais-list {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.mais-card {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.mais-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+/* ——— Meu dia phone pilot ≤767 ——— */
+
+@media (max-width: 767px) {
+  .phone-only {
+    display: block;
+  }
+
+  .desktop-only,
+  .desktop-toolbar,
+  .desktop-brand,
+  .nav-toggle {
+    display: none !important;
+  }
+
+  .phone-page-title {
+    display: block;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+  }
+
+  .app-shell {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .topbar {
+    min-height: 56px;
+    padding-top: env(safe-area-inset-top);
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(8px, env(safe-area-inset-right));
+    background: var(--surface-base);
+  }
+
+  .topbar-end .notification-bell-btn,
+  .topbar-end .icon-button,
+  .topbar-end .avatar {
+    color: #fff;
+    background: transparent;
+    border-color: transparent;
+  }
+
+  .topbar-end .notification-bell-btn {
+    width: var(--control-min);
+    height: var(--control-min);
+  }
+
+  .page-wrap {
+    padding-bottom: calc(var(--phone-nav-height) + env(safe-area-inset-bottom));
+  }
+
+  .issues-view {
+    min-height: calc(100dvh - 56px - env(safe-area-inset-top) - var(--phone-nav-height) - env(safe-area-inset-bottom));
+  }
+
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-phone-nav);
+    gap: 4px;
+    min-height: var(--phone-nav-height);
+    padding: 6px 10px max(10px, env(safe-area-inset-bottom));
+    background: color-mix(in oklab, var(--surface-elevated) 92%, transparent);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(16px);
+  }
+
+  .bottom-nav-item {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-height: 50px;
+    padding: 6px 4px;
+    border-radius: 14px;
+    color: rgba(255, 255, 255, 0.55);
+    transition: background 160ms cubic-bezier(0.16, 1, 0.3, 1), color 160ms cubic-bezier(0.16, 1, 0.3, 1), transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .bottom-nav-item.active {
+    background: var(--primary-soft);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .bottom-nav-icon {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    color: inherit;
+  }
+
+  .bottom-nav-icon svg {
+    width: 22px;
+    height: 22px;
+    display: block;
+  }
+
+  .bottom-nav-label {
+    font-size: 11px;
+    line-height: 1.2;
+    font-weight: 500;
+  }
+
+  .bottom-nav-item.active .bottom-nav-label {
+    font-weight: 600;
+  }
+
+  .task-day-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 16px 88px;
+  }
+
+  .task-day-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .task-day-heading {
+    margin: 4px 0 0;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  .task-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 8px 12px 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    background: var(--surface-elevated);
+  }
+
+  .task-card-check {
+    display: grid;
+    place-items: center;
+    width: var(--control-min);
+    height: var(--control-min);
+    flex: 0 0 var(--control-min);
+  }
+
+  .task-card-check .task-checkbox {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    border-color: rgba(255, 255, 255, 0.45);
+  }
+
+  .task-card-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 2px;
+  }
+
+  .task-card-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.25;
+  }
+
+  .task-card:has(.task-checkbox.checked) .task-card-title {
+    text-decoration: line-through;
+    opacity: 0.45;
+  }
+
+  .task-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  .task-card-priority {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .task-card-priority-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .task-card-due.due-overdue {
+    color: var(--text-danger);
+    font-weight: 500;
+  }
+
+  .task-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .task-card-project {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    background: var(--surface-base);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .task-card-project .project-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .task-card-subtasks {
+    color: var(--text-muted);
+    font-size: 11px;
+  }
+
+  .task-card-overflow {
+    display: grid;
+    place-items: center;
+    width: var(--control-min);
+    height: var(--control-min);
+    flex: 0 0 var(--control-min);
+    border: 0;
+    background: transparent;
+    color: #fff;
+  }
+
+  .task-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 50dvh;
+    padding: 32px;
+    text-align: center;
+  }
+
+  .task-empty strong {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .task-empty p {
+    margin: 0;
+    max-width: 266px;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .task-empty-cta {
+    min-height: 42px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 15px;
+  }
+
+  .task-fab {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right));
+    bottom: calc(var(--phone-nav-height) + env(safe-area-inset-bottom) + 16px);
+    z-index: var(--z-fab);
+    width: 56px;
+    height: 56px;
+    border: 0;
+    border-radius: 28px;
+    background: var(--accent);
+    color: var(--accent-fg);
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 1;
+    box-shadow: 0 6px 16px color-mix(in oklab, var(--accent) 45%, transparent);
+  }
+
+  .task-overflow-menu .inline-menu-item {
+    min-height: var(--control-min);
+  }
+
+  .task-dialog {
+    padding: 0;
+    align-items: end;
+    place-items: end center;
+  }
+
+  .task-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  .task-dialog .modal-container,
+  .task-dialog .task-dialog-panel {
+    width: 100%;
+    max-width: none;
+    max-height: min(92dvh, 100%);
+    border: 0;
+    border-radius: 16px 16px 0 0;
+    background: var(--surface-elevated);
+    animation: sheet-up 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .task-dialog--create .task-dialog-panel {
+    max-height: min(72dvh, 100%);
+  }
+
+  .task-dialog--edit .task-dialog-panel {
+    height: calc(100dvh - 12px);
+    max-height: calc(100dvh - 12px);
+  }
+
+  .task-sheet-handle {
+    display: block;
+    width: 36px;
+    height: 4px;
+    margin: 10px auto 0;
+    border-radius: 2px;
+    background: var(--border-subtle);
+  }
+
+  .task-dialog .task-dialog-close,
+  .task-dialog .modal-close {
+    display: none;
+  }
+
+  .task-dialog .modal-header {
+    padding: 8px 16px 0;
+    border-bottom: 0;
+  }
+
+  .task-dialog .modal-title {
+    font-size: 16px;
+  }
+
+  .task-dialog .modal-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    padding: 12px 16px 0;
+  }
+
+  .task-form--sheet {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .task-form-fields {
+    display: grid;
+    gap: 14px;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding-bottom: 8px;
+  }
+
+  .task-form-actions {
+    flex-direction: column;
+    justify-content: stretch;
+    gap: 8px;
+    margin: 0;
+    padding: 8px 0 max(20px, env(safe-area-inset-bottom));
+    background: var(--surface-elevated);
+  }
+
+  .task-form-submit {
+    width: 100%;
+    min-height: 48px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .task-form-cancel {
+    width: 100%;
+    min-height: 44px;
+    background: transparent;
+    border: 0;
+    color: var(--text-muted);
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .task-form--sheet input,
+  .task-form--sheet textarea,
+  .task-form--sheet .ui-select-trigger,
+  .task-form--sheet .date-trigger {
+    min-height: var(--control-min);
+    font-size: 16px;
+  }
+
+  .phone-index-view {
+    padding: 16px 16px 24px;
+  }
+
+  .project-card-list {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project-card-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: var(--control-min);
+    padding: 14px 16px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    background: var(--surface-elevated);
+  }
+
+  .project-card-name {
+    font-weight: 500;
+  }
+
+  .project-card-count {
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  .phone-index-create {
+    margin-top: 16px;
+  }
+
+  .phone-index-create .button-ghost {
+    min-height: var(--control-min);
+    justify-content: center;
+    width: 100%;
+  }
+
+  .mais-card,
+  .mais-list {
+    display: grid;
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+
+  .mais-card {
+    padding: 16px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    background: var(--surface-elevated);
+  }
+
+  .mais-card span {
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .mais-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--control-min);
+    padding: 12px 16px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    background: var(--surface-elevated);
+  }
+
+  .mais-link-meta {
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .mais-logout {
+    margin-top: 8px;
+  }
+
+  .mais-logout .button-secondary {
+    width: 100%;
+    min-height: var(--control-min);
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(16px);
+    opacity: 0.64;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  .task-dialog .task-dialog-panel,
+  .bottom-nav-item {
+    animation: none;
+    transition: none;
+  }
 }
 
 

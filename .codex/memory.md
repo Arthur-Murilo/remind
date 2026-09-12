@@ -18,7 +18,8 @@
 - Suíte de testes E2E automatizada com Playwright (`npm run test:e2e`), rodando Chromium de forma legível e garantindo login, criação via modal, edição com fechamento de modal e status.
 - Suporte a Tarefas Recorrentes (Rotinas estilo Google Tasks): repetição `daily`, `weekly`, `monthly` com opção de resetar subtarefas a cada ciclo da rotina.
 - Sessão de trabalho: timer na tarefa (uma aberta por vez), edição manual e visão Tempo (dia/semana/mês; gráfico agrupável por projeto ou tarefa).
-- Mobile: sidebar em drawer abaixo de 960px; lista empilhada abaixo de 720px.
+- Mobile: sidebar em drawer entre 768px e 959px; telefone ≤767px no Meu dia usa cards, bottom sheet, FAB e bottom nav. Desktop ≥1200px mantém tabela + modal.
+- Empty state do Meu dia no telefone: título “Nada para hoje”; corpo sobre criar tarefas com prazo de hoje; CTA Nova tarefa.
 - Status e Prioridade de sistema protegidos; extras criáveis, recoloríveis e excluíveis. Prioridades (sistema e extras) têm ordem persistida por arrastar no menu; a lista de tarefas segue essa ordem. Prazo continua data.
 - Subtarefas não fecham a tarefa pai; concluir a pai marca as subtarefas como concluídas.
 - Subtarefas começam recolhidas; a linha mostra um aviso discreto com a contagem.
@@ -38,6 +39,12 @@
 - Bateria TestSprite MCP: **30/30 Passed** (Batch 1 login/dashboard + Batch 2 CRUD/filtros/recorrência/lembretes/subtarefas/tags).
 - Relatório: `testsprite_tests/testsprite-mcp-test-report.md`.
 - Nenhum bug de produto encontrado nessa rodada.
+
+## Decisões UX (2026-09-12)
+
+- Piloto Meu dia no telefone (≤767): cards agrupados em Atrasadas / Hoje, FAB +, sheet parcial (criar) e full-height (editar), bottom nav com ícones claros e estado ativo em pílula.
+- Formulário de tarefa extraído para `TaskForm`; casca `TaskDialog` vira modal no desktop e sheet no telefone.
+- Projetos e Mais no telefone são rotas simples (`/app/projetos`, `/app/mais`); Tempo reutiliza a rota existente.
 
 ## Decisões UX (2026-08-14)
 

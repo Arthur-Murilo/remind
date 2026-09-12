@@ -239,8 +239,8 @@ test.describe("Remind App E2E Tests", () => {
     await expect(page.locator(".issue-title-main strong", { hasText: title })).toHaveCount(0);
   });
 
-  test("deve abrir o menu em viewport móvel", async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
+  test("deve abrir o menu em viewport tablet", async ({ page }) => {
+    await page.setViewportSize({ width: 834, height: 1112 });
     const viewport = page.viewportSize()!;
     const menu = page.getByRole("button", { name: "Abrir menu" });
     await expect(menu).toBeVisible();

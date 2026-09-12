@@ -5,6 +5,10 @@ import { createPortal } from "react-dom";
 import { CalendarIcon } from "@/components/icons";
 import { dueDateTone } from "@/lib/format";
 
+function portalTarget(from: Element | null) {
+  return from?.closest("dialog") ?? document.body;
+}
+
 export type SelectOption = {
   value: string;
   label: string;
@@ -129,7 +133,7 @@ export function SelectPopover({
                 </button>
               ))}
             </div>,
-            document.body
+            portalTarget(triggerRef.current)
           )
         : null}
     </>
@@ -350,7 +354,7 @@ export function DateField({
                 ) : null}
               </div>
             </div>,
-            document.body
+            portalTarget(triggerRef.current)
           )
         : null}
     </>
