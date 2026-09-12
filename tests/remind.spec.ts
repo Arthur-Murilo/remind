@@ -57,14 +57,14 @@ test.describe("Remind App E2E Tests", () => {
     await page.fill("#new-task-description", "Descrição da tarefa de teste E2E");
     await page.click('button:has-text("Criar Tarefa")');
 
-    await expect(page.locator(`text=${uniqueTitle}`)).toBeVisible();
+    await expect(page.locator(".issue-title-main strong", { hasText: uniqueTitle })).toBeVisible();
   });
 
   test("deve criar tarefa rapidamente pela toolbar", async ({ page }) => {
     const uniqueTitle = `Quick E2E ${Date.now()}`;
     await page.getByLabel("Título da nova tarefa").fill(uniqueTitle);
     await page.getByRole("button", { name: "Criar", exact: true }).click();
-    await expect(page.locator(`text=${uniqueTitle}`)).toBeVisible();
+    await expect(page.locator(".issue-title-main strong", { hasText: uniqueTitle })).toBeVisible();
   });
 
   test("deve editar uma tarefa existente via modal e fechar o modal", async ({ page }) => {
@@ -82,7 +82,7 @@ test.describe("Remind App E2E Tests", () => {
     await page.click('button:has-text("Salvar Alterações")');
 
     await expect(modalTitle).not.toBeVisible();
-    await expect(page.locator(`text=${updatedTitle}`)).toBeVisible();
+    await expect(page.locator(".issue-title-main strong", { hasText: updatedTitle })).toBeVisible();
   });
 
   test("deve alternar status de conclusão de tarefa", async ({ page }) => {
@@ -100,7 +100,7 @@ test.describe("Remind App E2E Tests", () => {
     await expect(page.getByText("Repetir subtarefas a cada ciclo")).toBeVisible();
     await page.click('button:has-text("Criar Tarefa")');
 
-    await expect(page.locator(`text=${routineTitle}`)).toBeVisible();
+    await expect(page.locator(".issue-title-main strong", { hasText: routineTitle })).toBeVisible();
     await expect(page.locator("text=🔁 Diária").first()).toBeVisible();
   });
 

@@ -16,9 +16,9 @@ test.describe("Meu dia phone pilot", () => {
     await expect(nav).toBeVisible();
     await expect(nav.getByRole("link", { name: "Meu dia" })).toHaveAttribute("aria-current", "page");
     await expect(page.getByRole("button", { name: "Abrir menu" })).toHaveCount(0);
-    await expect(page.locator(".issue-head")).toHaveCount(0);
-    await expect(page.locator(".task-table-scroll")).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Nova tarefa" })).toBeVisible();
+    await expect(page.locator(".issue-head")).not.toBeVisible();
+    await expect(page.locator(".task-table-scroll")).not.toBeVisible();
+    await expect(page.locator(".task-fab")).toBeVisible();
 
     const empty = page.locator(".task-empty");
     const cards = page.locator(".task-card");
@@ -28,7 +28,8 @@ test.describe("Meu dia phone pilot", () => {
       await expect(empty.getByRole("button", { name: "Nova tarefa" })).toBeVisible();
     } else {
       await expect(cards.first()).toBeVisible();
-      await expect(page.getByRole("heading", { name: /Atrasadas|Hoje/ })).toBeVisible();
+      await expect(page.locator(".task-day-heading").first()).toBeVisible();
+      await expect(page.locator(".task-day-heading").first()).toHaveText(/Atrasadas|Hoje/);
     }
   });
 
@@ -68,7 +69,7 @@ test.describe("Meu dia phone pilot", () => {
 
     await page.getByRole("navigation", { name: "Navegação do telefone" }).getByRole("link", { name: "Projetos" }).click();
     await expect(page.locator(".phone-page-title")).toHaveText("Projetos");
-    await expect(page.locator(".issue-head")).toHaveCount(0);
+    await expect(page.locator(".issue-head")).not.toBeVisible();
 
     await page.getByRole("navigation", { name: "Navegação do telefone" }).getByRole("link", { name: "Tempo" }).click();
     await expect(page.locator(".time-report")).toBeVisible();
