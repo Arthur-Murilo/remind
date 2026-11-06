@@ -49,6 +49,7 @@ export type Project = {
   updatedAt: string;
   taskCount?: number;
   openTaskCount?: number;
+  colorIndex?: number;
 };
 
 export type Tag = {
@@ -74,6 +75,7 @@ export type Task = {
   projectId: string;
   ownerId: string;
   projectName?: string;
+  projectColorIndex?: number;
   title: string;
   description: string | null;
   status: TaskStatus;
@@ -85,6 +87,7 @@ export type Task = {
   subtasks?: Subtask[];
   runningSession?: { id: string; startedAt: string } | null;
   totalTrackedSeconds?: number;
+  estimateMinutes?: number | null;
   createdAt: string;
   updatedAt: string;
 };

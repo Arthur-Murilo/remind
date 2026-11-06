@@ -52,6 +52,26 @@ _Avoid_: Arquivar tarefa, ocultar
 Alteração imediata de Status, Prioridade, Prazo, Etiqueta e Projeto direto na linha da tarefa.
 _Avoid_: Só via modal de edição
 
+**Estimativa**:
+Tempo previsto para concluir uma Tarefa, opcional, comparado com o tempo registrado nas Sessões de trabalho.
+_Avoid_: Pontos, story points, esforço
+
+**Meta diária de foco**:
+Quantidade de tempo registrado por dia que o usuário quer atingir; mostrada como anel no Meu dia e como dias batidos na visão Tempo.
+_Avoid_: Cota, target (na UI)
+
+**Ritual do dia**:
+Planejar (manhã) e Encerrar (noite) o dia: carga prevista contra a meta, pauta, intenção, pendências para amanhã e destaques.
+_Avoid_: Daily, standup, review
+
+**Carga do dia**:
+Tempo já registrado hoje somado ao que falta das estimativas das tarefas abertas da pauta (prazo hoje ou atrasadas).
+_Avoid_: Capacidade, workload (na UI)
+
+**Modo foco**:
+Contagem regressiva (25 ou 50 min) sobre uma Sessão de trabalho, seguida de pausa curta.
+_Avoid_: Pomodoro como nome canônico na UI
+
 **Sessão de trabalho**:
 Intervalo de tempo trabalhado em uma Tarefa, com início, fim opcional (aberta enquanto o timer roda) e duração. Há no máximo uma sessão aberta por vez.
 _Avoid_: Timer (controle de UI, não o registro), cronômetro, apontamento (como nome canônico), time entry (na UI)

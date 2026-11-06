@@ -4,7 +4,7 @@ import { TagSelector } from "@/components/tag-selector";
 import { SelectPopover, DateField, CustomCheckbox } from "@/components/ui-controls";
 import { CatalogBadge } from "@/components/catalog-badge";
 import { SubtaskList } from "@/components/subtask-list";
-import { formatDueChip } from "@/lib/format";
+import { formatDueChip, formatEstimate, parseEstimateMinutes } from "@/lib/format";
 import type { CatalogItem, Project, Subtask, Tag, TaskRecurrence } from "@/domain/types";
 
 export type TaskFormMode = "create" | "edit";
@@ -19,6 +19,7 @@ export type TaskFormState = {
   dueDate: string;
   recurrence: string;
   repeatSubtasks: boolean;
+  estimate: string;
 };
 
 type TaskFormProps = {
@@ -69,6 +70,29 @@ function PriorityField({
   );
 }
 
+function EstimateField({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const parsed = parseEstimateMinutes(value);
+  const invalid = value.trim() !== "" && parsed === null;
+  return (
+    <div className="field">
+      <label htmlFor="task-estimate">Estimativa</label>
+      <input
+        id="task-estimate"
+        name="estimate"
+        autoComplete="off"
+        placeholder="Ex.: 1h30, 45min, 2h"
+        value={value}
+        aria-invalid={invalid}
+        aria-describedby="task-estimate-hint"
+        onChange={(event) => onChange(event.target.value)}
+      />
+      <span id="task-estimate-hint" className={`field-hint${invalid ? " error" : ""}`}>
+        {invalid ? "Use 1h30, 90, 45min ou 2h." : parsed ? `= ${formatEstimate(parsed)}` : "Opcional: compare com o tempo real."}
+      </span>
+    </div>
+  );
+}
+
 export function TaskForm({
   mode,
   presentation,
@@ -105,6 +129,7 @@ export function TaskForm({
         formData.set("dueDate", state.dueDate);
         formData.set("description", state.description);
         formData.set("recurrence", state.recurrence);
+        formData.set("estimate", state.estimate);
         if (state.recurrence !== "none") {
           formData.set("repeatSubtasks", state.repeatSubtasks ? "on" : "false");
         }
@@ -176,6 +201,7 @@ export function TaskForm({
               value={state.priority}
               onChange={(value) => onStateChange({ priority: value })}
             />
+            <EstimateField value={state.estimate} onChange={(value) => onStateChange({ estimate: value })} />
             {projects.length > 0 ? (
               <div className="field">
                 <label>Projeto</label>
@@ -251,6 +277,10 @@ export function TaskForm({
                 <label>Prazo</label>
                 <DateField name="dueDate" value={state.dueDate || null} onChange={(value) => onStateChange({ dueDate: value })} />
               </div>
+              <EstimateField value={state.estimate} onChange={(value) => onStateChange({ estimate: value })} />
+            </div>
+
+            <div className="form-row">
               <div className="field">
                 <label>Repetir (Rotina)</label>
                 <SelectPopover

@@ -32,10 +32,29 @@ import {
   startWorkSession,
   stopWorkSession,
   createManualSession,
-  updateWorkSessionDuration,
-  deleteWorkSession
+  updateWorkSession,
+  deleteWorkSession,
+  setFocusGoal,
+  searchOpenTasks
 } from "@/server/remind-service";
 import { taskRecurrences } from "@/domain/types";
+import { parseEstimateMinutes } from "@/lib/format";
+import { closeDay, saveDayIntention, setTaskEstimate } from "@/server/daily-ritual";
+
+function isRealIsoDate(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T12:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+function estimateFromForm(formData: FormData) {
+  if (!formData.has("estimate")) return undefined;
+  const raw = formData.get("estimate");
+  const text = typeof raw === "string" ? raw.trim() : "";
+  if (!text) return null; // campo apagado = remover estimativa
+  // Texto inválido ("1h3o") mantém a estimativa atual em vez de apagá-la.
+  return parseEstimateMinutes(text) ?? undefined;
+}
 
 function getString(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -47,12 +66,12 @@ export async function loginAction(formData: FormData) {
   const password = getString(formData, "password");
 
   if (!email || !password) {
-    redirect("/login?error=Preencha%20email%20e%20senha.");
+    redirect("/login?error=missing");
   }
 
   const result = await login(email, password);
   if (!result.ok) {
-    redirect(`/login?error=${encodeURIComponent(result.error)}`);
+    redirect(`/login?error=${result.code}`);
   }
 
   redirect("/app");
@@ -128,7 +147,8 @@ export async function createTaskAction(formData: FormData) {
     priority: nextPriority,
     dueDate: dueDate || null,
     recurrence: taskRecurrences.includes(recurrence as any) ? (recurrence as any) : "none",
-    repeatSubtasks
+    repeatSubtasks,
+    estimateMinutes: estimateFromForm(formData) ?? null
   });
 
   if (!task) {
@@ -175,7 +195,8 @@ export async function updateTaskAction(formData: FormData) {
     priority: nextPriority,
     dueDate: dueDate || null,
     recurrence: taskRecurrences.includes(recurrence as any) ? (recurrence as any) : "none",
-    repeatSubtasks
+    repeatSubtasks,
+    estimateMinutes: estimateFromForm(formData)
   });
 
   if (task) {
@@ -425,32 +446,42 @@ export async function startWorkSessionAction(formData: FormData) {
   revalidatePath("/app", "layout");
 }
 
-export async function stopWorkSessionAction() {
+export async function stopWorkSessionAction(endedAtMs?: number) {
   const user = await requireCurrentUser();
-  await stopWorkSession(user.id);
+  const endedAt =
+    typeof endedAtMs === "number" && Number.isFinite(endedAtMs) ? new Date(endedAtMs) : undefined;
+  await stopWorkSession(user.id, endedAt);
   revalidatePath("/app", "layout");
+}
+
+function durationFromForm(formData: FormData) {
+  const hours = Number(getString(formData, "hours") || "0");
+  const minutes = Number(getString(formData, "minutes") || "0");
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes) || hours < 0 || minutes < 0) return 0;
+  return Math.round((hours * 60 + minutes) * 60);
 }
 
 export async function createManualSessionAction(formData: FormData) {
   const user = await requireCurrentUser();
   const taskId = getString(formData, "taskId");
   const date = getString(formData, "date");
-  const hours = Number(getString(formData, "hours") || "0");
-  const minutes = Number(getString(formData, "minutes") || "0");
-  const durationSeconds = Math.round((hours * 60 + minutes) * 60);
+  const startTime = getString(formData, "startTime");
+  const durationSeconds = durationFromForm(formData);
   if (!taskId || !date || durationSeconds < 60) return;
-  await createManualSession(user.id, taskId, date, durationSeconds);
+  await createManualSession(user.id, taskId, date, durationSeconds, startTime || undefined);
   revalidatePath("/app", "layout");
 }
 
 export async function updateWorkSessionDurationAction(formData: FormData) {
   const user = await requireCurrentUser();
   const sessionId = getString(formData, "sessionId");
-  const hours = Number(getString(formData, "hours") || "0");
-  const minutes = Number(getString(formData, "minutes") || "0");
-  const durationSeconds = Math.round((hours * 60 + minutes) * 60);
+  const durationSeconds = durationFromForm(formData);
   if (!sessionId || durationSeconds < 60) return;
-  await updateWorkSessionDuration(user.id, sessionId, durationSeconds);
+  await updateWorkSession(user.id, sessionId, {
+    durationSeconds,
+    date: getString(formData, "date") || undefined,
+    startTime: getString(formData, "startTime") || undefined
+  });
   revalidatePath("/app", "layout");
 }
 
@@ -459,5 +490,55 @@ export async function deleteWorkSessionAction(formData: FormData) {
   const sessionId = getString(formData, "sessionId");
   if (!sessionId) return;
   await deleteWorkSession(user.id, sessionId);
+  revalidatePath("/app", "layout");
+}
+
+export async function setFocusGoalAction(formData: FormData) {
+  const user = await requireCurrentUser();
+  const minutes = durationFromForm(formData) / 60;
+  if (!Number.isFinite(minutes) || minutes <= 0) return;
+  await setFocusGoal(user.id, minutes);
+  revalidatePath("/app", "layout");
+}
+
+export async function searchTasksAction(query: string) {
+  const user = await requireCurrentUser();
+  return searchOpenTasks(user.id, typeof query === "string" ? query : "");
+}
+
+export async function saveDayIntentionAction(formData: FormData) {
+  const user = await requireCurrentUser();
+  const markPlanned = getString(formData, "markPlanned") === "1";
+  await saveDayIntention(user.id, getString(formData, "intention"), markPlanned);
+  revalidatePath("/app", "layout");
+  if (markPlanned) redirect("/app");
+}
+
+export async function closeDayAction(formData: FormData) {
+  const user = await requireCurrentUser();
+  const highlights = formData.getAll("highlight").map((value) => (typeof value === "string" ? value : ""));
+  await closeDay(user.id, highlights);
+  revalidatePath("/app", "layout");
+}
+
+export async function setTaskEstimateAction(formData: FormData) {
+  const user = await requireCurrentUser();
+  const taskId = getString(formData, "taskId");
+  if (!taskId) return;
+  const estimate = estimateFromForm(formData);
+  if (estimate === undefined) return;
+  await setTaskEstimate(user.id, taskId, estimate);
+  revalidatePath("/app", "layout");
+}
+
+/** Move várias tarefas para a mesma data (ex.: "levar pendências para amanhã"). */
+export async function rescheduleTasksAction(formData: FormData) {
+  const user = await requireCurrentUser();
+  const dueDate = getString(formData, "dueDate");
+  if (!isRealIsoDate(dueDate)) return;
+  const taskIds = formData.getAll("taskId").map(String).filter(Boolean).slice(0, 100);
+  for (const taskId of taskIds) {
+    await patchTask(user.id, taskId, { dueDate });
+  }
   revalidatePath("/app", "layout");
 }

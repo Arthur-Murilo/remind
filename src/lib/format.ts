@@ -109,3 +109,32 @@ export function formatDurationClock(seconds: number) {
   }
   return `${minutes}:${String(secs).padStart(2, "0")}`;
 }
+
+/**
+ * Lê estimativas digitadas como "90", "1h30", "1h 30min", "1:30", "2h", "45min", "1,5h".
+ * Número puro = minutos. Retorna null se vazio ou inválido; limita a 999h.
+ */
+export function parseEstimateMinutes(raw: string): number | null {
+  const text = raw.trim().toLowerCase().replace(",", ".");
+  if (!text) return null;
+
+  let minutes: number | null = null;
+  const clock = text.match(/^(\d{1,3}):([0-5]\d)$/);
+  const hoursMinutes = text.match(/^(\d{1,3}(?:\.\d+)?)\s*h(?:\s*(\d{1,2})\s*(?:m|min)?)?$/);
+  const onlyMinutes = text.match(/^(\d{1,5})\s*(?:m|min)?$/);
+
+  if (clock) minutes = Number(clock[1]) * 60 + Number(clock[2]);
+  else if (hoursMinutes) minutes = Math.round(Number(hoursMinutes[1]) * 60) + Number(hoursMinutes[2] || 0);
+  else if (onlyMinutes) minutes = Number(onlyMinutes[1]);
+
+  if (minutes === null || !Number.isFinite(minutes) || minutes <= 0) return null;
+  return Math.min(minutes, 999 * 60);
+}
+
+export function formatEstimate(minutes: number | null | undefined) {
+  if (!minutes || minutes <= 0) return "";
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  if (!hours) return `${rest}min`;
+  return rest ? `${hours}h${String(rest).padStart(2, "0")}` : `${hours}h`;
+}

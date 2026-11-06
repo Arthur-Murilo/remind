@@ -10,11 +10,15 @@ export function AppNav() {
   const isReminders = pathname === "/app" && (due === "soon" || due === "overdue");
   const isMyDay = pathname === "/app" && !due;
   const isTime = pathname === "/app/tempo";
+  const isRitual = pathname === "/app/dia";
 
   return (
     <nav className="nav-group" aria-label="Navegação principal">
       <Link className={`nav-link${isMyDay ? " active" : ""}`} href="/app">
         Meu dia
+      </Link>
+      <Link className={`nav-link${isRitual ? " active" : ""}`} href={"/app/dia" as any}>
+        Planejar / encerrar
       </Link>
       <Link className={`nav-link${isTime ? " active" : ""}`} href={"/app/tempo" as any}>
         Tempo

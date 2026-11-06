@@ -171,6 +171,37 @@ async function createSchema(sql) {
 
   await sql`create index if not exists work_sessions_owner_started on work_sessions (owner_id, started_at desc)`;
   await sql`create unique index if not exists work_sessions_one_open on work_sessions (owner_id) where ended_at is null`;
+  await sql`create index if not exists work_sessions_task on work_sessions (task_id)`;
+
+  // Índices de leitura frequente (listas, Meu dia, subtarefas, etiquetas, sessões de login).
+  await sql`create index if not exists tasks_owner_due on tasks (owner_id, due_date)`;
+  await sql`create index if not exists tasks_project on tasks (project_id)`;
+  await sql`create index if not exists subtasks_task on subtasks (task_id)`;
+  await sql`create index if not exists task_tags_tag on task_tags (tag_id)`;
+  await sql`create index if not exists projects_owner on projects (owner_id)`;
+  await sql`create index if not exists sessions_expires on sessions (expires_at)`;
+  // sessions.id passou a ser SHA-256 (64 hex). Ids brutos antigos não autenticam mais: remove.
+  await sql`delete from sessions where length(id) <> 64`;
+
+  // Estimativa por tarefa e meta diária de foco.
+  await sql`alter table tasks add column if not exists estimate_minutes integer`;
+  await sql`alter table users add column if not exists daily_focus_goal_minutes integer not null default 240`;
+  await sql`alter table tasks add column if not exists completed_at timestamptz`;
+  await sql`update tasks set completed_at = updated_at where status = 'done' and completed_at is null`;
+
+  // Ritual diário: intenção da manhã, destaques da noite e marcos de planejar/encerrar.
+  await sql`
+    create table if not exists daily_notes (
+      user_id text not null references users(id) on delete cascade,
+      day date not null,
+      intention text,
+      highlights text[] not null default '{}',
+      planned_at timestamptz,
+      closed_at timestamptz,
+      updated_at timestamptz not null default now(),
+      primary key (user_id, day)
+    )
+  `;
 }
 
 async function seed(sql) {

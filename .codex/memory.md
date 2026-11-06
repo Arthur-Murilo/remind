@@ -64,6 +64,35 @@
 - Métricas em faixa compacta (sem emojis); menu ⋯ de projeto com ícones; subtarefas estilo Asana com confirmação de exclusão.
 - Autorização reforçada: `projectId` e `tagIds` validados por dono em create/update/set tags.
 
+## Decisões (2026-11-06) — Tempo, fuso e segurança
+
+- `APP_TIMEZONE` (padrão `America/Sao_Paulo`) é aplicado na conexão Postgres (`TimeZone`) e no container (`TZ`). Todo "hoje" e todo limite de período vem do SQL (`current_date`, `date_trunc`), nunca de `new Date()` no servidor.
+- Visão Tempo usa `src/server/time-insights.ts` (`getTimeInsights`): período + `offset` (≤ 0), recorte das sessões nos limites do período, comparação com o mesmo trecho decorrido do período anterior, linha do tempo por hora/dia, heatmap de 8 semanas, distribuição por projeto/tarefa/etiqueta e insights em texto. `getTimeReport` (MCP) é um adaptador sobre ele.
+- Exportação CSV em `/app/tempo/export` (sessão obrigatória, `;` + BOM para Excel pt-BR, proteção contra injeção de fórmula).
+- Sessão manual e edição aceitam data + hora de início no fuso do app; duração entre 1 min e 24 h.
+- Cronômetro global na topbar (`RunningTimer`), com tempo no título da aba.
+- Cor de projeto = índice pela ordem de criação (`colorIndex`/`projectColorIndex`) em `src/domain/project-colors.ts`.
+- Login: rate limit in-memory só de falhas (20/15 min por IP, 8/15 min por e-mail), hash fictício para e-mail inexistente, mensagens de erro por código (`?error=invalid|missing|rate_limited`), cookie `Secure` quando `APP_URL` é https, limpeza de sessões expiradas no login.
+- Cabeçalhos de segurança globais em `next.config.ts` (nosniff, DENY, Referrer-Policy, Permissions-Policy, CSP `frame-ancestors/base-uri/form-action/object-src`).
+- Índices: `tasks(owner_id, due_date)`, `tasks(project_id)`, `subtasks(task_id)`, `task_tags(tag_id)`, `projects(owner_id)`, `sessions(expires_at)`, `work_sessions(task_id)`.
+
+## Decisões (2026-11-06, rodada 2) — meta, estimativa e sessão
+
+- Meta diária de foco em `users.daily_focus_goal_minutes` (padrão 240, limites 15 min–16 h). Anel no Meu dia (pill no desktop, card no telefone), editável por popover; na visão Tempo vira o indicador "Meta diária" (dias batidos no período) e uma linha tracejada no gráfico diário.
+- Estimativa por tarefa em `tasks.estimate_minutes` (nullable). Entrada livre: `1h30`, `90`, `45min`, `1:30`, `1,5h` (`parseEstimateMinutes`). Formulários sem o campo mantêm o valor (`estimate` ausente no FormData = não altera). Linha mostra `tempo / estimativa`, âmbar quando estoura. Tempo tem o card "Estimado × realizado" (tempo total da tarefa) e insight pela mediana realizado/estimado das concluídas (mínimo 2).
+- Sessões de cronômetro com menos de 60 s são apagadas ao parar ou ao trocar de tarefa. Antigas abaixo de 60 s só ficam fora da lista/contagem do Tempo (não são apagadas do banco).
+- `sessions.id` guarda SHA-256 do token do cookie (token de 32 bytes aleatórios, base64url). O `init-db` remove ids antigos (comprimento ≠ 64), o que desconecta todos uma vez.
+- Pesquisa de mercado em `docs/pesquisa-mercado.md`; próxima rodada recomendada: ritual de início/fim do dia + carga do dia, captura em linguagem natural + command palette, modo foco/Pomodoro.
+
+## Decisões (2026-11-06, rodada 3) — ritual, captura, paleta e foco
+
+- Captura em linguagem natural pt-BR em `src/domain/quick-parse.ts` (função pura, testada em `tests/quick-parse.spec.ts`): hoje/amanhã/depois de amanhã, dia da semana por extenso (sem abreviações: "ter", "seg" são palavras comuns), `dd/mm[/aaaa]`, `dia N`, `semana que vem`, `em N dias`, `#projeto`, `!alta|!1|!rótulo`, `@etiqueta`, `~45min`, `todo dia/toda semana/todo mês`. Horário fica no título (prazo é só data). Usada na captura rápida do Meu dia/projeto e na paleta.
+- Paleta de comandos (`Ctrl/Cmd+K` ou `/`) em `src/components/command-palette.tsx`: criar com sintaxe, navegar, projetos, parar cronômetro, foco; busca de tarefas abertas por `searchTasksAction`. "Criar" só fica em primeiro quando há marcadores ou nada mais casa.
+- Modo foco/Pomodoro (25/5 e 50/10): estado em `localStorage` (`src/lib/focus-store.ts`), tempo real continua sendo Sessão de trabalho. Fim do foco para o cronômetro e abre a pausa; fim da pausa oferece outro foco. Contagem na topbar e no título da aba; painel minimizável.
+- Ritual do dia em `/app/dia` (`src/server/daily-ritual.ts`): Planejar (carga = registrado hoje + restante das estimativas da pauta × meta, pauta com estimativa editável/Foco/Concluir/Amanhã, sugestões para puxar, intenção) e Encerrar (meta, estimado × realizado do dia, pendências → amanhã, até 3 destaques). Tabela `daily_notes (user_id, day)`. Sem escolha explícita, abre Encerrar a partir das 17h.
+- `tasks.completed_at` = última conclusão (inclusive ciclos de rotina, que voltam para "todo"); backfill com `updated_at` para concluídas antigas.
+- Meu dia mostra pill "Planejar o dia / Carga / Encerrar o dia" com as horas previstas (âmbar acima da meta).
+
 ## Restrições
 
 - Toda a documentação humana deve ficar em português.

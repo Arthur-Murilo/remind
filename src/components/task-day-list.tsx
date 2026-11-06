@@ -9,6 +9,7 @@ import { EditTaskModal } from "@/components/edit-task-modal";
 import { NewTaskModal } from "@/components/new-task-modal";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { OverflowIcon } from "@/components/icons";
+import { projectColor } from "@/domain/project-colors";
 import type { CatalogItem, Project, Tag, Task } from "@/domain/types";
 
 type TaskDayListProps = {
@@ -24,13 +25,6 @@ type TaskDayListProps = {
   emptyCta?: string;
 };
 
-function projectChipClass(name: string) {
-  let hash = 0;
-  for (let i = 0; i < name.length; i += 1) {
-    hash = (hash + name.charCodeAt(i) * (i + 1)) % 6;
-  }
-  return `project-dot c${hash}`;
-}
 
 function subtaskHint(task: Task) {
   const total = task.subtasks?.length ?? 0;
@@ -147,7 +141,7 @@ export function TaskDayList({
           <div className="task-card-footer">
             {task.projectName ? (
               <span className="task-card-project">
-                <span className={projectChipClass(task.projectName)} aria-hidden="true" />
+                <span className="project-dot" style={{ background: projectColor(task.projectColorIndex) }} aria-hidden="true" />
                 {task.projectName}
               </span>
             ) : null}

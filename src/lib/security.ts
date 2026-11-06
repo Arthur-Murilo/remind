@@ -17,5 +17,9 @@ export async function verifyPassword(password: string, storedHash: string) {
   }
 
   const incomingHash = (await scrypt(password, salt, 64)) as Buffer;
-  return timingSafeEqual(incomingHash, Buffer.from(hash, "hex"));
+  const storedBuffer = Buffer.from(hash, "hex");
+  if (storedBuffer.length !== incomingHash.length) {
+    return false;
+  }
+  return timingSafeEqual(incomingHash, storedBuffer);
 }

@@ -74,6 +74,9 @@ Para realizar o deploy em uma VPS (ex: Hetzner, DigitalOcean, AWS, Oracle Cloud)
    cp .env-example .env
    ```
    Edite o arquivo `.env` definindo uma senha forte em `POSTGRES_PASSWORD`, o `APP_URL` (domínio/IP) e o login inicial em `SEED_USER_EMAIL` / `SEED_USER_PASSWORD`. O Compose recusa subir sem essas variáveis. A porta `5432` fica só em localhost; não abra o Postgres no firewall da VPS.
+
+   - `APP_TIMEZONE` (padrão `America/Sao_Paulo`) define o que é "hoje" no Meu dia, nos lembretes e na visão Tempo. O servidor roda em UTC; sem essa variável o dia virava às 21h.
+   - Com HTTPS (Cloudflare, Caddy etc.), use `APP_URL=https://...` para o cookie de sessão sair com a flag `Secure`.
 4. **Inicie os serviços**:
    ```bash
    docker compose up --build -d

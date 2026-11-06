@@ -12,7 +12,7 @@
 - Filtros operacionais de tarefas
 - Lembretes in-app
 - Catálogos de status e prioridade definidos pelo usuário, com ordem persistida nas prioridades
-- Sessões de trabalho e relatório de tempo
+- Sessões de trabalho, cronômetro global e visão Tempo com insights (`src/server/time-insights.ts`) e exportação CSV (`/app/tempo/export`)
 - MCP Streamable HTTP em `/api/mcp` (Bearer `MCP_API_TOKEN`, quatro tools fechadas)
 
 ## Limites
@@ -30,6 +30,12 @@
 5. O PostgreSQL armazena usuários, sessões de autenticação, projetos, tarefas, lembretes, etiquetas, catálogos e sessões de trabalho.
 
 ## Convenções Técnicas
+
+- Fuso horário: `APP_TIMEZONE` é aplicado na conexão Postgres; regras de "hoje" e limites de período são calculados no SQL.
+- Sessão de login: o banco guarda só o SHA-256 do token do cookie.
+- Ritual diário em `src/server/daily-ritual.ts` + `daily_notes`; parser de captura em `src/domain/quick-parse.ts` (sem dependência de servidor, reutilizado no cliente); modo foco é estado de cliente (`localStorage`) sobre as Sessões de trabalho.
+- Meta diária (`users.daily_focus_goal_minutes`) e estimativa (`tasks.estimate_minutes`) alimentam Meu dia e Tempo.
+- Cor de projeto é derivada da ordem de criação (`src/domain/project-colors.ts`), igual em sidebar, listas e gráficos.
 
 - Componentes de interface e rotas do app ficam no espaço do Next.js App Router.
 - Operações de leitura e escrita devem passar por uma camada explícita de domínio/serviço.

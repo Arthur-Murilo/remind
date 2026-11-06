@@ -12,6 +12,7 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { CatalogCell } from "@/components/catalog-cell";
 import { TaskTimer } from "@/components/task-timer";
 import { TrashIcon } from "@/components/icons";
+import { projectColor } from "@/domain/project-colors";
 import type { CatalogItem, Project, Tag, Task } from "@/domain/types";
 
 const STORAGE_KEY = "remind-column-widths-v4";
@@ -100,13 +101,6 @@ type TaskTableProps = {
   emptyHint?: string;
 };
 
-function projectDotClass(name: string) {
-  let hash = 0;
-  for (let i = 0; i < name.length; i += 1) {
-    hash = (hash + name.charCodeAt(i) * (i + 1)) % 6;
-  }
-  return `project-dot c${hash}`;
-}
 
 function TaskTimeChip({
   totalTrackedSeconds = 0,
@@ -425,7 +419,7 @@ export function TaskTable({
                       value={task.projectId}
                       label={
                         <>
-                          <span className={projectDotClass(task.projectName || "")} aria-hidden="true" />
+                          <span className="project-dot" style={{ background: projectColor(task.projectColorIndex) }} aria-hidden="true" />
                           {task.projectName}
                         </>
                       }
@@ -470,8 +464,10 @@ export function TaskTable({
                 <div className="issue-cell col-time">
                   <TaskTimer
                     taskId={task.id}
+                    taskTitle={task.title}
                     runningStartedAt={task.runningSession?.startedAt}
                     totalTrackedSeconds={task.totalTrackedSeconds}
+                    estimateMinutes={task.estimateMinutes}
                   />
                 </div>
               </div>

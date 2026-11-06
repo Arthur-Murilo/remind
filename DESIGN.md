@@ -30,7 +30,15 @@
 - Prazo de hoje em amarelo e prazo atrasado em vermelho, na lista e no sininho.
 - Colunas redimensionáveis: a largura inicial acompanha o conteúdo (títulos longos expandem a coluna) e o ajuste manual continua persistido no navegador.
 - Subtarefas começam recolhidas; a seta à esquerda do título abre a lista. Recolhida, um aviso discreto (três barrinhas + contagem) fica abaixo do nome.
-- Sessões de trabalho: timer e chip de tempo na linha da tarefa + visão Tempo (filtros de dia/semana/mês e agrupamento do gráfico por projeto ou tarefa).
+- Sessões de trabalho: timer e chip de tempo na linha da tarefa; cronômetro global na topbar (tarefa + tempo + parar) e tempo correndo no título da aba.
+- Visão Tempo (inspirada em Toggl/Clockify/Timing): período Dia/Semana/Mês com navegação anterior/próximo; indicadores (total com variação vs. o mesmo ponto do período anterior, média por dia ativo ou janela de trabalho no Dia, foco profundo ≥ 25 min, sessões, sequência de dias úteis); "Leitura do período" com insights em texto; barras empilhadas por projeto (por hora no Dia, por dia na Semana/Mês) com tooltip; distribuição em barras horizontais com % (projeto, tarefa, etiqueta); mapa de calor dia × hora das últimas 8 semanas; sessões agrupadas por dia com início–fim, edição de data/início/duração e exportação CSV.
+- Meta diária de foco: anel de progresso (azul, verde ao bater) no lugar do "Tempo hoje" do Meu dia; no telefone vira card no topo. Clique abre popover para ajustar horas/minutos.
+- Estimativa: campo livre no formulário da tarefa (1h30, 45min, 2h) com dica de leitura; na linha aparece `tempo / estimativa`, em âmbar quando passa. Na visão Tempo, card "Estimado × realizado" com marcador da estimativa e excesso hachurado.
+- Captura rápida em linguagem natural: chips de prévia abaixo do campo (Prazo, Projeto, Prioridade, Etiqueta, Estimativa, Repete; aviso tracejado para marcador desconhecido). O seletor de projeto espelha o `#projeto` digitado.
+- Paleta de comandos (Ctrl/Cmd+K ou `/`): modal centralizado no topo, grupos (Criar, Cronômetro, Ir para, Projetos, Tarefas), navegação por setas, Enter executa, Shift+Enter inicia foco na tarefa. Gatilho "Buscar ou criar" na topbar (só ícone no telefone).
+- Modo foco: painel flutuante (canto inferior direito; acima da bottom nav no telefone) com anel de contagem; pill da topbar fica azul com contagem regressiva; pausa em verde.
+- Ritual do dia (`/app/dia`): abas Planejar/Encerrar; barra de carga com registrado (verde), restante estimado (azul, hachurado em âmbar quando estoura) e marcador da meta.
+- Cor de projeto estável: paleta categórica de 8 cores validada para daltonismo, atribuída pela ordem de criação (a cor segue o projeto, não a posição na lista). A partir do 9º projeto, cinza neutro.
 - Projeto: mesma lista (sem coluna projeto) + composer de nova tarefa.
 
 ## Components

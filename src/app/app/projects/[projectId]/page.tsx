@@ -47,6 +47,7 @@ export default async function ProjectDetailPage({ params, searchParams }: Projec
             defaultProjectId={project.id}
             statuses={catalogs.statuses}
             priorities={catalogs.priorities}
+            tags={allTags}
           />
         </div>
       </div>

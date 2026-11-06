@@ -35,6 +35,8 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Defina_POSTGRES_PASSWORD_no_.env}@postgres:5432/${POSTGRES_DB:-remind}
       APP_URL: ${APP_URL:-http://localhost:3000}
       SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME:-remind_session}
+      APP_TIMEZONE: ${APP_TIMEZONE:-America/Sao_Paulo}
+      TZ: ${APP_TIMEZONE:-America/Sao_Paulo}
       SEED_USER_EMAIL: ${SEED_USER_EMAIL:?Defina_SEED_USER_EMAIL_no_.env}
       SEED_USER_PASSWORD: ${SEED_USER_PASSWORD:?Defina_SEED_USER_PASSWORD_no_.env}
       MCP_API_TOKEN: ${MCP_API_TOKEN:-}

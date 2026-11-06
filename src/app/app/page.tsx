@@ -1,6 +1,9 @@
 import Link from "next/link";
 
-import { formatDuration, todayIsoDate } from "@/lib/format";
+import { todayIsoDate } from "@/lib/format";
+import { FocusGoal } from "@/components/focus-goal";
+import { getDayLoad, getDayStatus } from "@/server/daily-ritual";
+import { formatDuration } from "@/lib/format";
 import { requireCurrentUser } from "@/server/auth";
 import { getTaskFilterFromSearchParams } from "@/server/filters";
 import { getDashboardMetrics, getProjects, getTasks, getTags, getCatalogs } from "@/server/remind-service";
@@ -29,6 +32,15 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     getCatalogs(user.id)
   ]);
 
+  const [dayLoad, dayStatus] = await Promise.all([
+    getDayLoad(user.id, metrics.focusGoalMinutes, metrics.trackedSecondsToday),
+    getDayStatus(user.id)
+  ]);
+  const ritualClosing = dayStatus.hour >= 17 && !dayStatus.closed;
+  const ritualLabel = !dayStatus.planned && !ritualClosing ? "Planejar o dia" : ritualClosing ? "Encerrar o dia" : "Carga";
+  const ritualHref = ritualClosing ? "/app/dia?modo=encerrar" : "/app/dia?modo=planejar";
+  const overload = dayLoad.projectedSeconds > dayLoad.goalSeconds && dayLoad.plannedCount > 0;
+
   const isRemindersView = filter.due === "soon" || filter.due === "overdue";
   const isMyDayView = filter.due === "myday";
   const isPlainMyDay =
@@ -52,6 +64,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               projects={projects}
               statuses={catalogs.statuses}
               priorities={catalogs.priorities}
+              tags={allTags}
               defaultDueDate={todayIsoDate()}
             />
           ) : null}
@@ -79,9 +92,18 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           <strong className="metric-pill-value">{metrics.totalProjects}</strong>
         </div>
 
-        <Link className="metric-pill" href={"/app/tempo" as any}>
-          <span className="metric-pill-label">Tempo hoje</span>
-          <strong className="metric-pill-value">{formatDuration(metrics.trackedSecondsToday)}</strong>
+        <FocusGoal trackedSeconds={metrics.trackedSecondsToday} goalMinutes={metrics.focusGoalMinutes} />
+
+        <Link
+          className={`metric-pill ritual-pill${overload ? " over" : ""}${!dayStatus.planned || ritualClosing ? " cta" : ""}`}
+          href={ritualHref as never}
+          title={`Previsto ${formatDuration(dayLoad.projectedSeconds)} para a meta de ${formatDuration(dayLoad.goalSeconds)}`}
+        >
+          <span className="metric-pill-label">{ritualLabel}</span>
+          <strong className="metric-pill-value">
+            {formatDuration(dayLoad.projectedSeconds)}
+            <span className="focus-goal-of"> previstas</span>
+          </strong>
         </Link>
       </div>
 
@@ -112,6 +134,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       </div>
 
       <div className="phone-only">
+        {isPlainMyDay ? (
+          <div className="phone-focus-goal">
+            <FocusGoal trackedSeconds={metrics.trackedSecondsToday} goalMinutes={metrics.focusGoalMinutes} variant="card" />
+            <Link className={`phone-ritual-link${overload ? " over" : ""}`} href={ritualHref as never}>
+              {ritualLabel === "Carga" ? "Ver plano do dia" : ritualLabel} · {formatDuration(dayLoad.projectedSeconds)} previstas
+            </Link>
+          </div>
+        ) : null}
         <TaskDayList
           tasks={tasks}
           projects={projects}

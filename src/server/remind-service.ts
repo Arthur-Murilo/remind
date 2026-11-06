@@ -1,8 +1,9 @@
 import { randomUUID } from "node:crypto";
 
-import type { Project, Reminder, Task, TaskFilter, TaskRecurrence, TimePeriod, WorkSession } from "@/domain/types";
+import type { Project, Reminder, Task, TaskFilter, TaskRecurrence, TimePeriod } from "@/domain/types";
 import { SYSTEM_PRIORITY_ITEMS, SYSTEM_STATUS_ITEMS, mergeCatalog, slugifyCatalogKey, sortCatalogItems } from "@/domain/catalog";
 import { db } from "@/lib/db";
+import { getTimeInsights } from "@/server/time-insights";
 
 type DashboardMetrics = {
   totalProjects: number;
@@ -10,59 +11,48 @@ type DashboardMetrics = {
   dueSoon: number;
   overdue: number;
   trackedSecondsToday: number;
+  focusGoalMinutes: number;
 };
+
+export const FOCUS_GOAL_MIN_MINUTES = 15;
+export const FOCUS_GOAL_MAX_MINUTES = 16 * 60;
+
+export async function setFocusGoal(userId: string, minutes: number) {
+  const value = Math.round(Math.min(FOCUS_GOAL_MAX_MINUTES, Math.max(FOCUS_GOAL_MIN_MINUTES, minutes)));
+  const sql = db();
+  await sql`update users set daily_focus_goal_minutes = ${value} where id = ${userId}`;
+  return value;
+}
 
 export async function getDashboardMetrics(userId: string): Promise<DashboardMetrics> {
   const sql = db();
-  const [projectRow] = await sql<{ count: number }[]>`
-    select count(*)::int as count
-    from projects
-    where owner_id = ${userId}
-  `;
-
-  const [openRow] = await sql<{ count: number }[]>`
-    select count(*)::int as count
-    from tasks
-    where owner_id = ${userId}
-      and status <> 'done'
-  `;
-
-  const [soonRow] = await sql<{ count: number }[]>`
-    select count(*)::int as count
-    from tasks
-    where owner_id = ${userId}
-      and status <> 'done'
-      and due_date is not null
-      and due_date = current_date
-  `;
-
-  const [overdueRow] = await sql<{ count: number }[]>`
-    select count(*)::int as count
-    from tasks
-    where owner_id = ${userId}
-      and status <> 'done'
-      and due_date is not null
-      and due_date < current_date
-  `;
-
-  const [trackedRow] = await sql<{ seconds: number }[]>`
-    select coalesce(sum(
-      case
-        when ended_at is null then greatest(1, floor(extract(epoch from (now() - started_at)))::int)
-        else duration_seconds
-      end
-    ), 0)::int as seconds
-    from work_sessions
-    where owner_id = ${userId}
-      and started_at >= date_trunc('day', now())
+  const [row] = await sql<DashboardMetrics[]>`
+    select
+      (select count(*)::int from projects where owner_id = ${userId}) as "totalProjects",
+      count(*) filter (where t.status <> 'done')::int as "openTasks",
+      count(*) filter (where t.status <> 'done' and t.due_date = current_date)::int as "dueSoon",
+      count(*) filter (where t.status <> 'done' and t.due_date < current_date)::int as "overdue",
+      (
+        select coalesce(sum(greatest(0, extract(epoch from (
+          least(coalesce(ended_at, now()), date_trunc('day', now()) + interval '1 day') - greatest(started_at, date_trunc('day', now()))
+        )))), 0)::int
+        from work_sessions
+        where owner_id = ${userId}
+          and started_at < date_trunc('day', now()) + interval '1 day'
+          and coalesce(ended_at, now()) > date_trunc('day', now())
+      ) as "trackedSecondsToday",
+      (select daily_focus_goal_minutes from users where id = ${userId}) as "focusGoalMinutes"
+    from tasks t
+    where t.owner_id = ${userId}
   `;
 
   return {
-    totalProjects: projectRow?.count ?? 0,
-    openTasks: openRow?.count ?? 0,
-    dueSoon: soonRow?.count ?? 0,
-    overdue: overdueRow?.count ?? 0,
-    trackedSecondsToday: trackedRow?.seconds ?? 0
+    totalProjects: row?.totalProjects ?? 0,
+    openTasks: row?.openTasks ?? 0,
+    dueSoon: row?.dueSoon ?? 0,
+    overdue: row?.overdue ?? 0,
+    trackedSecondsToday: row?.trackedSecondsToday ?? 0,
+    focusGoalMinutes: row?.focusGoalMinutes ?? 240
   };
 }
 
@@ -78,7 +68,13 @@ export async function getProjects(userId: string): Promise<Project[]> {
       p.created_at as "createdAt",
       p.updated_at as "updatedAt",
       count(t.id)::int as "taskCount",
-      count(*) filter (where t.status <> 'done')::int as "openTaskCount"
+      count(t.id) filter (where t.status <> 'done')::int as "openTaskCount",
+      (
+        select count(*)::int
+        from projects older
+        where older.owner_id = p.owner_id
+          and (older.created_at, older.id) < (p.created_at, p.id)
+      ) as "colorIndex"
     from projects p
     left join tasks t on t.project_id = p.id
     where p.owner_id = ${userId}
@@ -107,6 +103,11 @@ export async function getProjectById(userId: string, projectId: string): Promise
   return rows[0] ?? null;
 }
 
+function escapeLike(value: string) {
+  // ILIKE usa "\" como escape padrão: % e _ digitados na busca viram literais.
+  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
+}
+
 export async function getTasks(userId: string, filter: TaskFilter = {}): Promise<Task[]> {
   const sql = db();
   const values: Array<string> = [userId];
@@ -128,7 +129,7 @@ export async function getTasks(userId: string, filter: TaskFilter = {}): Promise
   }
 
   if (filter.search) {
-    values.push(`%${filter.search}%`);
+    values.push(`%${escapeLike(filter.search)}%`);
     const index = values.length;
     conditions.push(`(
       t.title ilike $${index}
@@ -162,6 +163,12 @@ export async function getTasks(userId: string, filter: TaskFilter = {}): Promise
       t.project_id as "projectId",
       t.owner_id as "ownerId",
       p.name as "projectName",
+      (
+        select count(*)::int
+        from projects older
+        where older.owner_id = p.owner_id
+          and (older.created_at, older.id) < (p.created_at, p.id)
+      ) as "projectColorIndex",
       t.title,
       t.description,
       t.status,
@@ -169,6 +176,7 @@ export async function getTasks(userId: string, filter: TaskFilter = {}): Promise
       t.due_date::text as "dueDate",
       t.recurrence,
       t.repeat_subtasks as "repeatSubtasks",
+      t.estimate_minutes as "estimateMinutes",
       coalesce((
         select sum(ws.duration_seconds)
         from work_sessions ws
@@ -365,6 +373,7 @@ export async function createTask(input: {
   dueDate?: string | null;
   recurrence?: TaskRecurrence;
   repeatSubtasks?: boolean;
+  estimateMinutes?: number | null;
 }) {
   const project = await getProjectById(input.userId, input.projectId);
   if (!project) {
@@ -376,7 +385,7 @@ export async function createTask(input: {
   const repeatSubtasks = input.repeatSubtasks ?? true;
 
   const [task] = await sql<Task[]>`
-    insert into tasks (id, project_id, owner_id, title, description, status, priority, due_date, recurrence, repeat_subtasks)
+    insert into tasks (id, project_id, owner_id, title, description, status, priority, due_date, recurrence, repeat_subtasks, estimate_minutes, completed_at)
     values (
       ${randomUUID()},
       ${input.projectId},
@@ -387,7 +396,9 @@ export async function createTask(input: {
       ${input.priority},
       ${input.dueDate || null},
       ${recurrence},
-      ${repeatSubtasks}
+      ${repeatSubtasks},
+      ${input.estimateMinutes ?? null},
+      ${input.status === "done" ? new Date() : null}
     )
     returning
       id,
@@ -400,6 +411,7 @@ export async function createTask(input: {
       due_date::text as "dueDate",
       recurrence,
       repeat_subtasks as "repeatSubtasks",
+      estimate_minutes as "estimateMinutes",
       created_at as "createdAt",
       updated_at as "updatedAt"
   `;
@@ -420,6 +432,8 @@ export async function updateTask(input: {
   dueDate?: string | null;
   recurrence?: TaskRecurrence;
   repeatSubtasks?: boolean;
+  /** undefined = manter a estimativa atual (formulários que não têm o campo). */
+  estimateMinutes?: number | null;
 }) {
   const project = await getProjectById(input.userId, input.projectId);
   if (!project) {
@@ -429,6 +443,7 @@ export async function updateTask(input: {
   const sql = db();
   const recurrence = input.recurrence || "none";
   const repeatSubtasks = input.repeatSubtasks ?? true;
+  const keepEstimate = input.estimateMinutes === undefined;
 
   const [task] = await sql<Task[]>`
     update tasks
@@ -438,9 +453,14 @@ export async function updateTask(input: {
       description = ${input.description || null},
       priority = ${input.priority},
       status = ${input.status},
+      completed_at = case
+        when ${input.status} = 'done' then coalesce(case when status = 'done' then completed_at end, now())
+        else null
+      end,
       due_date = ${input.dueDate || null},
       recurrence = ${recurrence},
       repeat_subtasks = ${repeatSubtasks},
+      estimate_minutes = case when ${keepEstimate} then estimate_minutes else ${input.estimateMinutes ?? null}::int end,
       updated_at = now()
     where id = ${input.taskId}
       and owner_id = ${input.userId}
@@ -455,6 +475,7 @@ export async function updateTask(input: {
       due_date::text as "dueDate",
       recurrence,
       repeat_subtasks as "repeatSubtasks",
+      estimate_minutes as "estimateMinutes",
       created_at as "createdAt",
       updated_at as "updatedAt"
   `;
@@ -526,6 +547,8 @@ export async function toggleTaskStatus(userId: string, taskId: string, status: s
     set
       status = ${nextStatus},
       due_date = coalesce(${nextDueDate}, due_date),
+      -- completed_at = última conclusão (inclusive ciclos de rotina, que voltam para "todo").
+      completed_at = case when ${status} = 'done' then now() when ${nextStatus} <> 'done' then null else completed_at end,
       updated_at = now()
     where id = ${taskId} and owner_id = ${userId}
     returning
@@ -539,6 +562,7 @@ export async function toggleTaskStatus(userId: string, taskId: string, status: s
       due_date::text as "dueDate",
       recurrence,
       repeat_subtasks as "repeatSubtasks",
+      estimate_minutes as "estimateMinutes",
       created_at as "createdAt",
       updated_at as "updatedAt"
   `;
@@ -682,6 +706,7 @@ export async function patchTask(
       due_date::text as "dueDate",
       recurrence,
       repeat_subtasks as "repeatSubtasks",
+      estimate_minutes as "estimateMinutes",
       created_at as "createdAt",
       updated_at as "updatedAt"
     from tasks
@@ -712,6 +737,10 @@ export async function patchTask(
       project_id = ${nextProjectId},
       title = ${nextTitle},
       status = ${nextStatus},
+      completed_at = case
+        when ${nextStatus} = 'done' then coalesce(case when status = 'done' then completed_at end, now())
+        else null
+      end,
       priority = ${nextPriority},
       due_date = ${nextDueDate},
       updated_at = now()
@@ -727,6 +756,7 @@ export async function patchTask(
       due_date::text as "dueDate",
       recurrence,
       repeat_subtasks as "repeatSubtasks",
+      estimate_minutes as "estimateMinutes",
       created_at as "createdAt",
       updated_at as "updatedAt"
   `;
@@ -978,31 +1008,27 @@ export async function isAllowedPriority(userId: string, key: string) {
   return rows.length > 0;
 }
 
-function periodBounds(period: TimePeriod) {
-  const now = new Date();
-  const from = new Date(now);
-  from.setHours(0, 0, 0, 0);
+/** Sessões de cronômetro abaixo disso são cliques acidentais: descartadas ao parar. */
+export const MIN_TIMER_SESSION_SECONDS = 60;
 
-  if (period === "week") {
-    const day = from.getDay();
-    const diff = day === 0 ? 6 : day - 1;
-    from.setDate(from.getDate() - diff);
-  } else if (period === "month") {
-    from.setDate(1);
-  }
-
-  const to = new Date(now);
-  to.setHours(23, 59, 59, 999);
-  return { from: from.toISOString(), to: to.toISOString() };
-}
-
-async function closeOpenSessions(userId: string) {
+async function closeOpenSessions(userId: string, endedAt?: Date) {
   const sql = db();
+  await sql`
+    delete from work_sessions
+    where owner_id = ${userId}
+      and ended_at is null
+      and source = 'timer'
+      and now() - started_at < (${MIN_TIMER_SESSION_SECONDS} * interval '1 second')
+  `;
+  // endedAt (ex.: fim planejado do foco) é limitado entre o início e agora: voltar 3h depois
+  // de um foco de 25 min registra 25 min, não 3h25.
   await sql`
     update work_sessions
     set
-      ended_at = now(),
-      duration_seconds = greatest(1, floor(extract(epoch from (now() - started_at)))::int),
+      ended_at = least(now(), greatest(started_at, coalesce(${endedAt ?? null}::timestamptz, now()))),
+      duration_seconds = greatest(1, floor(extract(epoch from (
+        least(now(), greatest(started_at, coalesce(${endedAt ?? null}::timestamptz, now()))) - started_at
+      )))::int),
       updated_at = now()
     where owner_id = ${userId}
       and ended_at is null
@@ -1030,23 +1056,46 @@ export async function startWorkSession(userId: string, taskId: string) {
   return session;
 }
 
-export async function stopWorkSession(userId: string) {
-  await closeOpenSessions(userId);
+export async function stopWorkSession(userId: string, endedAt?: Date) {
+  await closeOpenSessions(userId, endedAt);
 }
 
-export async function createManualSession(userId: string, taskId: string, date: string, durationSeconds: number) {
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const HH_MM = /^([01]\d|2[0-3]):[0-5]\d$/;
+const MAX_SESSION_SECONDS = 24 * 3600;
+
+/** Formato AAAA-MM-DD e data que existe (rejeita 2026-02-30 antes de chegar ao Postgres). */
+function isRealIsoDate(value: string) {
+  if (!ISO_DATE.test(value)) return false;
+  const date = new Date(`${value}T12:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+function normalizeSessionSeconds(durationSeconds: number) {
+  return Math.min(MAX_SESSION_SECONDS, Math.max(60, Math.floor(durationSeconds)));
+}
+
+export async function createManualSession(
+  userId: string,
+  taskId: string,
+  date: string,
+  durationSeconds: number,
+  startTime?: string
+) {
+  if (!isRealIsoDate(date)) return null;
   const task = await getTaskById(userId, taskId);
   if (!task) return null;
 
-  const seconds = Math.max(60, Math.floor(durationSeconds));
-  const startedAt = new Date(`${date}T12:00:00`);
-  if (Number.isNaN(startedAt.getTime())) return null;
-  const endedAt = new Date(startedAt.getTime() + seconds * 1000);
+  const seconds = normalizeSessionSeconds(durationSeconds);
+  const time = startTime && HH_MM.test(startTime) ? startTime : "12:00";
 
+  // A data/hora digitadas são interpretadas no fuso da conexão (APP_TIMEZONE).
   const sql = db();
   const [session] = await sql`
     insert into work_sessions (id, task_id, owner_id, started_at, ended_at, duration_seconds, source)
-    values (${randomUUID()}, ${taskId}, ${userId}, ${startedAt.toISOString()}, ${endedAt.toISOString()}, ${seconds}, ${"manual"})
+    select ${randomUUID()}, ${taskId}, ${userId}, start_at, start_at + (${seconds} * interval '1 second'), ${seconds}, ${"manual"}
+    from (select (${date}::text || ' ' || ${time}::text)::timestamp::timestamptz as start_at) input
+    where input.start_at <= now()
     returning
       id,
       task_id as "taskId",
@@ -1059,19 +1108,41 @@ export async function createManualSession(userId: string, taskId: string, date: 
   return session;
 }
 
-export async function updateWorkSessionDuration(userId: string, sessionId: string, durationSeconds: number) {
-  const seconds = Math.max(60, Math.floor(durationSeconds));
+export async function updateWorkSession(
+  userId: string,
+  sessionId: string,
+  input: { durationSeconds: number; date?: string; startTime?: string }
+) {
+  const seconds = normalizeSessionSeconds(input.durationSeconds);
+  const hasStart = Boolean(input.date && isRealIsoDate(input.date) && input.startTime && HH_MM.test(input.startTime));
+  const startText = hasStart ? `${input.date} ${input.startTime}` : null;
   const sql = db();
   await sql`
     update work_sessions
     set
+      started_at = coalesce(${startText}::text::timestamp::timestamptz, started_at),
       duration_seconds = ${seconds},
-      ended_at = started_at + (${seconds} * interval '1 second'),
+      ended_at = coalesce(${startText}::text::timestamp::timestamptz, started_at) + (${seconds} * interval '1 second'),
       updated_at = now()
     where id = ${sessionId}
       and owner_id = ${userId}
       and ended_at is not null
+      and coalesce(${startText}::text::timestamp::timestamptz, started_at) <= now()
   `;
+}
+
+export async function getRunningSession(userId: string) {
+  const sql = db();
+  const rows = await sql<{ id: string; taskId: string; taskTitle: string; projectName: string; startedAt: string }[]>`
+    select s.id, s.task_id as "taskId", t.title as "taskTitle", p.name as "projectName", s.started_at as "startedAt"
+    from work_sessions s
+    join tasks t on t.id = s.task_id
+    join projects p on p.id = t.project_id
+    where s.owner_id = ${userId}
+      and s.ended_at is null
+    limit 1
+  `;
+  return rows[0] ?? null;
 }
 
 export async function deleteWorkSession(userId: string, sessionId: string) {
@@ -1083,76 +1154,42 @@ export async function deleteWorkSession(userId: string, sessionId: string) {
 }
 
 export async function getTimeReport(userId: string, filter: { projectId?: string; period: TimePeriod }) {
-  const sql = db();
-  const { from, to } = periodBounds(filter.period);
-  const values: string[] = [userId, from, to];
-  const conditions = [
-    "s.owner_id = $1",
-    "s.started_at < $3",
-    "(s.ended_at is null or s.ended_at > $2)"
-  ];
-
-  if (filter.projectId) {
-    values.push(filter.projectId);
-    conditions.push(`t.project_id = $${values.length}`);
-  }
-
-  const sessions = await sql.unsafe<WorkSession[]>(
-    `select
-       s.id,
-       s.task_id as "taskId",
-       s.owner_id as "ownerId",
-       t.title as "taskTitle",
-       t.project_id as "projectId",
-       p.name as "projectName",
-       s.started_at as "startedAt",
-       s.ended_at as "endedAt",
-       case
-         when s.ended_at is null then greatest(1, floor(extract(epoch from (now() - s.started_at)))::int)
-         else s.duration_seconds
-       end as "durationSeconds",
-       s.source
-     from work_sessions s
-     join tasks t on t.id = s.task_id
-     join projects p on p.id = t.project_id
-     where ${conditions.join(" and ")}
-     order by s.started_at desc`,
-    values
-  );
-
-  const byProject = new Map<string, { projectId: string; projectName: string; durationSeconds: number }>();
-  const byTask = new Map<string, { taskId: string; taskTitle: string; projectName: string; durationSeconds: number }>();
-  let totalSeconds = 0;
-
-  for (const session of sessions) {
-    totalSeconds += session.durationSeconds;
-
-    const project = byProject.get(session.projectId) || {
-      projectId: session.projectId,
-      projectName: session.projectName,
-      durationSeconds: 0
-    };
-    project.durationSeconds += session.durationSeconds;
-    byProject.set(session.projectId, project);
-
-    const task = byTask.get(session.taskId) || {
-      taskId: session.taskId,
-      taskTitle: session.taskTitle,
-      projectName: session.projectName,
-      durationSeconds: 0
-    };
-    task.durationSeconds += session.durationSeconds;
-    byTask.set(session.taskId, task);
-  }
-
+  const insights = await getTimeInsights(userId, { period: filter.period, projectId: filter.projectId });
   return {
-    period: filter.period,
-    from,
-    to,
-    totalSeconds,
-    projects: [...byProject.values()].sort((a, b) => b.durationSeconds - a.durationSeconds),
-    tasks: [...byTask.values()].sort((a, b) => b.durationSeconds - a.durationSeconds),
-    sessions
+    period: insights.period,
+    from: insights.from,
+    to: insights.to,
+    totalSeconds: insights.totalSeconds,
+    projects: insights.projects.map((project) => ({
+      projectId: project.id,
+      projectName: project.label,
+      durationSeconds: project.seconds
+    })),
+    tasks: insights.tasks.map((task) => ({
+      taskId: task.id,
+      taskTitle: task.label,
+      projectName: task.detail || "",
+      durationSeconds: task.seconds
+    })),
+    sessions: insights.sessions
   };
 }
 
+export type TaskSearchHit = { id: string; title: string; projectName: string; dueDate: string | null };
+
+/** Busca leve para a paleta de comandos: tarefas abertas, prazo mais próximo primeiro. */
+export async function searchOpenTasks(userId: string, query: string, limit = 8): Promise<TaskSearchHit[]> {
+  const sql = db();
+  const text = query.trim().slice(0, 100);
+  const pattern = `%${escapeLike(text)}%`;
+  return sql<TaskSearchHit[]>`
+    select t.id, t.title, p.name as "projectName", t.due_date::text as "dueDate"
+    from tasks t
+    join projects p on p.id = t.project_id
+    where t.owner_id = ${userId}
+      and t.status <> 'done'
+      and (${text} = '' or t.title ilike ${pattern} or p.name ilike ${pattern})
+    order by t.due_date asc nulls last, t.updated_at desc
+    limit ${Math.min(20, Math.max(1, limit))}
+  `;
+}

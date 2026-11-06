@@ -3,6 +3,100 @@
 ## Tarefa Atual
 
 ### Tarefa
+Terceira rodada: ritual de início/fim do dia com carga, captura em linguagem natural + paleta Ctrl+K, modo foco/Pomodoro; revisão completa do código e testes nas páginas.
+
+### Objetivo
+Implementar as três recomendações da pesquisa de mercado (`docs/pesquisa-mercado.md`) dentro do escopo in-app da v1 e fechar com uma revisão geral de qualidade.
+
+### Subtarefas
+- [x] Parser pt-BR (`src/domain/quick-parse.ts`): hoje/amanhã/dia da semana/dd/mm, `#projeto`, `!prioridade`, `@etiqueta`, `~estimativa`, recorrência.
+- [x] Captura rápida com prévia dos campos reconhecidos.
+- [x] Paleta de comandos (Ctrl/Cmd+K): criar, navegar, cronômetro, foco.
+- [x] `tasks.completed_at` para saber o que foi concluído no dia.
+- [x] `daily_notes` (intenção, destaques, planejado/encerrado) e página `/app/dia` com Planejar e Encerrar.
+- [x] Carga do dia (soma das estimativas × meta) no Meu dia e no Planejar.
+- [x] Modo foco/Pomodoro (25/50 min, pausa, aviso sonoro, contagem na topbar e na aba).
+- [x] Revisão de código de todo o diff (subagente independente) e correções.
+- [x] Typecheck, E2E, build e navegação manual pelas páginas (desktop e telefone).
+- [x] Atualizar `.codex/*`, `DESIGN.md`, `CONTEXT.md`, diagrama.
+
+### Status
+Concluída (sem commit; aguardando revisão do usuário). Revisão independente encontrou 12 problemas (5 médios, 7 baixos), todos corrigidos. E2E 60/60, build ok, páginas conferidas no desktop e no telefone.
+
+### Bloqueios
+Nenhum. Observação: prazo continua sendo só data; horário digitado ("14h") fica no título.
+
+### Próximos Passos
+Candidatos da pesquisa: revisão semanal, logbook/arquivo, inbox de triagem, aviso de cronômetro esquecido, time blocking.
+
+---
+
+## Tarefa Anterior (-2)
+
+### Tarefa
+Segunda rodada: meta diária de foco, estimativa por tarefa, hash do id de sessão, descarte de sessões curtas e pesquisa de mercado.
+
+### Objetivo
+Fechar as sugestões da rodada anterior e mapear produtos parecidos (tarefas, time tracking, foco) para orientar as próximas features, mantendo o escopo in-app da v1.
+
+### Subtarefas
+- [x] Pesquisa de mercado (subagente) → `docs/pesquisa-mercado.md`.
+- [x] Descartar sessões de cronômetro com menos de 1 min ao parar ou trocar de tarefa.
+- [x] Guardar só SHA-256 do id de sessão de login (desconecta sessões antigas uma vez).
+- [x] `tasks.estimate_minutes`: campo no formulário, chip na linha e card "Estimado × realizado" no Tempo.
+- [x] `users.daily_focus_goal_minutes`: anel de progresso no Meu dia (editável) e dias com meta batida no Tempo.
+- [x] Validar typecheck, E2E, build e navegador.
+- [x] Atualizar `.codex/*`, `DESIGN.md` e `CONTEXT.md` (diagrama sem mudança estrutural nesta rodada: só colunas novas).
+
+### Status
+Concluída (sem commit; aguardando revisão do usuário). E2E 47/47, build ok.
+
+### Bloqueios
+Nenhum.
+
+### Próximos Passos
+Próxima rodada sugerida em `docs/pesquisa-mercado.md`: ritual de início/fim do dia + carga do dia; captura em linguagem natural + command palette; modo foco/Pomodoro.
+
+---
+
+## Tarefa Anterior (-1)
+
+### Tarefa
+Rodada de melhorias: Tempo com insights, fuso horário, segurança, performance e UX.
+
+### Objetivo
+Transformar a visão Tempo em uma superfície de análise (inspirada em Toggl Track, Clockify, RescueTime e Timing), corrigir o uso de fuso UTC nas regras de "hoje" e endurecer segurança e performance sem sair do escopo da v1.
+
+### Subtarefas
+- [x] Ler contexto obrigatório e auditar código, banco local e telas no navegador.
+- [x] Fuso horário: `APP_TIMEZONE` (default `America/Sao_Paulo`) aplicado à conexão Postgres; limites de período calculados no SQL.
+- [x] Tempo — navegação de período (anterior/próximo/atual) e comparação com o período anterior.
+- [x] Tempo — indicadores: total, média por dia ativo, dias ativos, sessão média/maior, foco profundo (sessões ≥ 25 min).
+- [x] Tempo — linha do tempo (barras empilhadas por projeto por dia; por hora na visão Dia).
+- [x] Tempo — mapa de calor dia da semana × hora (últimas 8 semanas).
+- [x] Tempo — distribuição em barras horizontais com % (projeto, tarefa, etiqueta).
+- [x] Tempo — insights automáticos em texto.
+- [x] Tempo — sessões agrupadas por dia com início–fim e total do dia; exportação CSV.
+- [x] Cronômetro global na topbar (tarefa + tempo correndo + parar) e tempo no título da aba.
+- [x] Segurança: cookie `secure` em produção, rate limit de login, tempo constante no login, limpeza de sessões expiradas, cabeçalhos de segurança, escape de `%`/`_` na busca.
+- [x] Performance: índices (tasks, subtasks, task_tags, work_sessions.task_id) e métricas do painel em uma query.
+- [x] Validar typecheck, build e navegador (desktop e telefone). E2E 46/46.
+- [x] Atualizar `.codex/memory.md`, `.codex/arquitetura.md`, `DESIGN.md` e `.env-example`.
+
+### Status
+Concluída (sem commit; aguardando revisão do usuário).
+
+### Bloqueios
+Nenhum.
+
+### Próximos Passos
+Concluir validação (E2E e build) e revisar com o usuário as propostas de próxima rodada (meta diária, estimativa por tarefa, hash do id de sessão).
+
+---
+
+## Tarefa Anterior (0)
+
+### Tarefa
 Adotar o novo ícone (sino + plus) como marca padrão do remind.
 
 ### Objetivo

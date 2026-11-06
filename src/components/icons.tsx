@@ -227,3 +227,55 @@ export function CloseIcon({ size = 18 }: { size?: number }) {
     </svg>
   );
 }
+
+function StrokeIcon({ size, children }: { size: number; children: React.ReactNode }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {children}
+    </svg>
+  );
+}
+
+export function ChevronLeftIcon({ size = 16 }: { size?: number }) {
+  return (
+    <StrokeIcon size={size}>
+      <path d="M15 18l-6-6 6-6" />
+    </StrokeIcon>
+  );
+}
+
+export function ChevronRightIcon({ size = 16 }: { size?: number }) {
+  return (
+    <StrokeIcon size={size}>
+      <path d="M9 18l6-6-6-6" />
+    </StrokeIcon>
+  );
+}
+
+export function DownloadIcon({ size = 15 }: { size?: number }) {
+  return (
+    <StrokeIcon size={size}>
+      <path d="M12 4v11" />
+      <path d="M7 10l5 5 5-5" />
+      <path d="M5 20h14" />
+    </StrokeIcon>
+  );
+}
+
+export function StopIcon({ size = 12 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <rect x="6" y="6" width="12" height="12" rx="2" />
+    </svg>
+  );
+}
