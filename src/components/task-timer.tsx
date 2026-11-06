@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { createManualSessionAction, startWorkSessionAction, stopWorkSessionAction } from "@/server/actions";
-import { formatDurationClock, formatEstimate } from "@/lib/format";
+import { formatDurationClock, formatEstimate, todayIsoDate, zonedDateTime } from "@/lib/format";
 import { PauseIcon, PlayIcon } from "@/components/icons";
 import { startFocus } from "@/components/focus-mode";
 import { FOCUS_PRESETS } from "@/lib/focus-store";
@@ -16,19 +16,12 @@ type TaskTimerProps = {
   estimateMinutes?: number | null;
 };
 
-function todayIso(now = new Date()) {
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${now.getFullYear()}-${month}-${day}`;
-}
-
-/** Data e hora de "agora menos a duração", do mesmo instante (00:10 − 30 min = ontem 23:40). */
+/**
+ * Data e hora de "agora menos a duração", do mesmo instante e no fuso do app
+ * (00:10 − 30 min = ontem 23:40), que é como o servidor interpreta o que foi digitado.
+ */
 function startMinutesAgo(minutes: number) {
-  const date = new Date(Date.now() - minutes * 60000);
-  return {
-    date: todayIso(date),
-    time: `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`
-  };
+  return zonedDateTime(new Date(Date.now() - minutes * 60000));
 }
 
 export function TaskTimer({ taskId, taskTitle = "", runningStartedAt, totalTrackedSeconds = 0, estimateMinutes }: TaskTimerProps) {
@@ -36,7 +29,7 @@ export function TaskTimer({ taskId, taskTitle = "", runningStartedAt, totalTrack
   const [elapsed, setElapsed] = useState(0);
   const [hours, setHours] = useState("0");
   const [minutes, setMinutes] = useState("30");
-  const [date, setDate] = useState(todayIso);
+  const [date, setDate] = useState(() => todayIsoDate());
   const [startTime, setStartTime] = useState("");
   const [isPending, startTransition] = useTransition();
   const buttonRef = useRef<HTMLButtonElement>(null);

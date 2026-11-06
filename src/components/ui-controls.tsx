@@ -3,6 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { CalendarIcon } from "@/components/icons";
+import { todayIsoDate } from "@/lib/format";
 import { dueDateTone } from "@/lib/format";
 
 function portalTarget(from: Element | null) {
@@ -323,7 +324,7 @@ export function DateField({
                 {days.map(({ date, inMonth }) => {
                   const iso = formatIso(date);
                   const isSelected = value === iso;
-                  const isToday = formatIso(new Date()) === iso;
+                  const isToday = todayIsoDate() === iso;
                   return (
                     <button
                       key={iso + String(inMonth)}
@@ -337,7 +338,7 @@ export function DateField({
                 })}
               </div>
               <div className="date-popover-footer">
-                <button type="button" className="button-ghost compact" onClick={() => pick(new Date())}>
+                <button type="button" className="button-ghost compact" onClick={() => pick(toDateValue(todayIsoDate()) ?? new Date())}>
                   Hoje
                 </button>
                 {allowClear ? (

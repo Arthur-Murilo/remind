@@ -43,6 +43,8 @@
 - Hora mostrada ao usuário vinda do servidor deve ser formatada no SQL (fuso do app) para não divergir na hidratação.
 - `X-Frame-Options: DENY` também bloqueia iframes de teste no mesmo host; validar páginas navegando, não em iframe.
 
+- O navegador pode estar em outro fuso que o servidor (o CI roda o Chromium em UTC). "Hoje" e "agora" no cliente vêm de `zonedDateTime`/`todayIsoDate` (fuso de `<html data-tz>` = APP_TIMEZONE), nunca de `getHours()`/`getDate()`. Para reproduzir, rodar o Playwright com `timezoneId: "UTC"`.
+
 ## Padrões Confirmados
 
 - Documentação de operação e produto em português.

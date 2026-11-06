@@ -429,7 +429,9 @@ test.describe("Remind App E2E Tests", () => {
     await row.getByRole("button", { name: "Alterar prioridade" }).click();
     const handle = page.getByRole("button", { name: `Reordenar ${priorityLabel}` });
     await expect(handle).toBeVisible();
-    for (let step = 0; step < 8; step += 1) {
+    // Sobe até o topo; o banco local acumula prioridades de execuções anteriores.
+    const rowCount = await page.locator(".catalog-menu-row").count();
+    for (let step = 0; step < rowCount; step += 1) {
       const firstRow = page.locator(".catalog-menu-row").first();
       if ((await firstRow.innerText()).includes(priorityLabel)) break;
       await page.getByRole("button", { name: `Reordenar ${priorityLabel}` }).press("ArrowUp");
