@@ -9,7 +9,10 @@ import { NotificationBell } from "@/components/notification-bell";
 import { LogoMark } from "@/components/logo-mark";
 import { logoutAction } from "@/server/actions";
 import { requireCurrentUser } from "@/server/auth";
-import { getProjects, getReminders } from "@/server/remind-service";
+import { getCatalogs, getProjects, getReminders, getRunningSession, getTags } from "@/server/remind-service";
+import { CommandPalette, PaletteTrigger } from "@/components/command-palette";
+import { FocusPanel } from "@/components/focus-mode";
+import { RunningTimer } from "@/components/running-timer";
 
 function getInitials(name: string) {
   return name
@@ -22,7 +25,16 @@ function getInitials(name: string) {
 
 export default async function AppLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const user = await requireCurrentUser();
-  const [projects, reminders] = await Promise.all([getProjects(user.id), getReminders(user.id)]);
+  const [projects, reminders, runningSession, tags, catalogs] = await Promise.all([
+    getProjects(user.id),
+    getReminders(user.id),
+    getRunningSession(user.id),
+    getTags(user.id),
+    getCatalogs(user.id)
+  ]);
+  const running = runningSession
+    ? { ...runningSession, startedAt: new Date(runningSession.startedAt).toISOString() }
+    : null;
   const initials = getInitials(user.name) || "R";
 
   return (
@@ -49,6 +61,15 @@ export default async function AppLayout({ children }: Readonly<{ children: React
       }
       topbarEnd={
         <>
+          <PaletteTrigger />
+          <RunningTimer session={running} />
+          <FocusPanel session={running} />
+          <CommandPalette
+            projects={projects.map((project) => ({ id: project.id, name: project.name }))}
+            tags={tags}
+            priorities={catalogs.priorities}
+            running={running ? { taskId: running.taskId, taskTitle: running.taskTitle } : null}
+          />
           <NotificationBell reminders={reminders} />
           <details className="user-menu">
             <summary aria-label="Abrir menu do usuario">

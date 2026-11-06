@@ -14,6 +14,8 @@ export function PhonePageTitle() {
     title = "Projetos";
   } else if (pathname.startsWith("/app/tempo")) {
     title = "Tempo";
+  } else if (pathname.startsWith("/app/dia")) {
+    title = searchParams.get("modo") === "encerrar" ? "Encerrar o dia" : "Planejar o dia";
   } else if (pathname.startsWith("/app/mais")) {
     title = "Mais";
   } else if (pathname.startsWith("/app/projects/")) {

@@ -1,8 +1,38 @@
+import { appTimeZone } from "@/lib/timezone";
+
+/**
+ * Fuso usado para "hoje"/"agora". No navegador vem de <html data-tz> (APP_TIMEZONE do
+ * servidor), para não depender do fuso do aparelho: um navegador em UTC e um servidor em
+ * São Paulo discordariam sobre o dia e sobre o horário digitado em sessões manuais.
+ */
+export function activeTimeZone() {
+  if (typeof document !== "undefined") {
+    const fromHtml = document.documentElement.dataset.tz;
+    if (fromHtml) return fromHtml;
+  }
+  return appTimeZone();
+}
+
+/** Data (AAAA-MM-DD) e hora (HH:MM) de um instante no fuso do app. */
+export function zonedDateTime(date = new Date(), timeZone = activeTimeZone()) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23"
+    })
+      .formatToParts(date)
+      .map((part) => [part.type, part.value])
+  );
+  return { date: `${parts.year}-${parts.month}-${parts.day}`, time: `${parts.hour}:${parts.minute}` };
+}
+
 export function todayIsoDate(date = new Date()) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return zonedDateTime(date).date;
 }
 
 export type DueDateTone = "today" | "overdue" | null;
@@ -108,4 +138,33 @@ export function formatDurationClock(seconds: number) {
     return `${hours}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   }
   return `${minutes}:${String(secs).padStart(2, "0")}`;
+}
+
+/**
+ * Lê estimativas digitadas como "90", "1h30", "1h 30min", "1:30", "2h", "45min", "1,5h".
+ * Número puro = minutos. Retorna null se vazio ou inválido; limita a 999h.
+ */
+export function parseEstimateMinutes(raw: string): number | null {
+  const text = raw.trim().toLowerCase().replace(",", ".");
+  if (!text) return null;
+
+  let minutes: number | null = null;
+  const clock = text.match(/^(\d{1,3}):([0-5]\d)$/);
+  const hoursMinutes = text.match(/^(\d{1,3}(?:\.\d+)?)\s*h(?:\s*(\d{1,2})\s*(?:m|min)?)?$/);
+  const onlyMinutes = text.match(/^(\d{1,5})\s*(?:m|min)?$/);
+
+  if (clock) minutes = Number(clock[1]) * 60 + Number(clock[2]);
+  else if (hoursMinutes) minutes = Math.round(Number(hoursMinutes[1]) * 60) + Number(hoursMinutes[2] || 0);
+  else if (onlyMinutes) minutes = Number(onlyMinutes[1]);
+
+  if (minutes === null || !Number.isFinite(minutes) || minutes <= 0) return null;
+  return Math.min(minutes, 999 * 60);
+}
+
+export function formatEstimate(minutes: number | null | undefined) {
+  if (!minutes || minutes <= 0) return "";
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  if (!hours) return `${rest}min`;
+  return rest ? `${hours}h${String(rest).padStart(2, "0")}` : `${hours}h`;
 }

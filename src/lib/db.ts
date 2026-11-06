@@ -1,5 +1,7 @@
 import postgres from "postgres";
 
+import { appTimeZone } from "@/lib/timezone";
+
 declare global {
   var __remindSql: ReturnType<typeof postgres> | undefined;
 }
@@ -19,7 +21,9 @@ export function db() {
     globalThis.__remindSql = postgres(getDatabaseUrl(), {
       max: 10,
       idle_timeout: 20,
-      connect_timeout: 10
+      connect_timeout: 10,
+      // current_date / date_trunc passam a respeitar o fuso do usuário, não o UTC do servidor.
+      connection: { TimeZone: appTimeZone() }
     });
   }
 

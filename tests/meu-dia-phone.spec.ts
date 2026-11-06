@@ -72,6 +72,6 @@ test.describe("Meu dia phone pilot", () => {
     await expect(page.locator(".issue-head")).not.toBeVisible();
 
     await page.getByRole("navigation", { name: "Navegação do telefone" }).getByRole("link", { name: "Tempo" }).click();
-    await expect(page.locator(".time-report")).toBeVisible();
+    await expect(page.locator(".tempo")).toBeVisible();
   });
 });

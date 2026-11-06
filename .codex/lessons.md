@@ -23,6 +23,28 @@
 - Rate limit MCP é in-memory por processo e **por IP antes da auth**; rotacionar Bearer falso não dilui o limite. 429 precisa de `Retry-After`.
 - Linguagem de domínio no MCP: Tarefa/Subtarefa, não “atividades”.
 
+- Não calcular "hoje" ou limites de período com `new Date()` no servidor: o container roda em UTC. Usar SQL com `TimeZone` da conexão (`APP_TIMEZONE`).
+- No postgres.js, um parâmetro string com cast `::timestamp` passa por `new Date()` no cliente e muda de fuso. Para data/hora digitada, usar `${valor}::text::timestamp`.
+- Cor de projeto por posição na lista (ou hash do nome) muda quando a lista reordena; derivar da ordem de criação.
+- O singleton do Postgres (`globalThis.__remindSql`) sobrevive ao HMR: mudar opções de conexão exige reiniciar o `next dev`.
+- Não exibir texto livre vindo de query string na tela de login; usar códigos de erro mapeados.
+
+- Rate limit de login deve contar só falhas; contar todas as tentativas trava a suíte E2E (login por teste) e o uso normal.
+- Ao adicionar campo a um formulário compartilhado, não zerar o valor em formulários antigos que não enviam o campo: tratar "campo ausente" como "manter".
+- Campos `type="time"` e inputs controlados não respondem a `form_input`/digitação simulada no navegador de teste; validar com setter nativo + evento `input` ou com Playwright `fill`.
+- Em `getByRole(..., { name })` o match é por substring: "Período" casa com "Navegar entre períodos". Usar `exact: true`.
+
+- Ao encerrar automaticamente um foco, fechar a sessão no fim planejado (`endsAt`), não em `now()`: aba dormindo ou notebook fechado inflam o tempo.
+- Estado compartilhado entre abas (localStorage) não deve ser apagado por uma aba com props antigas; reagir só a mudanças observadas na própria aba.
+- Comparação "até o mesmo ponto do período anterior" precisa ser limitada ao início do período atual (meses de tamanhos diferentes).
+- Rate limit de login por e-mail puro permite trancar o dono da conta; usar chave IP+e-mail e teto global alto por e-mail.
+- Em template literal, `` `\${x}` `` vira o texto `${x}`; reaproveitar `escapeLike` em vez de reescrever o escape.
+- Captura rápida: marcador não reconhecido (`#123`) fica no título; só os reconhecidos saem.
+- Hora mostrada ao usuário vinda do servidor deve ser formatada no SQL (fuso do app) para não divergir na hidratação.
+- `X-Frame-Options: DENY` também bloqueia iframes de teste no mesmo host; validar páginas navegando, não em iframe.
+
+- O navegador pode estar em outro fuso que o servidor (o CI roda o Chromium em UTC). "Hoje" e "agora" no cliente vêm de `zonedDateTime`/`todayIsoDate` (fuso de `<html data-tz>` = APP_TIMEZONE), nunca de `getHours()`/`getDate()`. Para reproduzir, rodar o Playwright com `timezoneId: "UTC"`.
+
 ## Padrões Confirmados
 
 - Documentação de operação e produto em português.

@@ -7,20 +7,22 @@ import { createPortal } from "react-dom";
 import { deleteProjectAction, renameProjectAction } from "@/server/actions";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { MoreIcon, RenameIcon, TrashIcon } from "@/components/icons";
+import { projectColor } from "@/domain/project-colors";
 
 type Project = {
   id: string;
   name: string;
   openTaskCount?: number;
   taskCount?: number;
+  colorIndex?: number;
 };
 
 type ProjectNavProps = {
   projects: Project[];
 };
 
-function projectDotClass(index: number) {
-  return `project-dot c${index % 6}`;
+function ProjectDot({ colorIndex }: { colorIndex?: number }) {
+  return <span className="project-dot" style={{ background: projectColor(colorIndex) }} aria-hidden="true" />;
 }
 
 export function ProjectNav({ projects }: ProjectNavProps) {
@@ -120,7 +122,7 @@ export function ProjectNav({ projects }: ProjectNavProps) {
               />
             ) : (
               <Link className={`nav-link${active ? " active" : ""}`} href={`/app/projects/${project.id}`}>
-                <span className={projectDotClass(index)} aria-hidden="true" />
+                <ProjectDot colorIndex={project.colorIndex} />
                 <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {project.name}
                 </span>

@@ -3,34 +3,42 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { createManualSessionAction, startWorkSessionAction, stopWorkSessionAction } from "@/server/actions";
-import { formatDurationClock } from "@/lib/format";
+import { formatDurationClock, formatEstimate, todayIsoDate, zonedDateTime } from "@/lib/format";
 import { PauseIcon, PlayIcon } from "@/components/icons";
+import { startFocus } from "@/components/focus-mode";
+import { FOCUS_PRESETS } from "@/lib/focus-store";
 
 type TaskTimerProps = {
   taskId: string;
+  taskTitle?: string;
   runningStartedAt?: string | null;
   totalTrackedSeconds?: number;
+  estimateMinutes?: number | null;
 };
 
-function todayIso() {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${now.getFullYear()}-${month}-${day}`;
+/**
+ * Data e hora de "agora menos a duração", do mesmo instante e no fuso do app
+ * (00:10 − 30 min = ontem 23:40), que é como o servidor interpreta o que foi digitado.
+ */
+function startMinutesAgo(minutes: number) {
+  return zonedDateTime(new Date(Date.now() - minutes * 60000));
 }
 
-export function TaskTimer({ taskId, runningStartedAt, totalTrackedSeconds = 0 }: TaskTimerProps) {
+export function TaskTimer({ taskId, taskTitle = "", runningStartedAt, totalTrackedSeconds = 0, estimateMinutes }: TaskTimerProps) {
   const [open, setOpen] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [hours, setHours] = useState("0");
   const [minutes, setMinutes] = useState("30");
-  const [date, setDate] = useState(todayIso);
+  const [date, setDate] = useState(() => todayIsoDate());
+  const [startTime, setStartTime] = useState("");
   const [isPending, startTransition] = useTransition();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
   const running = Boolean(runningStartedAt);
   const displayedSeconds = totalTrackedSeconds + elapsed;
+  const estimateSeconds = (estimateMinutes || 0) * 60;
+  const overEstimate = estimateSeconds > 0 && displayedSeconds > estimateSeconds;
 
   useEffect(() => {
     if (!runningStartedAt) {
@@ -47,6 +55,11 @@ export function TaskTimer({ taskId, runningStartedAt, totalTrackedSeconds = 0 }:
 
   useEffect(() => {
     if (!open) return;
+    if (!startTime) {
+      const start = startMinutesAgo(Number(hours) * 60 + Number(minutes));
+      setStartTime(start.time);
+      setDate(start.date);
+    }
     const update = () => {
       const rect = buttonRef.current?.getBoundingClientRect();
       if (!rect) return;
@@ -83,9 +96,11 @@ export function TaskTimer({ taskId, runningStartedAt, totalTrackedSeconds = 0 }:
       const formData = new FormData();
       formData.append("taskId", taskId);
       formData.append("date", date);
+      formData.append("startTime", startTime);
       formData.append("hours", hours);
       formData.append("minutes", minutes);
       await createManualSessionAction(formData);
+      setStartTime("");
       setOpen(false);
     });
   };
@@ -105,21 +120,50 @@ export function TaskTimer({ taskId, runningStartedAt, totalTrackedSeconds = 0 }:
       <button
         ref={buttonRef}
         type="button"
-        className={`timer-readout ${running ? "running" : ""}`}
+        className={`timer-readout ${running ? "running" : ""}${overEstimate ? " over" : ""}`}
         onClick={() => setOpen((v) => !v)}
         aria-label="Ajustar tempo da tarefa"
         aria-expanded={open}
+        title={
+          estimateSeconds
+            ? `${formatDurationClock(displayedSeconds)} de ${formatEstimate(estimateMinutes)} estimadas${overEstimate ? " (acima da estimativa)" : ""}`
+            : undefined
+        }
       >
         {formatDurationClock(displayedSeconds)}
+        {estimateSeconds ? <span className="timer-estimate"> / {formatEstimate(estimateMinutes)}</span> : null}
       </button>
 
       {open && typeof document !== "undefined"
         ? createPortal(
             <div ref={menuRef} className="inline-menu timer-menu" style={{ top: coords.top, left: coords.left }}>
+              <div className="inline-menu-label">Modo foco</div>
+              <div className="timer-focus-row">
+                {FOCUS_PRESETS.map((preset) => (
+                  <button
+                    key={preset.minutes}
+                    type="button"
+                    className="button-secondary compact"
+                    disabled={isPending}
+                    onClick={() =>
+                      startTransition(async () => {
+                        await startFocus({ id: taskId, title: taskTitle }, preset.minutes);
+                        setOpen(false);
+                      })
+                    }
+                  >
+                    Foco {preset.label}
+                  </button>
+                ))}
+              </div>
               <div className="inline-menu-label">Registrar tempo</div>
               <label className="timer-field">
                 <span>Data</span>
                 <input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+              </label>
+              <label className="timer-field">
+                <span>Início</span>
+                <input type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} />
               </label>
               <div className="timer-duration">
                 <label>

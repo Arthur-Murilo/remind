@@ -16,7 +16,7 @@
         <mxCell id="login_ui" value="Tela de login" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7da2b8;fontColor=#152033;" vertex="1" parent="lane2">
           <mxGeometry x="120" y="45" width="140" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="dashboard_ui" value="Painel&#xa;projetos e filtros" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7da2b8;fontColor=#152033;" vertex="1" parent="lane2">
+        <mxCell id="dashboard_ui" value="Painel, Tempo,&#xa;ritual do dia e Ctrl+K" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7da2b8;fontColor=#152033;" vertex="1" parent="lane2">
           <mxGeometry x="300" y="45" width="140" height="60" as="geometry"/>
         </mxCell>
         <mxCell id="project_ui" value="Detalhe do projeto&#xa;e edicao de tarefa" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7da2b8;fontColor=#152033;" vertex="1" parent="lane2">
@@ -37,7 +37,7 @@
         <mxCell id="actions" value="Acoes e rotas&#xa;do servidor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;fontColor=#152033;" vertex="1" parent="lane3">
           <mxGeometry x="300" y="45" width="140" height="60" as="geometry"/>
         </mxCell>
-        <mxCell id="service" value="Servico de dominio&#xa;projetos e tarefas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;fontColor=#152033;" vertex="1" parent="lane3">
+        <mxCell id="service" value="Servico de dominio&#xa;projetos, tarefas e tempo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;fontColor=#152033;" vertex="1" parent="lane3">
           <mxGeometry x="480" y="45" width="140" height="60" as="geometry"/>
         </mxCell>
         <mxCell id="reminder_engine" value="Sincronizacao de&#xa;lembretes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;fontColor=#152033;" vertex="1" parent="lane3">
@@ -52,7 +52,7 @@
         <mxCell id="postgres" value="PostgreSQL" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;fillColor=#ffffff;strokeColor=#82b366;fontColor=#152033;" vertex="1" parent="lane4">
           <mxGeometry x="300" y="40" width="100" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="tables" value="users&#xa;sessions&#xa;projects&#xa;tasks&#xa;reminders" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontColor=#152033;" vertex="1" parent="lane4">
+        <mxCell id="tables" value="users, sessions, projects&#xa;tasks, reminders&#xa;work_sessions, daily_notes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;fontColor=#152033;" vertex="1" parent="lane4">
           <mxGeometry x="480" y="45" width="140" height="60" as="geometry"/>
         </mxCell>
         <mxCell id="lane5" value="Escopo da v1" style="swimlane;horizontal=0;startSize=110;fillColor=#fff9e6;strokeColor=#e3d297;html=1;fontStyle=1;" vertex="1" parent="1">

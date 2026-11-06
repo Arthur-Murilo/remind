@@ -198,22 +198,66 @@ test.describe("Remind App E2E Tests", () => {
   test("deve iniciar o timer, mostrar tempo acumulado e alternar o gráfico", async ({ page }) => {
     const timer = page.getByRole("button", { name: "Iniciar cronômetro" }).first();
     await timer.click();
-    const stop = page.getByRole("button", { name: "Parar cronômetro" }).first();
+    const stop = page.getByRole("button", { name: "Parar cronômetro", exact: true }).first();
     await expect(stop).toBeVisible();
+    await expect(page.locator(".running-timer")).toBeVisible();
     await page.waitForTimeout(1100);
     await stop.click();
-    await expect(page.getByRole("button", { name: "Ajustar tempo da tarefa" }).first()).not.toHaveText("0:00");
+    // Sessão de cronômetro com menos de 1 min é descartada.
+    await expect(page.locator(".running-timer")).toHaveCount(0);
+
+    const readout = page.getByRole("button", { name: "Ajustar tempo da tarefa" }).first();
+    const before = (await readout.textContent()) || "";
+    await readout.click();
+    await page.locator(".timer-menu").getByRole("button", { name: "Adicionar" }).click();
+    await expect(readout).not.toHaveText(before);
     await expect(page.locator(".task-time-chip").first()).toBeVisible();
 
     await page.getByRole("link", { name: "Tempo", exact: true }).click();
     await expect(page.locator("h1")).toHaveText("Tempo");
-    await expect(page.getByRole("group", { name: "Período" })).toBeVisible();
-    await expect(page.getByRole("group", { name: "Agrupar gráfico" })).toBeVisible();
-    await expect(page.locator(".time-bar-fill").first()).toBeVisible();
-    await page.getByRole("button", { name: "Por tarefa" }).click();
-    await expect(page.locator(".time-section-heading")).toContainText("Tarefas");
+    await expect(page.getByRole("group", { name: "Período", exact: true })).toBeVisible();
+    await expect(page.getByRole("group", { name: "Agrupar por" })).toBeVisible();
+    await expect(page.locator(".tempo-bar-stack span").first()).toBeVisible();
+    await expect(page.locator(".tempo-stat-value").first()).not.toHaveText("0s");
+    await page.getByRole("group", { name: "Agrupar por" }).getByRole("button", { name: "Tarefas" }).click();
     await expect(page).toHaveURL(/group=task/);
+    await expect(page.locator(".tempo-share").first()).toBeVisible();
     await expect(page.getByRole("heading", { name: "Sessões" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "CSV" })).toHaveAttribute("href", /\/app\/tempo\/export\?period=week/);
+
+    await page.getByRole("button", { name: "Período anterior" }).click();
+    await expect(page).toHaveURL(/offset=-1/);
+    await expect(page.getByRole("button", { name: "Esta semana" })).toBeEnabled();
+    await page.getByRole("button", { name: "Esta semana" }).click();
+    await expect(page).not.toHaveURL(/offset=/);
+  });
+
+  test("estimativa aparece no tempo da linha e a meta diária é ajustável", async ({ page }) => {
+    const title = `Estimativa ${Date.now()}`;
+    await page.getByLabel("Título da nova tarefa").fill(title);
+    await page.getByRole("button", { name: "Criar", exact: true }).click();
+    const row = page.locator(".issue-row", { hasText: title });
+    await expect(row).toBeVisible();
+
+    await row.locator('button[title="Editar tarefa"]').click();
+    await page.locator("#task-estimate").fill("1h30");
+    await expect(page.locator("#task-estimate-hint")).toHaveText("= 1h30");
+    await page.click('button:has-text("Salvar Alterações")');
+    await expect(row.locator(".timer-estimate")).toHaveText(" / 1h30");
+
+    const goal = page.locator(".metrics-strip .focus-goal");
+    await expect(goal).toBeVisible();
+    await goal.click();
+    const menu = page.locator(".focus-goal-menu");
+    await menu.getByLabel("Horas").fill("3");
+    await menu.getByLabel("Minutos").fill("0");
+    await menu.getByRole("button", { name: "Salvar meta" }).click();
+    await expect(goal).toContainText("/ 3h 00min");
+
+    await goal.click();
+    await page.locator(".focus-goal-menu").getByLabel("Horas").fill("4");
+    await page.locator(".focus-goal-menu").getByRole("button", { name: "Salvar meta" }).click();
+    await expect(goal).toContainText("/ 4h 00min");
   });
 
   test("deve remover o lembrete ao concluir a tarefa", async ({ page }) => {
@@ -262,7 +306,7 @@ test.describe("Remind App E2E Tests", () => {
     await page.getByRole("link", { name: "Tempo", exact: true }).click();
     await expect(page.locator("h1")).toHaveText("Tempo");
     await expect(page.getByRole("button", { name: "Abrir menu" })).toBeVisible();
-    await expect(page.locator(".time-report")).toBeVisible();
+    await expect(page.locator(".tempo")).toBeVisible();
   });
 
   test("concluir subtarefas não fecha a tarefa; concluir a pai fecha as subtarefas", async ({ page }) => {
@@ -385,7 +429,9 @@ test.describe("Remind App E2E Tests", () => {
     await row.getByRole("button", { name: "Alterar prioridade" }).click();
     const handle = page.getByRole("button", { name: `Reordenar ${priorityLabel}` });
     await expect(handle).toBeVisible();
-    for (let step = 0; step < 8; step += 1) {
+    // Sobe até o topo; o banco local acumula prioridades de execuções anteriores.
+    const rowCount = await page.locator(".catalog-menu-row").count();
+    for (let step = 0; step < rowCount; step += 1) {
       const firstRow = page.locator(".catalog-menu-row").first();
       if ((await firstRow.innerText()).includes(priorityLabel)) break;
       await page.getByRole("button", { name: `Reordenar ${priorityLabel}` }).press("ArrowUp");

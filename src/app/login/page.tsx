@@ -9,6 +9,12 @@ export const metadata: Metadata = {
   title: "Login | remind"
 };
 
+const LOGIN_ERRORS: Record<string, string> = {
+  invalid: "Credenciais inválidas.",
+  missing: "Preencha e-mail e senha.",
+  rate_limited: "Muitas tentativas. Aguarde alguns minutos e tente de novo."
+};
+
 type LoginPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
@@ -23,6 +29,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const error = Array.isArray(resolvedSearchParams.error)
     ? resolvedSearchParams.error[0]
     : resolvedSearchParams.error;
+  // Só mensagens conhecidas: o texto da URL nunca é exibido como veio.
+  const errorMessage = error ? LOGIN_ERRORS[error] ?? LOGIN_ERRORS.invalid : null;
 
   return (
     <main className="auth-split">
@@ -39,7 +47,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             Entrar no remind<span className="auth-heading-accent">.</span>
           </h1>
 
-          {error ? <div className="error-box auth-error">{decodeURIComponent(error)}</div> : null}
+          {errorMessage ? <div className="error-box auth-error">{errorMessage}</div> : null}
 
           <form action={loginAction} className="auth-form">
             <div className="auth-field">

@@ -1,6 +1,7 @@
 import { requireCurrentUser } from "@/server/auth";
-import { getProjects, getTimeReport } from "@/server/remind-service";
-import { TimeReportView } from "@/components/time-report";
+import { getProjects } from "@/server/remind-service";
+import { getTimeInsights } from "@/server/time-insights";
+import { TimeReportView, type TimeGrouping } from "@/components/time-report";
 import type { TimePeriod } from "@/domain/types";
 
 type TempoPageProps = {
@@ -17,34 +18,18 @@ export default async function TempoPage({ searchParams }: TempoPageProps) {
   const projectId = pick(params.projectId) || undefined;
   const periodRaw = pick(params.period);
   const period: TimePeriod = periodRaw === "day" || periodRaw === "month" ? periodRaw : "week";
-  const grouping = pick(params.group) === "task" ? "task" : "project";
+  const groupRaw = pick(params.group);
+  const grouping: TimeGrouping = groupRaw === "task" || groupRaw === "tag" ? groupRaw : "project";
+  const offset = Number.parseInt(pick(params.offset) || "0", 10) || 0;
 
-  const [projects, report] = await Promise.all([
+  const [projects, insights] = await Promise.all([
     getProjects(user.id),
-    getTimeReport(user.id, { projectId, period })
+    getTimeInsights(user.id, { projectId, period, offset })
   ]);
 
   return (
-    <div className="issues-view">
-      <div className="issues-toolbar">
-        <div>
-          <h1>Tempo</h1>
-          <p className="muted" style={{ margin: "4px 0 0" }}>
-            Distribuição das horas por projeto e tarefa.
-          </p>
-        </div>
-      </div>
-
-      <TimeReportView
-        projects={projects}
-        projectId={projectId}
-        period={period}
-        grouping={grouping}
-        totalSeconds={report.totalSeconds}
-        byProject={report.projects}
-        byTask={report.tasks}
-        sessions={report.sessions}
-      />
+    <div className="issues-view tempo-view">
+      <TimeReportView projects={projects} projectId={projectId} grouping={grouping} insights={insights} />
     </div>
   );
 }

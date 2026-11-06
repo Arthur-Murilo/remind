@@ -7,6 +7,7 @@ import { TaskForm, type TaskFormState } from "@/components/task-form";
 import { useIsPhone } from "@/lib/use-is-phone";
 import { SYSTEM_PRIORITY_ITEMS, SYSTEM_STATUS_ITEMS } from "@/domain/catalog";
 import type { CatalogItem, Project, Subtask, Tag, TaskRecurrence } from "@/domain/types";
+import { formatEstimate } from "@/lib/format";
 
 type EditTask = {
   id: string;
@@ -18,6 +19,7 @@ type EditTask = {
   dueDate: string | null;
   recurrence?: TaskRecurrence;
   repeatSubtasks?: boolean;
+  estimateMinutes?: number | null;
   tags?: Tag[];
   subtasks?: Subtask[];
 };
@@ -42,7 +44,8 @@ function stateFromTask(task: EditTask): TaskFormState {
     priority: task.priority,
     dueDate: task.dueDate || "",
     recurrence: task.recurrence || "none",
-    repeatSubtasks: task.repeatSubtasks !== false
+    repeatSubtasks: task.repeatSubtasks !== false,
+    estimate: formatEstimate(task.estimateMinutes)
   };
 }
 

@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { createTaskAction } from "@/server/actions";
 import { TaskDialog } from "@/components/task-dialog";
 import { TaskForm, type TaskFormState } from "@/components/task-form";
 import { SelectPopover } from "@/components/ui-controls";
 import { useIsPhone } from "@/lib/use-is-phone";
 import { SYSTEM_PRIORITY_ITEMS, SYSTEM_STATUS_ITEMS } from "@/domain/catalog";
-import type { CatalogItem, Project } from "@/domain/types";
+import type { CatalogItem, Project, Tag } from "@/domain/types";
+import { parseQuickTask } from "@/domain/quick-parse";
+import { QuickPreview, QUICK_SYNTAX_HINT, quickTaskFormData } from "@/components/quick-preview";
+import { todayIsoDate } from "@/lib/format";
 
 type NewTaskModalProps = {
   projects: Project[];
@@ -37,7 +40,8 @@ function initialState(
     priority: "medium",
     dueDate: defaultDueDate || "",
     recurrence: "none",
-    repeatSubtasks: true
+    repeatSubtasks: true,
+    estimate: ""
   };
 }
 
@@ -125,6 +129,7 @@ type QuickCreateProps = {
   defaultDueDate?: string;
   statuses?: CatalogItem[];
   priorities?: CatalogItem[];
+  tags?: Tag[];
 };
 
 export function QuickCreateTask({
@@ -132,9 +137,20 @@ export function QuickCreateTask({
   defaultProjectId,
   defaultDueDate,
   statuses,
-  priorities
+  priorities = SYSTEM_PRIORITY_ITEMS,
+  tags = []
 }: QuickCreateProps) {
   const [title, setTitle] = useState("");
+  const parsed = useMemo(
+    () =>
+      parseQuickTask(title, {
+        today: todayIsoDate(),
+        projects: defaultProjectId ? [] : projects,
+        tags,
+        priorities
+      }),
+    [title, projects, tags, priorities, defaultProjectId]
+  );
   const [projectId, setProjectId] = useState(defaultProjectId || projects[0]?.id || "");
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -146,17 +162,9 @@ export function QuickCreateTask({
   if (!projects.length) return null;
 
   const submitQuick = () => {
-    const trimmed = title.trim();
-    if (!trimmed || !projectId) return;
+    if (!parsed.title || !projectId) return;
     startTransition(async () => {
-      const formData = new FormData();
-      formData.set("projectId", projectId);
-      formData.set("title", trimmed);
-      formData.set("status", "todo");
-      formData.set("priority", "medium");
-      formData.set("recurrence", "none");
-      if (defaultDueDate) formData.set("dueDate", defaultDueDate);
-      await createTaskAction(formData);
+      await createTaskAction(quickTaskFormData(parsed, { projectId, dueDate: defaultDueDate }));
       setTitle("");
     });
   };
@@ -185,12 +193,15 @@ export function QuickCreateTask({
           }
         }}
         aria-label="Título da nova tarefa"
+        aria-describedby="quick-create-preview"
+        title={`Atalhos: ${QUICK_SYNTAX_HINT}`}
       />
+      <QuickPreview result={parsed} id="quick-create-preview" />
       <div className="quick-create-row">
         {!defaultProjectId ? (
           <SelectPopover
             ariaLabel="Projeto da nova tarefa"
-            value={projectId}
+            value={parsed.projectId || projectId}
             onChange={setProjectId}
             triggerClassName="quick-create-project"
             options={projects.map((p) => ({ value: p.id, label: p.name }))}

@@ -26,6 +26,12 @@ export default async function MaisPage() {
         <Link className="mais-link" href="/app?due=all">
           Todas as tarefas
         </Link>
+        <Link className="mais-link" href={"/app/dia?modo=planejar" as never}>
+          Planejar o dia
+        </Link>
+        <Link className="mais-link" href={"/app/dia?modo=encerrar" as never}>
+          Encerrar o dia
+        </Link>
         <Link className="mais-link" href="/app/tempo">
           Tempo
         </Link>
