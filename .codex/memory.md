@@ -97,3 +97,12 @@
 
 - Toda a documentação humana deve ficar em português.
 - O desenho da arquitetura precisa refletir apenas componentes realmente presentes no bootstrap.
+
+## Decisões (2026-11-06, rodada 4) — auditoria de segurança
+
+- Dependências: `next` 16.4.5, `@modelcontextprotocol/sdk` 1.32.2, `zod` 4.6.7 (major; os schemas do MCP usam só a API básica e o SDK aceita `^3.25 || ^4.0`). Transitivas corrigidas por `npm audit fix`. `npm audit` = 0.
+- Lembretes: `updateTask` só sincroniza lembrete se a tarefa for do dono; `syncReminder` apaga e faz upsert só com `user_id` do dono; `getReminders` também filtra `t.owner_id`.
+- IP para rate limit (login e MCP): `cf-connecting-ip` → `x-real-ip` → último valor de `x-forwarded-for`. Mapa do rate limit MCP tem limpeza acima de 5000 chaves.
+- Cookie de sessão `Secure` quando `APP_URL` é https ou em produção com `APP_URL` vazio/localhost (caso Cloudflare Tunnel). HSTS `max-age=31536000` sem `includeSubDomains`.
+- Seed em produção recusa criar usuário com `remind123` ou senha < 12 caracteres; se o usuário já existe, só avisa no log.
+- Scans: `sast-mcp-server` (semgrep + gitleaks) e `npm audit`. Falsos positivos documentados: chaves de localStorage (`// gitleaks:allow` na árvore, `.gitleaksignore` no histórico, `.sast-mcp-ignore.json` no MCP) e `dateRule` (`// nosemgrep`). `.sast-mcp-cache/` fica fora do git.

@@ -297,6 +297,7 @@ export async function getReminders(userId: string): Promise<Reminder[]> {
     join tasks t on t.id = r.task_id
     join projects p on p.id = t.project_id
     where r.user_id = ${userId}
+      and t.owner_id = ${userId}
       and r.read_at is null
       and t.status <> 'done'
       and t.due_date is not null
@@ -480,8 +481,13 @@ export async function updateTask(input: {
       updated_at as "updatedAt"
   `;
 
+  // Sem tarefa do dono, nada a sincronizar: impede mexer no lembrete de tarefa alheia.
+  if (!task) {
+    return null;
+  }
+
   await syncReminder(input.userId, input.taskId, input.dueDate || null, input.status);
-  if (task && input.status === "done") {
+  if (input.status === "done") {
     await completeAllSubtasks(input.userId, input.taskId);
   }
 
@@ -502,7 +508,7 @@ async function syncReminder(userId: string, taskId: string, dueDate: string | nu
   const sql = db();
 
   if (!dueDate || status === "done") {
-    await sql`delete from reminders where task_id = ${taskId}`;
+    await sql`delete from reminders where task_id = ${taskId} and user_id = ${userId}`;
     return;
   }
 
@@ -514,6 +520,7 @@ async function syncReminder(userId: string, taskId: string, dueDate: string | nu
       set remind_at = excluded.remind_at,
           read_at = null,
           updated_at = now()
+      where reminders.user_id = excluded.user_id
   `;
 }
 

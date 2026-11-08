@@ -107,6 +107,7 @@ const AFTER = String.raw`(?=$|[\s,.;:!?)])`;
 const PREP = String.raw`(?:(?:para|pra|até|ate|na|no) )?`;
 
 function dateRule(body: string) {
+  // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp -- body vem só de literais deste arquivo
   return new RegExp(`${BEFORE}${PREP}(?:${body})${AFTER}`, "gi");
 }
 

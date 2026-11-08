@@ -6,6 +6,8 @@ const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+  // Navegadores ignoram HSTS recebido por http (dev/localhost); sem includeSubDomains para não afetar outros hosts do domínio.
+  { key: "Strict-Transport-Security", value: "max-age=31536000" },
   // Sem script-src restritivo para não quebrar os scripts inline do Next; bloqueia embed, <base> e envio de formulário externo.
   {
     key: "Content-Security-Policy",

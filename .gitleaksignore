@@ -1,0 +1,4 @@
+# Falsos positivos revisados em 2026-11-06: nomes de chave de localStorage, não são credenciais.
+1c223573a98a5159e4b5cd342130227a2c7f57e1:src/lib/focus-store.ts:generic-api-key:21
+aadedc2afe55a8a603d23553f0477518d255f70b:src/components/task-table.tsx:generic-api-key:17
+803e49a3f9b070672888ae867adab6b4fd8c659c:src/components/task-table.tsx:generic-api-key:17

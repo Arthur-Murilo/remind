@@ -45,8 +45,23 @@ function recordFailure(...keys: string[]) {
 
 export type LoginErrorCode = "invalid" | "rate_limited" | "missing";
 
+/**
+ * `Secure` quando o app é https ou quando roda em produção com o APP_URL padrão (localhost),
+ * caso típico atrás do Cloudflare Tunnel. Navegadores aceitam cookie `Secure` em
+ * http://localhost, então CI e healthcheck seguem funcionando. Só um APP_URL http
+ * explícito para outro host (deploy em http puro) desliga o `Secure`.
+ */
 function useSecureCookie() {
-  return (process.env.APP_URL || "").startsWith("https://");
+  const appUrl = process.env.APP_URL || "";
+  if (appUrl.startsWith("https://")) return true;
+  if (process.env.NODE_ENV !== "production") return false;
+  if (!appUrl) return true;
+  try {
+    const { hostname } = new URL(appUrl);
+    return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
+  } catch {
+    return true;
+  }
 }
 
 async function requestIp() {
@@ -55,7 +70,8 @@ async function requestIp() {
     // cf-connecting-ip primeiro: atrás do Cloudflare é o único que o cliente não forja.
     headerStore.get("cf-connecting-ip")?.trim() ||
     headerStore.get("x-real-ip")?.trim() ||
-    headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    // Último valor: o primeiro é escolhido pelo cliente; o último foi anexado pelo proxy.
+    headerStore.get("x-forwarded-for")?.split(",").at(-1)?.trim() ||
     "unknown"
   );
 }
