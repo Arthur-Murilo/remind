@@ -218,6 +218,20 @@ async function seed(sql) {
   const existingUsers = await sql`select * from users where email = ${email} limit 1`;
   let user = existingUsers[0];
 
+  // A senha de exemplo é pública (.env-example). Em produção, não cria usuário com ela nem com
+  // senha curta; se o usuário já existe, só avisa (não derruba um deploy que já está no ar).
+  const weakSeedPassword = password === "remind123" || password.length < 12;
+  if (process.env.NODE_ENV === "production" && weakSeedPassword) {
+    if (!user) {
+      throw new Error(
+        "SEED_USER_PASSWORD é a senha de exemplo ou tem menos de 12 caracteres. Defina uma senha forte no .env."
+      );
+    }
+    console.warn(
+      "[Remind] Aviso: SEED_USER_PASSWORD no .env é fraca. Se a conta ainda usa essa senha, troque-a."
+    );
+  }
+
   if (!user) {
     const [created] = await sql`
       insert into users (id, name, email, password_hash)

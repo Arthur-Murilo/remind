@@ -10,3 +10,4 @@ testsprite_tests/tmp/
 testsprite_tests/tmp/config.json
 test-results/
 playwright-report/
+.sast-mcp-cache/

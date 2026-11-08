@@ -64,12 +64,23 @@ export function unauthorizedResponse(): Response {
   });
 }
 
+/**
+ * IP usado no rate limit. Mesma ordem do login (`src/server/auth.ts`): atrás do Cloudflare,
+ * `cf-connecting-ip` é o único que o cliente não forja. O primeiro valor de `x-forwarded-for`
+ * vem do cliente; o último é o que o proxy mais próximo anexou.
+ */
 export function clientIp(request: Request): string {
+  const cloudflare = request.headers.get("cf-connecting-ip")?.trim();
+  if (cloudflare) return cloudflare;
+
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  if (realIp) return realIp;
+
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {
-    const first = forwarded.split(",")[0]?.trim();
-    if (first) return first;
+    const last = forwarded.split(",").at(-1)?.trim();
+    if (last) return last;
   }
 
-  return request.headers.get("x-real-ip")?.trim() || "unknown";
+  return "unknown";
 }

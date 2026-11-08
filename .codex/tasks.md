@@ -3,6 +3,35 @@
 ## Tarefa Atual
 
 ### Tarefa
+Auditoria de segurança com o skill `security-checklist` e correção dos alertas do Dependabot.
+
+### Objetivo
+Rodar SAST, secrets e SCA no repositório inteiro, corrigir achados críticos, altos e médios sem quebrar o sistema e fechar os alertas do Dependabot (next, @modelcontextprotocol/sdk, zod e transitivas).
+
+### Subtarefas
+- [x] Scans: semgrep, gitleaks (árvore e histórico), npm audit, via sast-mcp-server quando possível.
+- [x] Atualizar `next` para versão corrigida.
+- [x] Atualizar `@modelcontextprotocol/sdk` (puxa hono, @hono/node-server, body-parser, proxy-addr, ip-address, fast-uri).
+- [x] Avaliar `zod` (alerta #29/#30): patch na 3.x ou migração para 4.x.
+- [x] Atualizar `source-map-js` e demais transitivas restantes.
+- [x] Corrigir achados de código críticos, altos e médios.
+- [x] Validar: typecheck, build, E2E, contrato MCP e re-scan.
+- [x] Relatório de segurança.
+
+### Status
+Concluída (sem commit, no branch `fix/security-checklist`). `npm audit` 0; semgrep 0 em `src`/`scripts`; gitleaks 0 na árvore e no histórico; typecheck, build e E2E 60/60 ok. Corrigidos: dependências (2 críticas, 5 altas e 5 médias no `npm audit`), IDOR em lembretes, IP forjável no rate limit do MCP, cookie sem `Secure` em produção, HSTS e senha fraca no seed de produção.
+
+### Bloqueios
+Nenhum.
+
+### Próximos Passos
+Baixos pendentes (não corrigidos por escopo): teto de falhas por e-mail permite trancar o dono, erro do Postgres vaza no MCP com data inválida (`2026-02-30`), Server Actions sem limite de tamanho de texto. Endurecimento: role do Postgres sem superusuário. Conferir se a senha de produção não é `remind123`. Fechar os PRs do Dependabot depois do merge.
+
+---
+
+## Tarefa Anterior (-3)
+
+### Tarefa
 Terceira rodada: ritual de início/fim do dia com carga, captura em linguagem natural + paleta Ctrl+K, modo foco/Pomodoro; revisão completa do código e testes nas páginas.
 
 ### Objetivo

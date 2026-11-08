@@ -18,7 +18,7 @@ export type FocusState = {
   minimized?: boolean;
 };
 
-const KEY = "remind.focus.v1";
+const KEY = "remind.focus.v1"; // gitleaks:allow (chave de localStorage, não é segredo)
 const EVENT = "remind:focus";
 
 export const FOCUS_PRESETS = [

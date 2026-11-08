@@ -1,5 +1,6 @@
 export const MCP_RATE_LIMIT = 60;
 export const MCP_RATE_WINDOW_MS = 60_000;
+const MAX_TRACKED_KEYS = 5000;
 
 export type RateLimitResult =
   | { ok: true }
@@ -17,10 +18,18 @@ export function createRateLimiter(options?: {
   const now = options?.now ?? Date.now;
   const hitsByKey = new Map<string, number[]>();
 
+  // Limpeza oportunista: chaves sem acerto na janela saem, para o mapa não crescer sem fim.
+  function prune(windowStart: number) {
+    for (const [key, stamps] of hitsByKey) {
+      if (!stamps.length || stamps[stamps.length - 1] <= windowStart) hitsByKey.delete(key);
+    }
+  }
+
   return {
     consume(key: string): RateLimitResult {
       const current = now();
       const windowStart = current - windowMs;
+      if (hitsByKey.size > MAX_TRACKED_KEYS) prune(windowStart);
       const hits = (hitsByKey.get(key) ?? []).filter((stamp) => stamp > windowStart);
 
       if (hits.length >= limit) {

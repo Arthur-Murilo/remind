@@ -1,0 +1,10 @@
+{
+    "3bd9a8c649e6c9ab64cb2711580476e6db46f2d68b375cdd57004b3271837211": {
+        "ignored_at": "2026-11-06T23:54:51.135983+00:00",
+        "reason": "Falso positivo: nome de chave de localStorage, nao e credencial (revisado em 2026-11-06)"
+    },
+    "9fffc444ba1a2c51a8a324508b32923600536e5070dcbf10677bf267d52df5a1": {
+        "ignored_at": "2026-11-06T23:54:51.114076+00:00",
+        "reason": "Falso positivo: nome de chave de localStorage, nao e credencial (revisado em 2026-11-06)"
+    }
+}

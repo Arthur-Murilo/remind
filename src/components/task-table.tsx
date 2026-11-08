@@ -15,7 +15,7 @@ import { TrashIcon } from "@/components/icons";
 import { projectColor } from "@/domain/project-colors";
 import type { CatalogItem, Project, Tag, Task } from "@/domain/types";
 
-const STORAGE_KEY = "remind-column-widths-v4";
+const STORAGE_KEY = "remind-column-widths-v4"; // gitleaks:allow (chave de localStorage, não é segredo)
 
 const DEFAULT_WIDTHS = {
   check: 28,

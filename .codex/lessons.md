@@ -45,6 +45,11 @@
 
 - O navegador pode estar em outro fuso que o servidor (o CI roda o Chromium em UTC). "Hoje" e "agora" no cliente vêm de `zonedDateTime`/`todayIsoDate` (fuso de `<html data-tz>` = APP_TIMEZONE), nunca de `getHours()`/`getDate()`. Para reproduzir, rodar o Playwright com `timezoneId: "UTC"`.
 
+- Lembrete (ou qualquer efeito colateral) depois de um `UPDATE ... where owner_id` precisa checar se o `UPDATE` achou a linha; senão o efeito roda para tarefa alheia (IDOR).
+- O primeiro valor de `X-Forwarded-For` é do cliente; para rate limit, usar `cf-connecting-ip` ou o último valor anexado pelo proxy.
+- Cookie `Secure` atrelado só a `APP_URL=https` deixa o cookie em claro quando o deploy esquece o APP_URL; em produção, assumir https salvo APP_URL http explícito para outro host.
+- Semgrep pelo sast-mcp-server na raiz estoura 300 s no Windows (varre `node_modules`/`.next`); escanear `src` e `scripts` com `scan_vulnerabilities`.
+
 ## Padrões Confirmados
 
 - Documentação de operação e produto em português.
