@@ -1,4 +1,5 @@
 import path from "node:path";
+import { withSentryConfig } from "@sentry/nextjs/config";
 import type { NextConfig } from "next";
 
 const securityHeaders = [
@@ -28,4 +29,8 @@ const nextConfig: NextConfig = {
   }
 };
 
-export default nextConfig;
+// Sem SENTRY_AUTH_TOKEN o plugin não sobe source maps; os stacks saem minificados até configurar.
+export default withSentryConfig(nextConfig, {
+  silent: true,
+  telemetry: false
+});

@@ -25,6 +25,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
     container_name: remind-app
     restart: unless-stopped
     depends_on:
@@ -41,6 +43,7 @@ services:
       SEED_USER_PASSWORD: ${SEED_USER_PASSWORD:?Defina_SEED_USER_PASSWORD_no_.env}
       MCP_API_TOKEN: ${MCP_API_TOKEN:-}
       MCP_USER_EMAIL: ${MCP_USER_EMAIL:-}
+      SENTRY_DSN: ${SENTRY_DSN:-}
       AUTO_RUN_DB_INIT: ${AUTO_RUN_DB_INIT:-true}
       AUTO_RUN_DB_SEED: ${AUTO_RUN_DB_SEED:-true}
     healthcheck:

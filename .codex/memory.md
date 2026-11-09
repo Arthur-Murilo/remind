@@ -29,6 +29,8 @@
 - Integração Contínua (CI): GitHub Actions em `.github/workflows/ci.yml` com typecheck, build, container Postgres de serviço, testes E2E Playwright e contrato/smoke MCP (`MCP_API_TOKEN` de teste).
 - MCP Agent Access: Streamable HTTP em `/api/mcp`, token só no `.env` do servidor, usuário dono único (`MCP_USER_EMAIL` ou seed). Tools: `list_tasks`, `create_task`, `create_subtask`, `get_time_report`.
 
+- Monitoramento de erros: Sentry SaaS (plano gratuito), só erros, sem PII/tracing/replay. `SENTRY_DSN` (runtime) e `NEXT_PUBLIC_SENTRY_DSN` (build arg); sem DSN fica desligado. Não conta como integração de notificação (escopo in-app da v1 intacto).
+
 ## Prioridades Atuais
 
 1. Manter a suite de tipos e compilação limpa (`npm run typecheck`).

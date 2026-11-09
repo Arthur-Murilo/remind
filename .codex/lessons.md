@@ -55,3 +55,6 @@
 - Documentação de operação e produto em português.
 - Identificadores internos podem seguir em inglês quando isso reduzir ambiguidade técnica.
 - Mudanças estruturais devem ser refletidas em `.codex/arquitetura.md` e no arquivo `.drawio`.
+- `@sentry/nextjs` v11: `withSentryConfig` vem de `@sentry/nextjs/config`, não da raiz (a raiz resolvida no Node não exporta).
+- `NEXT_PUBLIC_*` é embutido no build: mudar `NEXT_PUBLIC_SENTRY_DSN` exige `docker compose build`, não só restart.
+- O host (VPS) não tem node/npm e o `node_modules` é de root: instalar dependências via `docker run node:22-alpine` em cópia temporária.

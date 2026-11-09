@@ -30,6 +30,34 @@ Baixos pendentes (não corrigidos por escopo): teto de falhas por e-mail permite
 ---
 
 ## Tarefa Anterior (-3)
+Monitoramento de erros com Sentry (SaaS, plano gratuito) no Remind.
+
+### Objetivo
+Capturar erros de servidor e de navegador em produção sem enviar dados pessoais (tarefas, e-mails, cookies) e sem abrir porta nova no servidor. Não é notificação de lembretes: o escopo in-app da v1 não muda.
+
+### Subtarefas
+- [x] Instalar `@sentry/nextjs` 11.11.0 (via container node em cópia temporária; `node_modules` do host é de root). Lockfile: só adições (90 pacotes), nada removido ou atualizado.
+- [x] `src/instrumentation.ts` (servidor/edge + `onRequestError`), `src/instrumentation-client.ts` e `src/app/global-error.tsx`.
+- [x] `src/lib/sentry-options.ts`: só erros, `sendDefaultPii: false`, `beforeSend` remove cookies/headers/body/query/user, `beforeBreadcrumb` descarta console.
+- [x] `next.config.ts` com `withSentryConfig` importado de `@sentry/nextjs/config` (v11 moveu o export). Sem upload de source maps até existir `SENTRY_AUTH_TOKEN`.
+- [x] Dockerfile (ARG `NEXT_PUBLIC_SENTRY_DSN`), compose (build arg + `SENTRY_DSN`) e `.env-example`.
+- [x] `docker build` da imagem real passa (inclui typecheck do Next).
+- [x] DSN do projeto `remind` colocado no `.env`; `dataCollection` explícito (tudo desligado) porque o SDK v11 coleta tudo por padrão.
+- [ ] Verificar envio real de um evento e o scrub (teste com endpoint local foi negado pelo classificador de permissões; ficou para o teste com DSN real).
+- [x] Atualizar `.codex/*`.
+
+### Status
+Código pronto, sem commit. Build da imagem ok. Envio de evento ainda não verificado.
+
+### Bloqueios
+DSN do projeto no Sentry (o usuário cria o projeto e cola no `.env`).
+
+### Próximos Passos
+Usuário: criar projeto Next.js no Sentry, colocar DSN no `.env`, rebuild e disparar erro de teste.
+
+---
+
+## Tarefa Anterior (-1)
 
 ### Tarefa
 Terceira rodada: ritual de início/fim do dia com carga, captura em linguagem natural + paleta Ctrl+K, modo foco/Pomodoro; revisão completa do código e testes nas páginas.
